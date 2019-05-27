@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using akaratak_app.Data;
 
 namespace akaratakapp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190527120352_Update Relations")]
+    partial class UpdateRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,9 +205,17 @@ namespace akaratakapp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("ExpireDate");
+
+                    b.Property<DateTime>("ListingDate");
+
                     b.Property<int>("Property_ID");
 
+                    b.Property<DateTime>("PublishDate");
+
                     b.Property<int>("User_ID");
+
+                    b.Property<int>("Views");
 
                     b.HasKey("Listing_ID");
 
@@ -237,31 +247,6 @@ namespace akaratakapp.Migrations
                     b.ToTable("Offers");
                 });
 
-            modelBuilder.Entity("akaratak_app.Models.Photo", b =>
-                {
-                    b.Property<int>("Photo_ID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("DateAdded");
-
-                    b.Property<string>("Description");
-
-                    b.Property<bool>("IsMain");
-
-                    b.Property<int?>("Property_ID");
-
-                    b.Property<string>("PublicId");
-
-                    b.Property<string>("Url");
-
-                    b.HasKey("Photo_ID");
-
-                    b.HasIndex("Property_ID");
-
-                    b.ToTable("Photos");
-                });
-
             modelBuilder.Entity("akaratak_app.Models.Property", b =>
                 {
                     b.Property<int>("Property_ID")
@@ -272,19 +257,11 @@ namespace akaratakapp.Migrations
 
                     b.Property<int>("Category_ID");
 
-                    b.Property<DateTime>("ExpireDate");
-
                     b.Property<string>("ExtraData");
 
                     b.Property<int>("Lister_ID");
 
-                    b.Property<DateTime>("ListingDate");
-
                     b.Property<int>("Offer_ID");
-
-                    b.Property<DateTime>("PublishDate");
-
-                    b.Property<int>("Views");
 
                     b.HasKey("Property_ID");
 
@@ -389,13 +366,6 @@ namespace akaratakapp.Migrations
                         .WithMany()
                         .HasForeignKey("Currency_ID")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("akaratak_app.Models.Photo", b =>
-                {
-                    b.HasOne("akaratak_app.Models.Property", "Property")
-                        .WithMany("Photos")
-                        .HasForeignKey("Property_ID");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.Property", b =>

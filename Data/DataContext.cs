@@ -17,9 +17,11 @@ namespace akaratak_app.Data
         public DbSet<Features> Features { get; set; }
         public DbSet<Listing> Listings { get; set; }
         public DbSet<Offer> Offers { get; set; }
+        public DbSet<Photo> Photos { get; set; }
         public DbSet<Property> Properties { get; set; }
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<Tags> Tags { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

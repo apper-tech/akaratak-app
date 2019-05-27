@@ -12,8 +12,7 @@ namespace akaratak_app.Models
         public float Rent { get; set; }
         public float Invest { get; set; }
         public bool Swap { get; set; }
-        
-        [ForeignKey("CurrencyFK")]
-        public int Currency_ID { get; set; }
+        [Required]
+        public Currency Currency { get; set; }
     }
 }

@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System;
 
 namespace akaratak_app.Models
 {
-    [Table("Property")]
+    [Table("Properties")]
     public class Property
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Property_ID { get; set; }
         [Required]
         public Address Address { get; set; }
@@ -19,6 +20,14 @@ namespace akaratak_app.Models
         public Category Category { get; set; }
         [Required]
         public int Lister_ID { get; set; }
+        [Required]
+        public DateTime ListingDate { get; set; }
+        [Required]
+        public DateTime ExpireDate { get; set; }
+        [Required]
+        public DateTime PublishDate { get; set; }
+        public int Views { get; set; }
+        public ICollection<Photo> Photos { get; set; }
         public string ExtraData { get; set; }
     }
 }
