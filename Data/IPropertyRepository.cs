@@ -13,6 +13,7 @@ namespace akaratak_app.Data
         Task<bool> SaveAll();
         Task<PagedList<Property>> GetProperties(PropertyParams propParams);
         Task<Property> GetProperty(int id);
+        Task<ICollection<SubCategory>> GetCategories();
         Task<Photo> GetPhoto(int id);
         Task<Photo> GetMainPhotoForProperty(int propertyId);
     }

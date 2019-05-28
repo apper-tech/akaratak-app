@@ -26,6 +26,11 @@ namespace akaratak_app.Data
             _context.Remove(entity);
         }
 
+        public async Task<ICollection<SubCategory>> GetCategories()
+        {
+            return await _context.SubCategories.ToListAsync();
+        }
+
         public async Task<Photo> GetMainPhotoForProperty(int propertyId)
         {
             return await _context.Photos.Where(x => x.Property.Property_ID == propertyId).FirstOrDefaultAsync(p => p.IsMain);

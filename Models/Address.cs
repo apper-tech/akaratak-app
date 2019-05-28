@@ -8,6 +8,7 @@ namespace akaratak_app.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Address_ID { get; set; }
+        public Property Property { get; set; }
         public Country Country { get; set; }
         public City City { get; set; }
     }

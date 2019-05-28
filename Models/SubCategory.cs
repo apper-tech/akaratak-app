@@ -12,6 +12,8 @@ namespace akaratak_app.Models
         [Required]
         public Category Category { get; set; }
         [Required]
+        public Property Property { get; set; }
+        [Required]
         [MinLength(3),MaxLength(20)]
         public string SubCategoryName { get; set; }
           [Required]

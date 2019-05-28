@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace akaratak_app.Models
 {
-    [Table("Properties")]
+    [Table("Features")]
     public class Features
     {
         [Key]

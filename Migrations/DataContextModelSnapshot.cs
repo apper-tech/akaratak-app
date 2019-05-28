@@ -194,7 +194,7 @@ namespace akaratakapp.Migrations
 
                     b.HasIndex("Directon_ID");
 
-                    b.ToTable("Properties");
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.Listing", b =>
@@ -270,8 +270,6 @@ namespace akaratakapp.Migrations
 
                     b.Property<int>("Address_ID");
 
-                    b.Property<int>("Category_ID");
-
                     b.Property<DateTime>("ExpireDate");
 
                     b.Property<string>("ExtraData");
@@ -284,17 +282,21 @@ namespace akaratakapp.Migrations
 
                     b.Property<DateTime>("PublishDate");
 
+                    b.Property<int>("SubCategory_ID");
+
                     b.Property<int>("Views");
 
                     b.HasKey("Property_ID");
 
-                    b.HasIndex("Address_ID");
-
-                    b.HasIndex("Category_ID");
+                    b.HasIndex("Address_ID")
+                        .IsUnique();
 
                     b.HasIndex("Offer_ID");
 
-                    b.ToTable("Property");
+                    b.HasIndex("SubCategory_ID")
+                        .IsUnique();
+
+                    b.ToTable("Properties");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.SubCategory", b =>
@@ -401,18 +403,18 @@ namespace akaratakapp.Migrations
             modelBuilder.Entity("akaratak_app.Models.Property", b =>
                 {
                     b.HasOne("akaratak_app.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("Address_ID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("akaratak_app.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("Category_ID")
+                        .WithOne("Property")
+                        .HasForeignKey("akaratak_app.Models.Property", "Address_ID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("akaratak_app.Models.Offer", "Offer")
                         .WithMany()
                         .HasForeignKey("Offer_ID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("akaratak_app.Models.SubCategory", "SubCategory")
+                        .WithOne("Property")
+                        .HasForeignKey("akaratak_app.Models.Property", "SubCategory_ID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

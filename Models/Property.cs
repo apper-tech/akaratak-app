@@ -12,12 +12,14 @@ namespace akaratak_app.Models
         public int Property_ID { get; set; }
         [Required]
         public Address Address { get; set; }
+        public int Address_ID { get; set; }
+        [Required]
+        public SubCategory SubCategory { get; set; }
+        public int SubCategory_ID { get; set; }
         [Required]
         public Offer Offer { get; set; }
-        [ForeignKey("Property_ID")]
-        public Features Features { get; set; }
         [Required]
-        public Category Category { get; set; }
+        public Features Features { get; set; }
         [Required]
         public int Lister_ID { get; set; }
         [Required]

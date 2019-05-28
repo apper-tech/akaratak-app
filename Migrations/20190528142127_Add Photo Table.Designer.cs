@@ -10,8 +10,8 @@ using akaratak_app.Data;
 namespace akaratakapp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190527120352_Update Relations")]
-    partial class UpdateRelations
+    [Migration("20190528142127_Add Photo Table")]
+    partial class AddPhotoTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -196,7 +196,7 @@ namespace akaratakapp.Migrations
 
                     b.HasIndex("Directon_ID");
 
-                    b.ToTable("Properties");
+                    b.ToTable("Features");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.Listing", b =>
@@ -205,17 +205,9 @@ namespace akaratakapp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("ExpireDate");
-
-                    b.Property<DateTime>("ListingDate");
-
                     b.Property<int>("Property_ID");
 
-                    b.Property<DateTime>("PublishDate");
-
                     b.Property<int>("User_ID");
-
-                    b.Property<int>("Views");
 
                     b.HasKey("Listing_ID");
 
@@ -247,6 +239,31 @@ namespace akaratakapp.Migrations
                     b.ToTable("Offers");
                 });
 
+            modelBuilder.Entity("akaratak_app.Models.Photo", b =>
+                {
+                    b.Property<int>("Photo_ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("DateAdded");
+
+                    b.Property<string>("Description");
+
+                    b.Property<bool>("IsMain");
+
+                    b.Property<int?>("Property_ID");
+
+                    b.Property<string>("PublicId");
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("Photo_ID");
+
+                    b.HasIndex("Property_ID");
+
+                    b.ToTable("Photos");
+                });
+
             modelBuilder.Entity("akaratak_app.Models.Property", b =>
                 {
                     b.Property<int>("Property_ID")
@@ -255,23 +272,33 @@ namespace akaratakapp.Migrations
 
                     b.Property<int>("Address_ID");
 
-                    b.Property<int>("Category_ID");
+                    b.Property<DateTime>("ExpireDate");
 
                     b.Property<string>("ExtraData");
 
                     b.Property<int>("Lister_ID");
 
+                    b.Property<DateTime>("ListingDate");
+
                     b.Property<int>("Offer_ID");
+
+                    b.Property<DateTime>("PublishDate");
+
+                    b.Property<int>("SubCategory_ID");
+
+                    b.Property<int>("Views");
 
                     b.HasKey("Property_ID");
 
-                    b.HasIndex("Address_ID");
-
-                    b.HasIndex("Category_ID");
+                    b.HasIndex("Address_ID")
+                        .IsUnique();
 
                     b.HasIndex("Offer_ID");
 
-                    b.ToTable("Property");
+                    b.HasIndex("SubCategory_ID")
+                        .IsUnique();
+
+                    b.ToTable("Properties");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.SubCategory", b =>
@@ -368,21 +395,28 @@ namespace akaratakapp.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("akaratak_app.Models.Photo", b =>
+                {
+                    b.HasOne("akaratak_app.Models.Property", "Property")
+                        .WithMany("Photos")
+                        .HasForeignKey("Property_ID");
+                });
+
             modelBuilder.Entity("akaratak_app.Models.Property", b =>
                 {
                     b.HasOne("akaratak_app.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("Address_ID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("akaratak_app.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("Category_ID")
+                        .WithOne("Property")
+                        .HasForeignKey("akaratak_app.Models.Property", "Address_ID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("akaratak_app.Models.Offer", "Offer")
                         .WithMany()
                         .HasForeignKey("Offer_ID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("akaratak_app.Models.SubCategory", "SubCategory")
+                        .WithOne("Property")
+                        .HasForeignKey("akaratak_app.Models.Property", "SubCategory_ID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
