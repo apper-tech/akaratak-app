@@ -10,7 +10,7 @@ namespace akaratak_app.Models
     public class Features
     {
         [Key]
-        public int Property_ID { get; set; }
+        public int PropertyID { get; set; }
         public Property Property { get; set; }
         [Required]
         public Directon Directon { get; set; }

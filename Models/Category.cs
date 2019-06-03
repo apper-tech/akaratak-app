@@ -7,12 +7,14 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Category_ID { get; set; }
+        public int ID { get; set; }
         [Required]
         [MinLength(5),MaxLength(20)]
-        public string CategoryName { get; set; }
+        public string Name { get; set; }
         [Required]
         [MinLength(10),MaxLength(50)]
-        public string CategoryDescription { get; set; }
+        public string Description { get; set; }
+
+        public SubCategory SubCategory { get; set; }
     }
 }

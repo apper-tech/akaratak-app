@@ -10,7 +10,7 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Directon_ID { get; set; }
+        public int ID { get; set; }
         public bool South { get; set; }
         public bool East { get; set; }
         public bool West { get; set; }

@@ -8,10 +8,10 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Listing_ID { get; set; }
+        public int ID { get; set; }
         [ForeignKey("UserFK")]
         [Column(Order = 1)]
-        public int User_ID { get; set; }
+        public int UserID { get; set; }
         [Required]
         public Property Property { get; set; }
     }

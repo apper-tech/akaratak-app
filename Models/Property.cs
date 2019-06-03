@@ -5,23 +5,24 @@ using System;
 
 namespace akaratak_app.Models
 {
-    [Table("Properties")]
+    [Table("Property")]
     public class Property
     {
         [Key]
-        public int Property_ID { get; set; }
+        public int ID { get; set; }
         [Required]
         public Address Address { get; set; }
-        public int Address_ID { get; set; }
+        public int AddressID { get; set; }
         [Required]
         public SubCategory SubCategory { get; set; }
-        public int SubCategory_ID { get; set; }
+        public int SubCategoryID { get; set; }
         [Required]
         public Offer Offer { get; set; }
         [Required]
         public Features Features { get; set; }
-        [Required]
-        public int Lister_ID { get; set; }
+        public Listing Listing { get; set; }
+        [ForeignKey("ListingFK")]
+        public int ListingID { get; set; }
         [Required]
         public DateTime ListingDate { get; set; }
         [Required]

@@ -28,38 +28,111 @@ namespace akaratak_app.Data
 
         public async Task<ICollection<SubCategory>> GetCategories()
         {
-            return await _context.SubCategories.ToListAsync();
+            return await _context.SubCategory.ToListAsync();
         }
 
         public async Task<Photo> GetMainPhotoForProperty(int propertyId)
         {
-            return await _context.Photos.Where(x => x.Property.Property_ID == propertyId).FirstOrDefaultAsync(p => p.IsMain);
+            return await _context.Photo.Where(x => x.Property.ID == propertyId).FirstOrDefaultAsync(p => p.IsMain);
         }
 
         public async Task<Photo> GetPhoto(int id)
         {
-            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Photo_ID == id);
+            var photo = await _context.Photo.FirstOrDefaultAsync(p => p.ID == id);
             return photo;
         }
 
         public async Task<PagedList<Property>> GetProperties(PropertyParams propParams)
         {
-            var properties = _context.Properties.Include(p => p.Photos).OrderByDescending(p => p.PublishDate).AsQueryable();
+            var properties = _context.Property.Include(p => p.Photos).Include(f => f.Features).OrderByDescending(p => p.PublishDate).AsQueryable();
 
-            /* Property Search Features Logic */
+            /* Date */
+            if (propParams.PublishDate != null)
+                properties = properties.Where(p => p.PublishDate >= propParams.PublishDate);
 
-            properties = properties.Where(p => p.Features.Area >= propParams.Area);
+            /* Area */
+            if (propParams.Area > 0)
+                properties = properties.Where(p => p.Features.Area >= propParams.Area);
 
-            if (propParams.Cladding)
+            /* Bathrooms Number */
+            if (propParams.Bathrooms > 0)
+                properties = properties.Where(p => p.Features.Bathrooms >= propParams.Bathrooms);
+            /* Owners */
+            if (propParams.Owners > 0)
+                properties = properties.Where(p => p.Features.Owners >= propParams.Owners);
+
+            /* Rooms */
+            if (propParams.Rooms > 0)
+                properties = properties.Where(p => p.Features.Rooms >= propParams.Rooms);
+
+            /* Balconies */
+            if (propParams.Balconies > 0)
+                properties = properties.Where(p => p.Features.Balconies >= propParams.Balconies);
+
+            /* PropertyAge */
+            if (propParams.PropertyAge > 0)
+                properties = properties.Where(p => p.Features.PropertyAge >= propParams.PropertyAge);
+
+            /* Country and City Filters */
+            if (propParams.Country_ID > 0)
             {
-                properties = properties = properties.Where(p => p.Features.Cladding);
+                properties = properties.Where(p => p.Address.Country.ID == propParams.Country_ID);
+                if (propParams.City_ID > 0)
+                    properties = properties.Where(p => p.Address.City.ID == propParams.City_ID);
+            }
+            /* Cladding */
+            properties = propParams.Cladding ? properties.Where(p => p.Features.Cladding) : properties;
+
+            /* Property Direction */
+            properties = propParams.Direction_East ? properties.Where(p => p.Features.Directon.East) : properties;
+            properties = propParams.Direction_North ? properties.Where(p => p.Features.Directon.North) : properties;
+            properties = propParams.Direction_South ? properties.Where(p => p.Features.Directon.South) : properties;
+            properties = propParams.Direction_West ? properties.Where(p => p.Features.Directon.West) : properties;
+
+            /* Empty */
+            properties = propParams.Empty ? properties.Where(p => p.Features.Empty) : properties;
+
+            /* Heating */
+            properties = propParams.Heating ? properties.Where(p => p.Features.Heating) : properties;
+
+            /* GasLine */
+            properties = propParams.GasLine ? properties.Where(p => p.Features.GasLine) : properties;
+
+            /* Internet */
+            properties = propParams.Internet ? properties.Where(p => p.Features.Internet) : properties;
+
+            /* Elevator */
+            properties = propParams.Elevator ? properties.Where(p => p.Features.Elevator) : properties;
+
+            /* Parking */
+            properties = propParams.Parking ? properties.Where(p => p.Features.Parking) : properties;
+
+            /* Tags */
+            if (propParams.Tags.Count > 0)
+                foreach (var tag in propParams.Tags)
+                    properties = properties.Where(p => p.Features.Tags.Any(t => t.Name == tag));
+
+
+            if (!string.IsNullOrEmpty(propParams.OfferType))
+            {
+                switch (propParams.OfferType)
+                {
+                    case "Sale":
+                        properties = properties.Where(p => p.Offer.Sale > 0);
+                        break;
+                    case "Rent":
+                        properties = properties.Where(p => p.Offer.Rent > 0);
+                        break;
+                    case "Invest":
+                        properties = properties.Where(p => p.Offer.Invest > 0);
+                        break;
+                    case "Swap":
+                        properties = properties.Where(p => p.Offer.Swap);
+                        break;
+                }
             }
 
-            if (propParams.BathroomNumber > 0)
-            {
-                properties = properties = properties.Where(p => p.Features.Bathrooms >= propParams.BathroomNumber);
-            }
-
+            /* OrderBy */
             if (!string.IsNullOrEmpty(propParams.OrderBy))
             {
                 switch (propParams.OrderBy)
@@ -67,8 +140,11 @@ namespace akaratak_app.Data
                     case "sale_price":
                         properties = properties.OrderByDescending(p => p.Offer.Sale);
                         break;
+                    case "property_age":
+                        properties = properties.OrderByDescending(p => p.Features.PropertyAge);
+                        break;
                     default:
-                        properties = properties.OrderByDescending(p => p.Offer.Sale);
+                        properties = properties.OrderByDescending(p => p.PublishDate);
                         break;
                 }
             }
@@ -79,7 +155,7 @@ namespace akaratak_app.Data
 
         public async Task<Property> GetProperty(int id)
         {
-            var property = await _context.Properties.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Property_ID == id);
+            var property = await _context.Property.Include(p => p.Photos).Include(f => f.Features).FirstOrDefaultAsync(p => p.ID == id);
             return property;
         }
 

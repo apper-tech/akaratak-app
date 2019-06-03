@@ -7,7 +7,7 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int City_ID { get; set; }
+        public int ID { get; set; }
         [Required]
         public Country Country { get; set; }
         [Required]

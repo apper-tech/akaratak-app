@@ -11,11 +11,11 @@ namespace akaratak_app.Helpers
         {
             CreateMap<SubCategory, CategoryToReturnDto>()
             .ForMember(dest => dest.CategoryName, opt =>
-            opt.MapFrom(src => src.SubCategoryName))
+            opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.CategoryDescription, opt =>
-            opt.MapFrom(src => src.SubCategoryDescription));
+            opt.MapFrom(src => src.Name));
 
-
+            CreateMap<Property, PropertyToReturnDto>();
 
         }
     }

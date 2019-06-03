@@ -1,5 +1,6 @@
+using System.Collections.Generic;
 using akaratak_app.Models;
-
+using System;
 namespace akaratak_app.Helpers
 {
     public class PropertyParams
@@ -12,13 +13,44 @@ namespace akaratak_app.Helpers
             get { return pageSize; }
             set { pageSize = value < MaxPageSize ? value : MaxPageSize; }
         }
-        public Address Address { get; set; }
+        public DateTime PublishDate { get; set; }
+        public int Country_ID { get; set; }
 
-        public int BathroomNumber { get; set; } = 0;
+        public int City_ID { get; set; }
 
         public int Area { get; set; } = 0;
 
+        public string OfferType { get; set; }
+
+        public int Owners { get; set; }
+
+        public int Rooms { get; set; }
+
+        public int Bathrooms { get; set; }
+
+        public int Balconies { get; set; }
+
+        public int PropertyAge { get; set; }
         public bool Cladding { get; set; }
+
+        public bool Direction_South { get; set; }
+        public bool Direction_North { get; set; }
+        public bool Direction_East { get; set; }
+        public bool Direction_West { get; set; }
+
+        public bool Empty { get; set; }
+
+        public bool Heating { get; set; }
+
+        public bool GasLine { get; set; }
+
+        public bool Internet { get; set; }
+
+        public bool Elevator { get; set; }
+
+        public bool Parking { get; set; }
+
+        public ICollection<string> Tags { get; set; }
 
         public string OrderBy { get; set; }
 

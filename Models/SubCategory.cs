@@ -8,16 +8,18 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SubCategory_ID { get; set; }
+        public int ID { get; set; }
         [Required]
         public Category Category { get; set; }
+        [ForeignKey("CategoryFK")]
+        public int CategoryID { get; set; }
         [Required]
         public Property Property { get; set; }
         [Required]
-        [MinLength(3),MaxLength(20)]
-        public string SubCategoryName { get; set; }
-          [Required]
-        [MinLength(10),MaxLength(50)]
-        public string SubCategoryDescription { get; set; }
+        [MinLength(3), MaxLength(20)]
+        public string Name { get; set; }
+        [Required]
+        [MinLength(10), MaxLength(50)]
+        public string Description { get; set; }
     }
 }

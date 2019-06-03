@@ -8,7 +8,7 @@ namespace akaratak_app.Models
     public class Photo
     {
         [Key]
-        public int Photo_ID { get; set; }
+        public int ID { get; set; }
         public string Url { get; set; }
         public string Description { get; set; }
         public DateTime DateAdded { get; set; }
