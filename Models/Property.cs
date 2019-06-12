@@ -9,6 +9,8 @@ namespace akaratak_app.Models
     public class Property
     {
         [Key]
+        [Column(Order = 1)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         [Required]
         public Address Address { get; set; }

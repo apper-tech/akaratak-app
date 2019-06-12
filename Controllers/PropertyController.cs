@@ -22,15 +22,13 @@ namespace akaratak_app.Controllers
             this._mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetProperties([FromBody] PropertyParams param)
+        [HttpPost]
+        public async Task<IActionResult> GetProperties([FromBody] PropertyParams propParam)
         {
-            var propFromRepo = await _repo.GetProperties(param);
-            if (propFromRepo != null)
-            {
-                return Ok(_mapper.Map<PagedList<PropertyToReturnDto>>(propFromRepo));
-            }
-            return BadRequest();
+            var props = await _repo.GetProperties(propParam);
+            var propsToReturn = _mapper.Map<IEnumerable<PropertyToReturnDto>>(props);
+            Response.AddPagination(props.CurrentPage, props.PageSize, props.TotalCount, props.TotalCount);
+            return Ok(propsToReturn);
         }
         [HttpGet("{id}", Name = "GetProperty")]
         public async Task<IActionResult> GetProperty(int id)

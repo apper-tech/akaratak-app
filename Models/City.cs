@@ -12,13 +12,13 @@ namespace akaratak_app.Models
         public Country Country { get; set; }
         [Required]
         [MinLength(5), MaxLength(20)]
-        public string CityName { get; set; }
+        public string Name { get; set; }
         [Required]
         [MinLength(5), MaxLength(20)]
-        public string CityNativeName { get; set; }
+        public string NativeName { get; set; }
         [Required]
         [MinLength(5), MaxLength(20)]
-        public string CityLatinName { get; set; }
+        public string LatinName { get; set; }
         [Required]
         [MinLength(5), MaxLength(25)]
         public float Latitude { get; set; }

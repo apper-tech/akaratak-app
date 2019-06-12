@@ -9,13 +9,16 @@ namespace akaratak_app.Helpers
     {
         public AutoMapperProfiles()
         {
-            CreateMap<SubCategory, CategoryToReturnDto>()
-            .ForMember(dest => dest.CategoryName, opt =>
-            opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.CategoryDescription, opt =>
-            opt.MapFrom(src => src.Name));
 
             CreateMap<Property, PropertyToReturnDto>();
+            CreateMap<Address, AddressToReturnDto>();
+            CreateMap<Country, CountryToReturnDto>();
+            CreateMap<City, CityToReturnDto>();
+            CreateMap<Features, FeaturesToReturnDto>();
+            CreateMap<Tags, TagsToReturnDto>();
+            CreateMap<Directon, DirectionToReturnDto>();
+            CreateMap<Category, CategoryToReturnDto>();
+            CreateMap<SubCategory, SubCategoryToReturnDto>();
 
         }
     }

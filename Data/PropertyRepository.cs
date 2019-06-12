@@ -41,10 +41,21 @@ namespace akaratak_app.Data
             var photo = await _context.Photo.FirstOrDefaultAsync(p => p.ID == id);
             return photo;
         }
-
+        private IQueryable<Property> GetPropertiesWithDependencies()
+        {
+            return _context.Property
+            .Include(p => p.Offer).ThenInclude(o => o.Currency)
+            .Include(p => p.SubCategory).ThenInclude(o => o.Category)
+            .Include(p => p.Address).ThenInclude(a => a.Country)
+            .Include(p => p.Address).ThenInclude(a => a.City)
+            .Include(p => p.Photos)
+            .Include(f => f.Features).ThenInclude(o => o.Directon)
+            .Include(f => f.Features).ThenInclude(o => o.Tags)
+            .OrderByDescending(p => p.PublishDate).AsQueryable();
+        }
         public async Task<PagedList<Property>> GetProperties(PropertyParams propParams)
         {
-            var properties = _context.Property.Include(p => p.Photos).Include(f => f.Features).OrderByDescending(p => p.PublishDate).AsQueryable();
+            var properties = this.GetPropertiesWithDependencies();
 
             /* Date */
             if (propParams.PublishDate != null)
@@ -115,18 +126,18 @@ namespace akaratak_app.Data
 
             if (!string.IsNullOrEmpty(propParams.OfferType))
             {
-                switch (propParams.OfferType)
+                switch (propParams.OfferType.ToLower())
                 {
-                    case "Sale":
+                    case "sale":
                         properties = properties.Where(p => p.Offer.Sale > 0);
                         break;
-                    case "Rent":
+                    case "rent":
                         properties = properties.Where(p => p.Offer.Rent > 0);
                         break;
-                    case "Invest":
+                    case "invest":
                         properties = properties.Where(p => p.Offer.Invest > 0);
                         break;
-                    case "Swap":
+                    case "swap":
                         properties = properties.Where(p => p.Offer.Swap);
                         break;
                 }
@@ -135,7 +146,7 @@ namespace akaratak_app.Data
             /* OrderBy */
             if (!string.IsNullOrEmpty(propParams.OrderBy))
             {
-                switch (propParams.OrderBy)
+                switch (propParams.OrderBy.ToLower())
                 {
                     case "sale_price":
                         properties = properties.OrderByDescending(p => p.Offer.Sale);
@@ -155,7 +166,7 @@ namespace akaratak_app.Data
 
         public async Task<Property> GetProperty(int id)
         {
-            var property = await _context.Property.Include(p => p.Photos).Include(f => f.Features).FirstOrDefaultAsync(p => p.ID == id);
+            var property = await this.GetPropertiesWithDependencies().FirstOrDefaultAsync(p => p.ID == id);
             return property;
         }
 

@@ -63,25 +63,25 @@ namespace akaratakapp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CityLatinName")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<string>("CityNativeName")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
                     b.Property<int>("CountryID");
+
+                    b.Property<string>("LatinName")
+                        .IsRequired()
+                        .HasMaxLength(20);
 
                     b.Property<float>("Latitude")
                         .HasMaxLength(25);
 
                     b.Property<float>("Longitude")
                         .HasMaxLength(25);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20);
+
+                    b.Property<string>("NativeName")
+                        .IsRequired()
+                        .HasMaxLength(20);
 
                     b.HasKey("ID");
 
@@ -264,7 +264,9 @@ namespace akaratakapp.Migrations
 
             modelBuilder.Entity("akaratak_app.Models.Property", b =>
                 {
-                    b.Property<int>("ID");
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("AddressID");
 
@@ -285,6 +287,9 @@ namespace akaratakapp.Migrations
                     b.Property<int>("Views");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("AddressID")
+                        .IsUnique();
 
                     b.HasIndex("ListingID")
                         .IsUnique();
@@ -395,7 +400,7 @@ namespace akaratakapp.Migrations
                 {
                     b.HasOne("akaratak_app.Models.Address", "Address")
                         .WithOne("Property")
-                        .HasForeignKey("akaratak_app.Models.Property", "ID")
+                        .HasForeignKey("akaratak_app.Models.Property", "AddressID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("akaratak_app.Models.Listing", "Listing")

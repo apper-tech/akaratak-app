@@ -1,6 +1,6 @@
 namespace akaratak_app.Dtos
 {
-    public class CategoryToReturnDto
+    public class TagsToReturnDto
     {
         public int ID { get; set; }
 

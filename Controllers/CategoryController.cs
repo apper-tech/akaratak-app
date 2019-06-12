@@ -20,7 +20,7 @@ namespace akaratak_app.Controllers
             this._repo = repo;
             this._mapper = mapper;
         }
-        // GET api/Categories
+        // GET api/Category
         [HttpGet(Name = "GetCategories")]
         public async Task<IActionResult> GetCategories()
         {

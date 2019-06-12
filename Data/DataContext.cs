@@ -26,11 +26,6 @@ namespace akaratak_app.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Property>()
-            .HasOne(p => p.Features)
-            .WithOne(p => p.Property)
-            .HasForeignKey<Property>(p => p.ID);
-
             modelBuilder.Entity<Features>()
             .HasOne(p => p.Property)
             .WithOne(p => p.Features)
@@ -40,7 +35,7 @@ namespace akaratak_app.Data
             modelBuilder.Entity<Property>()
             .HasOne(p => p.Address)
             .WithOne(a => a.Property)
-            .HasForeignKey<Property>(p => p.ID);
+            .HasForeignKey<Property>(p => p.AddressID);
 
             modelBuilder.Entity<Property>()
             .HasOne(p => p.SubCategory)
@@ -52,10 +47,19 @@ namespace akaratak_app.Data
             .WithOne(a => a.Property)
             .HasForeignKey<Property>(p => p.ListingID);
 
+            modelBuilder.Entity<Features>()
+           .HasOne(f => f.Directon);
+
             modelBuilder.Entity<SubCategory>()
             .HasOne(p => p.Category)
             .WithOne(a => a.SubCategory)
             .HasForeignKey<SubCategory>(p => p.CategoryID);
+
+            modelBuilder.Entity<Address>()
+           .HasOne(p => p.Country);
+
+            modelBuilder.Entity<Address>()
+           .HasOne(p => p.Country);
 
             base.OnModelCreating(modelBuilder);
         }
