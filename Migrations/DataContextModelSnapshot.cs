@@ -207,7 +207,7 @@ namespace akaratakapp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("UserID");
+                    b.Property<Guid>("UserID");
 
                     b.HasKey("ID");
 
@@ -296,8 +296,7 @@ namespace akaratakapp.Migrations
 
                     b.HasIndex("OfferID");
 
-                    b.HasIndex("SubCategoryID")
-                        .IsUnique();
+                    b.HasIndex("SubCategoryID");
 
                     b.ToTable("Property");
                 });
@@ -320,8 +319,7 @@ namespace akaratakapp.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CategoryID")
-                        .IsUnique();
+                    b.HasIndex("CategoryID");
 
                     b.ToTable("SubCategory");
                 });
@@ -414,16 +412,16 @@ namespace akaratakapp.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("akaratak_app.Models.SubCategory", "SubCategory")
-                        .WithOne("Property")
-                        .HasForeignKey("akaratak_app.Models.Property", "SubCategoryID")
+                        .WithMany("Property")
+                        .HasForeignKey("SubCategoryID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("akaratak_app.Models.SubCategory", b =>
                 {
                     b.HasOne("akaratak_app.Models.Category", "Category")
-                        .WithOne("SubCategory")
-                        .HasForeignKey("akaratak_app.Models.SubCategory", "CategoryID")
+                        .WithMany("SubCategory")
+                        .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -11,7 +11,7 @@ namespace akaratak_app.Models
         public int ID { get; set; }
         [ForeignKey("UserFK")]
         [Column(Order = 1)]
-        public int UserID { get; set; }
+        public Guid UserID { get; set; }
         [Required]
         public Property Property { get; set; }
     }

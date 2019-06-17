@@ -39,8 +39,8 @@ namespace akaratak_app.Data
 
             modelBuilder.Entity<Property>()
             .HasOne(p => p.SubCategory)
-            .WithOne(a => a.Property)
-            .HasForeignKey<Property>(p => p.SubCategoryID);
+            .WithMany(a => a.Property)
+            .HasForeignKey(p => p.SubCategoryID);
 
             modelBuilder.Entity<Property>()
             .HasOne(p => p.Listing)
@@ -52,8 +52,8 @@ namespace akaratak_app.Data
 
             modelBuilder.Entity<SubCategory>()
             .HasOne(p => p.Category)
-            .WithOne(a => a.SubCategory)
-            .HasForeignKey<SubCategory>(p => p.CategoryID);
+            .WithMany(a => a.SubCategory)
+            .HasForeignKey(p => p.CategoryID);
 
             modelBuilder.Entity<Address>()
            .HasOne(p => p.Country);

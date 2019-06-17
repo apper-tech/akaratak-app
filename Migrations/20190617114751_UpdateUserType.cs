@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace akaratakapp.Migrations
 {
-    public partial class InitalMigrations : Migration
+    public partial class UpdateUserType : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -74,7 +74,7 @@ namespace akaratakapp.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserID = table.Column<int>(nullable: false)
+                    UserID = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -353,14 +353,12 @@ namespace akaratakapp.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Property_SubCategoryID",
                 table: "Property",
-                column: "SubCategoryID",
-                unique: true);
+                column: "SubCategoryID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubCategory_CategoryID",
                 table: "SubCategory",
-                column: "CategoryID",
-                unique: true);
+                column: "CategoryID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tags_FeaturesPropertyID",
