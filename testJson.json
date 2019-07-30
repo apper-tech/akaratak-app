@@ -1,0 +1,29 @@
+{
+    "PageNumber": 1,
+    "PageSize": 6,
+    "PublishDate": "01-01-2018",
+    "Country_ID": 1,
+    "City_ID": 2,
+    "Area": 0,
+    "OfferType": "sale",
+    "Owners": 1,
+    "Rooms": 0,
+    "Bathrooms": 1,
+    "Balconies": 1,
+    "PropertyAge": 12,
+    "Cladding": false,
+    "Direction_South": false,
+    "Direction_North": true,
+    "Direction_East": false,
+    "Direction_West": false,
+    "Empty": true,
+    "Heating": true,
+    "GasLine": false,
+    "Internet": false,
+    "Elevator": true,
+    "Parking": false,
+    "Tags": [
+        "tag"
+    ],
+    "OrderBy": "sale_price"
+}

@@ -6,15 +6,15 @@ namespace akaratak_app.Models
     public class Country
     {
         [Key]
-        public int Country_ID { get; set; }
+        public int ID { get; set; }
         [Required]
-        [MinLength(2),MaxLength(2)]
-        public string CountryCode { get; set; }
+        [MinLength(2), MaxLength(2)]
+        public string Code { get; set; }
         [Required]
-        [MinLength(5),MaxLength(20)]
-        public string CountryName { get; set; }
+        [MinLength(5), MaxLength(20)]
+        public string Name { get; set; }
         [Required]
-        [MinLength(5),MaxLength(20)]
-        public string CountryNativeName { get; set; }
+        [MinLength(5), MaxLength(20)]
+        public string NativeName { get; set; }
     }
 }
