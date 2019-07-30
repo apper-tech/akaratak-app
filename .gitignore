@@ -5,3 +5,50 @@ bin
 obj
 packages
 .vscode
+
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+App/dist
+App/tmp
+App/out-tsc
+# Only exists if Bazel was run
+App/bazel-out
+
+# dependencies
+App/node_modules
+
+# profiling files
+App/chrome-profiler-events.json
+App/speed-measure-plugin.json
+
+# IDEs and editors
+App/.idea
+App/.project
+App/.classpath
+App/.c9/
+App/*.launch
+App/.settings/
+App/*.sublime-workspace
+
+# IDE - VSCode
+App/.vscode/*
+App/!.vscode/settings.json
+App/!.vscode/tasks.json
+App/!.vscode/launch.json
+App/!.vscode/extensions.json
+App/.history/*
+
+# misc
+App/.sass-cache
+App/connect.lock
+App/coverage
+App/libpeerconnection.log
+App/npm-debug.log
+App/yarn-error.log
+App/testem.log
+App/typings
+
+# System Files
+App/.DS_Store
+App/Thumbs.db

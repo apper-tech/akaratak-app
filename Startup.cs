@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using akaratak_app.Data;
 using akaratak_app.Helpers;
 using AutoMapper;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 
 namespace akaratak_app
 {
@@ -30,6 +31,12 @@ namespace akaratak_app
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            // In production, the Angular files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "App/dist";
+            });
             /* Coneection To DbContext */
             services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ListingContext")));
             /*Interface Injection */
@@ -47,11 +54,31 @@ namespace akaratak_app
             }
             else
             {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            // app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action=Index}/{id?}");
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "App";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseAngularCliServer(npmScript: "start");
+                }
+            });
         }
     }
 }
