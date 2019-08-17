@@ -7,7 +7,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgProgressModule } from '@ngx-progressbar/core';
 import { NgProgressHttpModule } from '@ngx-progressbar/http';
 import { AgmCoreModule } from '@agm/core';
-import { EmbedVideo } from 'ngx-embed-video'; 
+import { EmbedVideo } from 'ngx-embed-video';
 import { InputFileConfig, InputFileModule } from 'ngx-input-file';
 const config: InputFileConfig = {
   fileAccept: '*'
@@ -15,14 +15,13 @@ const config: InputFileConfig = {
 
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { CustomOverlayContainer } from './theme/utils/custom-overlay-container';
-
 import { AppRouting } from './app.routing';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { AppSettings } from './app.settings';
 import { AppInterceptor } from './theme/utils/app-interceptor';
 
-
+  
 import { PagesComponent } from './pages/pages.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { Toolbar1Component } from './theme/components/toolbar1/toolbar1.component';
@@ -31,7 +30,8 @@ import { UserMenuComponent } from './theme/components/user-menu/user-menu.compon
 import { CurrencyComponent } from './theme/components/currency/currency.component';
 import { LangComponent } from './theme/components/lang/lang.component';
 import { SocialIconsComponent } from './theme/components/social-icons/social-icons.component';
-import { ContactsComponent } from './theme/components/contacts/contacts.component'; 
+import { DarkModeComponent } from './theme/components/dark-mode/dark-mode.component';
+import { ContactsComponent } from './theme/components/contacts/contacts.component';
 import { HorizontalMenuComponent } from './theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { VerticalMenuComponent } from './theme/components/menu/vertical-menu/vertical-menu.component';
 import { FooterComponent } from './theme/components/footer/footer.component';
@@ -47,7 +47,8 @@ import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
     CurrencyComponent,
     LangComponent,
     SocialIconsComponent,
-    ContactsComponent, 
+    DarkModeComponent,
+    ContactsComponent,
     Toolbar1Component,
     Toolbar2Component,
     HorizontalMenuComponent,
@@ -56,9 +57,9 @@ import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
     LockScreenComponent
   ],
   imports: [
-    BrowserModule, 
-    BrowserAnimationsModule, 
-    FormsModule, 
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
     HttpClientModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyAAYi6itRZ0rPgI76O3I83BhhzZHIgMwPg',
@@ -66,7 +67,7 @@ import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
     }),
     EmbedVideo.forRoot(),
     NgProgressModule,
-    NgProgressHttpModule, 
+    NgProgressHttpModule,
     InputFileModule.forRoot(config),
     AppRouting,
     SharedModule

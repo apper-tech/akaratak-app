@@ -29,12 +29,15 @@ namespace akaratak_app.Dtos
 
         public int Bathrooms { get; set; }
 
-
+        public int Bedrooms { get; set; }
+        
         public int Balconies { get; set; }
 
 
         public int PropertyAge { get; set; }
 
+
+        public string Title { get; set; }
 
         public string Description { get; set; }
 

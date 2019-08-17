@@ -11,19 +11,19 @@ namespace akaratak_app.Models
         [Required]
         public Country Country { get; set; }
         [Required]
-        [MinLength(5), MaxLength(20)]
+        [MinLength(5), MaxLength(50)]
         public string Name { get; set; }
         [Required]
-        [MinLength(5), MaxLength(20)]
+        [MinLength(5), MaxLength(50)]
         public string NativeName { get; set; }
         [Required]
-        [MinLength(5), MaxLength(20)]
+        [MinLength(5), MaxLength(50)]
         public string LatinName { get; set; }
         [Required]
-        [MinLength(5), MaxLength(25)]
+        [MinLength(5), MaxLength(50)]
         public float Latitude { get; set; }
         [Required]
-        [MinLength(5), MaxLength(25)]
+        [MinLength(5), MaxLength(50)]
         public float Longitude { get; set; }
     }
 }

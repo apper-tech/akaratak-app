@@ -55,12 +55,6 @@ namespace akaratak_app.Data
             .WithMany(a => a.SubCategory)
             .HasForeignKey(p => p.CategoryID);
 
-            modelBuilder.Entity<Address>()
-           .HasOne(p => p.Country);
-
-            modelBuilder.Entity<Address>()
-           .HasOne(p => p.Country);
-
             base.OnModelCreating(modelBuilder);
         }
     }

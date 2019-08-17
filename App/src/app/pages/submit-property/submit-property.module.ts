@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
-import { AgmCoreModule } from '@agm/core';  
+import { AgmCoreModule } from '@agm/core';
 import { InputFileModule } from 'ngx-input-file';
+import { MatSelectFilterModule } from 'mat-select-filter';
 import { SubmitPropertyComponent } from './submit-property.component';
 
 export const routes = [
-  { path: '', component: SubmitPropertyComponent, pathMatch: 'full'  }
+  { path: '', component: SubmitPropertyComponent, pathMatch: 'full' }
 ];
 
 @NgModule({
@@ -16,8 +17,9 @@ export const routes = [
     CommonModule,
     RouterModule.forChild(routes),
     SharedModule,
-    AgmCoreModule, 
-    InputFileModule
+    AgmCoreModule,
+    InputFileModule,
+    MatSelectFilterModule
   ]
 })
 export class SubmitPropertyModule { }

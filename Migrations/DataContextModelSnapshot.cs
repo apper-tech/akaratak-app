@@ -27,13 +27,22 @@ namespace akaratakapp.Migrations
 
                     b.Property<int?>("CityID");
 
-                    b.Property<int?>("CountryID");
+                    b.Property<float>("Latitude")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Location")
+                        .IsRequired();
+
+                    b.Property<float>("Longitude")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Street");
+
+                    b.Property<string>("ZipCode");
 
                     b.HasKey("ID");
 
                     b.HasIndex("CityID");
-
-                    b.HasIndex("CountryID");
 
                     b.ToTable("Address");
                 });
@@ -67,21 +76,21 @@ namespace akaratakapp.Migrations
 
                     b.Property<string>("LatinName")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.Property<float>("Latitude")
-                        .HasMaxLength(25);
+                        .HasMaxLength(50);
 
                     b.Property<float>("Longitude")
-                        .HasMaxLength(25);
+                        .HasMaxLength(50);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.Property<string>("NativeName")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.HasKey("ID");
 
@@ -102,11 +111,11 @@ namespace akaratakapp.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.Property<string>("NativeName")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.HasKey("ID");
 
@@ -118,6 +127,10 @@ namespace akaratakapp.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(20);
 
                     b.Property<string>("LocalSign")
                         .IsRequired()
@@ -167,6 +180,9 @@ namespace akaratakapp.Migrations
                     b.Property<int>("Bathrooms")
                         .HasMaxLength(10);
 
+                    b.Property<int>("Bedrooms")
+                        .HasMaxLength(10);
+
                     b.Property<bool>("Cladding");
 
                     b.Property<string>("Description")
@@ -193,6 +209,10 @@ namespace akaratakapp.Migrations
                         .HasMaxLength(10);
 
                     b.Property<int>("Rooms");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(20);
 
                     b.HasKey("PropertyID");
 
@@ -338,7 +358,7 @@ namespace akaratakapp.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(50);
 
                     b.HasKey("ID");
 
@@ -352,10 +372,6 @@ namespace akaratakapp.Migrations
                     b.HasOne("akaratak_app.Models.City", "City")
                         .WithMany()
                         .HasForeignKey("CityID");
-
-                    b.HasOne("akaratak_app.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryID");
                 });
 
             modelBuilder.Entity("akaratak_app.Models.City", b =>

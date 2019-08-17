@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using akaratak_app.Data;
 using akaratak_app.Dtos;
 using AutoMapper;
+using Microsoft.AspNetCore.Cors;
 
 namespace akaratak_app.Controllers
 {

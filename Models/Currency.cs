@@ -13,6 +13,9 @@ namespace akaratak_app.Models
         public int ID { get; set; }
         [Required]
         [MinLength(5), MaxLength(20)]
+        public string Country { get; set; }
+        [Required]
+        [MinLength(5), MaxLength(20)]
         public string Name { get; set; }
         [Required]
         [MinLength(5), MaxLength(20)]

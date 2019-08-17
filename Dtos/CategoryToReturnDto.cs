@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace akaratak_app.Dtos
 {
     public class CategoryToReturnDto
@@ -7,5 +9,7 @@ namespace akaratak_app.Dtos
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+       public ICollection<SubCategoryToReturnDto> SubCategory { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace akaratak_app.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         [Required]
-        [MinLength(3), MaxLength(20)]
+        [MinLength(3), MaxLength(50)]
         public string Name { get; set; }
         [Required]
         [MinLength(10), MaxLength(50)]

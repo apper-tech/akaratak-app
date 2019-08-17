@@ -30,8 +30,6 @@ namespace akaratak_app
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -43,6 +41,14 @@ namespace akaratak_app
             services.AddScoped<IPropertyRepository, PropertyRepository>();
             /*Auto Mapper Connection */
             services.AddAutoMapper(typeof(Startup));
+            /*Cloudinary */
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            /*Cors */
+            services.AddCors();
+            /*MVC */
+            services.AddMvc()
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+            .AddControllersAsServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,22 +68,29 @@ namespace akaratak_app
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseCors(
+             options => options
+             .WithOrigins("http://localhost:4200")
+             .AllowAnyMethod()
+             .AllowAnyHeader()
+             .AllowAnyOrigin()
+            );
 
+
+            /*   app.UseSpa(spa =>
+              {
+                  spa.Options.SourcePath = "App";
+
+                  if (env.IsDevelopment())
+                  {
+                      spa.UseAngularCliServer(npmScript: "start");
+                  }
+              }); */
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
-            });
-
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "App";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
             });
         }
     }

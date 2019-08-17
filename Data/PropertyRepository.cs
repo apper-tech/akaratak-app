@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using akaratak_app.Helpers;
 using akaratak_app.Models;
@@ -26,9 +27,13 @@ namespace akaratak_app.Data
             _context.Remove(entity);
         }
 
-        public async Task<ICollection<SubCategory>> GetCategories()
+        public async Task<ICollection<Category>> GetCategories()
         {
-            return await _context.SubCategory.ToListAsync();
+            return await _context.Category.Include(c => c.SubCategory).ToListAsync();
+        }
+        public async Task<ICollection<Currency>> GetCurrencies()
+        {
+            return await _context.Currency.ToListAsync();
         }
 
         public async Task<Photo> GetMainPhotoForProperty(int propertyId)
@@ -36,24 +41,23 @@ namespace akaratak_app.Data
             return await _context.Photo.Where(x => x.Property.ID == propertyId).FirstOrDefaultAsync(p => p.IsMain);
         }
 
-        public async Task<Photo> GetPhoto(int id)
+        public async Task<ICollection<Photo>> GetPhotos(int propertyId)
         {
-            var photo = await _context.Photo.FirstOrDefaultAsync(p => p.ID == id);
-            return photo;
+            var property = await _context.Property.Include(p => p.Photos).Where(p => p.ID == propertyId).FirstOrDefaultAsync();
+            return property.Photos.ToList();
         }
         private IQueryable<Property> GetPropertiesWithDependencies()
         {
             return _context.Property
             .Include(p => p.Offer).ThenInclude(o => o.Currency)
             .Include(p => p.SubCategory).ThenInclude(o => o.Category)
-            .Include(p => p.Address).ThenInclude(a => a.Country)
-            .Include(p => p.Address).ThenInclude(a => a.City)
+            .Include(p => p.Address).ThenInclude(a => a.City).ThenInclude(c => c.Country)
             .Include(p => p.Photos)
             .Include(f => f.Features).ThenInclude(o => o.Directon)
             .Include(f => f.Features).ThenInclude(o => o.Tags)
             .OrderByDescending(p => p.PublishDate).AsQueryable();
         }
-        public async Task<PagedList<Property>> GetProperties(PropertyParams propParams)
+        public async Task<PagedList<Property>> GetProperties(PropertyToListDto propParams)
         {
             var properties = this.GetPropertiesWithDependencies();
 
@@ -87,7 +91,7 @@ namespace akaratak_app.Data
             /* Country and City Filters */
             if (propParams.Country_ID > 0)
             {
-                properties = properties.Where(p => p.Address.Country.ID == propParams.Country_ID);
+                properties = properties.Where(p => p.Address.City.Country.ID == propParams.Country_ID);
                 if (propParams.City_ID > 0)
                     properties = properties.Where(p => p.Address.City.ID == propParams.City_ID);
             }
@@ -173,6 +177,92 @@ namespace akaratak_app.Data
         public async Task<bool> SaveAll()
         {
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<ICollection<Tags>> GetTags()
+        {
+            return await _context.Tags.ToListAsync();
+        }
+
+        public async Task<ICollection<Country>> GetCountries()
+        {
+            return await _context.Country.ToListAsync();
+        }
+
+        public async Task<ICollection<City>> GetCities(string code)
+        {
+            var country = await _context.Country.Where(c => c.Code == code).FirstOrDefaultAsync();
+
+            return await _context.City
+            .Where(c => c.Country.ID == country.ID).ToListAsync();
+        }
+
+        public Property CastPropertyFromInsert(PropertyToInsertDto PropertyDto)
+        {
+            var tags = new List<Tags>();
+            foreach (var tagID in PropertyDto.Tags)
+                tags.Add(_context.Tags.Where(t => t.ID == tagID).FirstOrDefault());
+            var city = _context.City.Where(c => c.ID == PropertyDto.City).FirstOrDefault();
+            var sub = _context.SubCategory.Where(c => c.ID == PropertyDto.Type).FirstOrDefault();
+            var curr = _context.Currency.Where(c => c.ID == PropertyDto.Offer.Currency).FirstOrDefault();
+
+            var property = new Property
+            {
+                Address = new Address
+                {
+                    City = city,
+                    Location = PropertyDto.Location,
+                    ZipCode = PropertyDto.ZipCode,
+                    Street = PropertyDto.Street,
+                    Latitude = PropertyDto.Latitude,
+                    Longitude = PropertyDto.Longitude
+                },
+                Offer = new Offer
+                {
+                    Sale = PropertyDto.Offer.Sale,
+                    Rent = PropertyDto.Offer.Rent,
+                    Invest = PropertyDto.Offer.Invest,
+                    Swap = PropertyDto.Offer.Swap,
+                    Currency = curr
+                },
+                Features = new Features
+                {
+                    Directon = new Directon
+                    {
+                        West = PropertyDto.DirectionWest,
+                        East = PropertyDto.DirectionEast,
+                        North = PropertyDto.DirectionNorth,
+                        South = PropertyDto.DirectionSouth
+                    },
+                    Cladding = PropertyDto.Cladding,
+                    Empty = PropertyDto.Empty,
+                    Heating = PropertyDto.Heating,
+                    GasLine = PropertyDto.GasLine,
+                    Internet = PropertyDto.Internet,
+                    Elevator = PropertyDto.Elevator,
+                    Parking = PropertyDto.Parking,
+                    Area = PropertyDto.Area,
+                    Owners = PropertyDto.Owners,
+                    Rooms = PropertyDto.Rooms,
+                    Bedrooms = PropertyDto.Bedrooms,
+                    Bathrooms = PropertyDto.Bathrooms,
+                    Balconies = PropertyDto.Balconies,
+                    PropertyAge = PropertyDto.PropertyAge,
+                    Title = PropertyDto.Title,
+                    Description = PropertyDto.Description,
+                    Tags = tags
+                },
+                Listing = new Listing
+                {
+                    //add identintiy
+                    UserID = new System.Guid()
+                },
+                SubCategory = sub,
+                ListingDate = DateTime.Now,
+                ExpireDate = DateTime.Now.AddMonths(3),
+                PublishDate = DateTime.Now
+            };
+            return property;
         }
     }
 }

@@ -39,10 +39,16 @@ namespace akaratak_app.Models
         public int Bathrooms { get; set; }
         [Required]
         [MaxLength(10), MinLength(5)]
+        public int Bedrooms { get; set; }
+        [Required]
+        [MaxLength(10), MinLength(5)]
         public int Balconies { get; set; }
         [Required]
         [MaxLength(10), MinLength(5)]
         public int PropertyAge { get; set; }
+        [Required]
+        [MinLength(10), MaxLength(20)]
+        public string Title { get; set; }
         [Required]
         [MinLength(10), MaxLength(50)]
         public string Description { get; set; }
