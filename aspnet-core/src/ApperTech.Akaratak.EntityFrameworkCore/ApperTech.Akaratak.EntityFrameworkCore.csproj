@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+    <RootNamespace>ApperTech.Akaratak</RootNamespace>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Migrations\20180726102624_Upgrade_ABP_380.cs" />
+    <Compile Remove="Migrations\20180927062408_test.cs" />
+    <Compile Remove="Migrations\20190111071724_Upgraded_To_Abp_v4_1_0.cs" />
+    <Compile Remove="Migrations\20190830162224_Property_Inital.cs" />
+    <Compile Remove="Migrations\20190830162224_Property_Inital.Designer.cs" />
+    <Compile Remove="Migrations\20190830163317_Inital.cs" />
+    <Compile Remove="Migrations\20190830163317_Inital.Designer.cs" />
+    <Compile Remove="Migrations\20190831141059_Add_Entities.cs" />
+    <Compile Remove="Migrations\20190831141059_Add_Entities.Designer.cs" />
+    <Compile Remove="Migrations\20190831141653_Add_Entities.cs" />
+    <Compile Remove="Migrations\20190831141653_Add_Entities.Designer.cs" />
+    <Compile Remove="Migrations\20190831150511_Update_City_County_Relation.cs" />
+    <Compile Remove="Migrations\20190831150511_Update_City_County_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831151045_Update_Property_Offer_Relation.cs" />
+    <Compile Remove="Migrations\20190831151045_Update_Property_Offer_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831151750_Update_Currency_Country_Relation.cs" />
+    <Compile Remove="Migrations\20190831151750_Update_Currency_Country_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831152233_Update_Property_Photo_Relation.cs" />
+    <Compile Remove="Migrations\20190831152233_Update_Property_Photo_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831152736_Update_Property_Address_Relation.cs" />
+    <Compile Remove="Migrations\20190831152736_Update_Property_Address_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831153728_Update_Property_Offers_Relation.cs" />
+    <Compile Remove="Migrations\20190831153728_Update_Property_Offers_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20190831154322_Add_Entities.cs" />
+    <Compile Remove="Migrations\20190831154322_Add_Entities.Designer.cs" />
+    <Compile Remove="Migrations\20190831155154_Add_Entities.cs" />
+    <Compile Remove="Migrations\20190831155154_Add_Entities.Designer.cs" />
+    <Compile Remove="Migrations\20190831155845_Add_Entities.cs" />
+    <Compile Remove="Migrations\20190831155845_Add_Entities.Designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ApperTech.Akaratak.Core\ApperTech.Akaratak.Core.csproj" />
+  </ItemGroup>
+</Project>
