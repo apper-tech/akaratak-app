@@ -1,14 +1,17 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Abp.Domain.Entities.Auditing;
+using System.Text;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 
-namespace ApperTech.Akaratak.Realestate
+namespace ApperTech.Akaratak.Realestate.Dto
 {
-    [Table("AppCountry")]
-    public class Country : FullAuditedEntity<int>
+    [AutoMapFrom(typeof(Country))]
+    public class CountryDto : IEntityDto<int>
     {
+        public virtual int Id { get; set; }
         [Required, MinLength(2), MaxLength(2)]
         public string Code { get; set; }
 
@@ -17,5 +20,6 @@ namespace ApperTech.Akaratak.Realestate
 
         [Required, MinLength(5), MaxLength(50)]
         public string NativeName { get; set; }
+
     }
 }

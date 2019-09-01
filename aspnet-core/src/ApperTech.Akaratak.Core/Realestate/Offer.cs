@@ -9,7 +9,6 @@ namespace ApperTech.Akaratak.Realestate
     [Table("AppOffer")]
     public class Offer : FullAuditedEntity<int>
     {
-
         public Currency Currency { get; set; }
 
         public Property Property { get; set; }

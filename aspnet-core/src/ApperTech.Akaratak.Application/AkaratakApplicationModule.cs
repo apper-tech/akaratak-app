@@ -6,7 +6,7 @@ using ApperTech.Akaratak.Authorization;
 namespace ApperTech.Akaratak
 {
     [DependsOn(
-        typeof(AkaratakCoreModule), 
+        typeof(AkaratakCoreModule),
         typeof(AbpAutoMapperModule))]
     public class AkaratakApplicationModule : AbpModule
     {
@@ -23,7 +23,7 @@ namespace ApperTech.Akaratak
 
             Configuration.Modules.AbpAutoMapper().Configurators.Add(
                 // Scan the assembly for classes which inherit from AutoMapper.Profile
-                cfg => cfg.AddProfiles(thisAssembly)
+                cfg => cfg.AddMaps(thisAssembly)
             );
         }
     }
