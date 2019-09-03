@@ -4,50 +4,54 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SwiperModule } from 'ngx-swiper-wrapper';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatAutocompleteModule,
-         MatBadgeModule,
-         MatBottomSheetModule,
-         MatButtonModule,
-         MatButtonToggleModule,
-         MatCardModule,
-         MatCheckboxModule,
-         MatChipsModule,
-         MatDatepickerModule,
-         MatDialogModule,
-         MatExpansionModule,
-         MatGridListModule,
-         MatIconModule,
-         MatInputModule,
-         MatListModule,
-         MatMenuModule,
-         MatNativeDateModule,
-         MatPaginatorModule,
-         MatProgressBarModule,
-         MatProgressSpinnerModule,
-         MatRadioModule,
-         MatRippleModule,
-         MatSelectModule,
-         MatSidenavModule,
-         MatSliderModule,
-         MatSlideToggleModule,
-         MatSnackBarModule,
-         MatSortModule,
-         MatTableModule,
-         MatTabsModule,
-         MatToolbarModule,
-         MatTooltipModule,
-         MatStepperModule } from '@angular/material';
+import {
+  MatAutocompleteModule,
+  MatBadgeModule,
+  MatBottomSheetModule,
+  MatButtonModule,
+  MatButtonToggleModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatChipsModule,
+  MatDatepickerModule,
+  MatDialogModule,
+  MatExpansionModule,
+  MatFormFieldModule,
+  MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
+  MatNativeDateModule,
+  MatPaginatorModule,
+  MatProgressBarModule,
+  MatProgressSpinnerModule,
+  MatRadioModule,
+  MatRippleModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatSliderModule,
+  MatSlideToggleModule,
+  MatSnackBarModule,
+  MatSortModule,
+  MatTableModule,
+  MatTabsModule,
+  MatToolbarModule,
+  MatTooltipModule,
+  MatStepperModule
+} from '@angular/material';
 
+import { MatSelectFilterModule } from 'mat-select-filter';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   wheelPropagation: false,
-  suppressScrollX: true               
+  suppressScrollX: true
 };
- 
+
 import { PipesModule } from '../theme/pipes/pipes.module';
-import { DirectivesModule } from '../theme/directives/directives.module'; 
+import { DirectivesModule } from '../theme/directives/directives.module';
 
 
 import { HeaderImageComponent } from './header-image/header-image.component';
@@ -63,7 +67,7 @@ import { PropertiesCarouselComponent } from './properties-carousel/properties-ca
 import { ClientsComponent } from './clients/clients.component';
 import { GetInTouchComponent } from './get-in-touch/get-in-touch.component';
 import { CommentsComponent } from './comments/comments.component';
-import { TestimonialsComponent } from './testimonials/testimonials.component'; 
+import { TestimonialsComponent } from './testimonials/testimonials.component';
 import { OurAgentsComponent } from './our-agents/our-agents.component';
 import { MissionComponent } from './mission/mission.component';
 import { OurServicesComponent } from './our-services/our-services.component';
@@ -87,6 +91,7 @@ import { LogoComponent } from './logo/logo.component';
     MatDatepickerModule,
     MatDialogModule,
     MatExpansionModule,
+    MatFormFieldModule,
     MatGridListModule,
     MatIconModule,
     MatInputModule,
@@ -99,6 +104,7 @@ import { LogoComponent } from './logo/logo.component';
     MatRadioModule,
     MatRippleModule,
     MatSelectModule,
+    MatSelectFilterModule,
     MatSidenavModule,
     MatSliderModule,
     MatSlideToggleModule,
@@ -153,7 +159,7 @@ import { LogoComponent } from './logo/logo.component';
     MatStepperModule,
     PerfectScrollbarModule,
     PipesModule,
-    DirectivesModule, 
+    DirectivesModule,
     LogoComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
@@ -168,12 +174,12 @@ import { LogoComponent } from './logo/logo.component';
     ClientsComponent,
     GetInTouchComponent,
     CommentsComponent,
-    TestimonialsComponent,   
-    OurAgentsComponent, 
-    MissionComponent, 
+    TestimonialsComponent,
+    OurAgentsComponent,
+    MissionComponent,
     OurServicesComponent
   ],
-  declarations: [ 
+  declarations: [
     LogoComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
@@ -188,15 +194,15 @@ import { LogoComponent } from './logo/logo.component';
     ClientsComponent,
     GetInTouchComponent,
     CommentsComponent,
-    TestimonialsComponent,   
-    OurAgentsComponent, 
-    MissionComponent, 
+    TestimonialsComponent,
+    OurAgentsComponent,
+    MissionComponent,
     OurServicesComponent
   ],
-  entryComponents:[
-    CompareOverviewComponent 
+  entryComponents: [
+    CompareOverviewComponent
   ],
-  providers:[
+  providers: [
     { provide: PERFECT_SCROLLBAR_CONFIG, useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG }
   ]
 })

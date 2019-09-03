@@ -7,6 +7,7 @@ $custom-typography: mat-typography-config(
 @include mat-core($custom-typography);
 
 @import 'theme-reset';
+@import 'mixins';
 .app{
     &.green{
         @import "skins/green";
@@ -41,6 +42,8 @@ $custom-typography: mat-typography-config(
     &.orange-dark{
         @import "skins/orange-dark";
         @include angular-material-theme($orange-dark-theme);
-        @include theme-reset($orange-dark-theme);     
+        @include mat-select-filter-theme($orange-dark-theme);
+        @include theme-reset($orange-dark-theme);    
+         
     }
 }

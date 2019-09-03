@@ -8,10 +8,15 @@
     "module": "esnext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true, 
+    "experimentalDecorators": true,
     "target": "es2015",
     "typeRoots": [
       "node_modules/@types"
+    ],
+    "plugins": [
+      {
+        "transform": "ts-transformer-keys/transformer"
+      }
     ],
     "lib": [
       "es2018",

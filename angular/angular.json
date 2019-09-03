@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "housekey": {
+    "akaratak": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -30,7 +30,7 @@
         }
       },
       "root": "",
-      "sourceRoot": "src", 
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
@@ -82,18 +82,20 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "housekey:build"
+            "browserTarget": "akaratak:build",
+            "proxyConfig": "proxy.conf.json",
+            "port": 4200
           },
           "configurations": {
             "production": {
-              "browserTarget": "housekey:build:production"
+              "browserTarget": "akaratak:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "housekey:build"
+            "browserTarget": "akaratak:build"
           }
         },
         "test": {
@@ -130,16 +132,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "housekey:serve"
+            "devServerTarget": "akaratak:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "housekey:serve:production"
+              "devServerTarget": "akaratak:serve:production"
             }
           }
         }
       }
-    } 
+    }
   },
-  "defaultProject": "housekey"
+  "defaultProject": "akaratak"
 }

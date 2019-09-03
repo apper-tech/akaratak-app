@@ -4,6 +4,4 @@
 .vs/
 obj/
 bin/
-aspnet-core/src/ApperTech.Akaratak.Web.Host/App_Data/Logs/
-aspnet-core/src/ApperTech.Akaratak.Web.Mvc/App_Data/Logs/
-aspnet-core/src/ApperTech.Akaratak.Migrator/Logs/Logs.txt
+angular/node_modules

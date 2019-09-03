@@ -17,7 +17,9 @@
         height: calc(100% - 122px);
     }
 }
-
+.hidden {
+    display: none;
+}
 .options{
     position: fixed;
     width: 270px;

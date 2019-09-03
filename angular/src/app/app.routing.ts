@@ -1,4 +1,4 @@
-import { Routes, RouterModule, PreloadAllModules  } from '@angular/router';
+import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 import { ModuleWithProviders } from '@angular/core';
 
 import { PagesComponent } from './pages/pages.component';
@@ -6,8 +6,8 @@ import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
 
 export const routes: Routes = [
-    { 
-        path: '', 
+    {
+        path: '',
         component: PagesComponent, children: [
             //{ path: '', redirectTo: '/landing', pathMatch: 'full' },
             { path: '', loadChildren: () => import('./pages/home/home.module').then(m => m.HomeModule) },
@@ -21,8 +21,9 @@ export const routes: Routes = [
             { path: 'login', loadChildren: () => import('./pages/login/login.module').then(m => m.LoginModule) },
             { path: 'register', loadChildren: () => import('./pages/register/register.module').then(m => m.RegisterModule) },
             { path: 'terms-conditions', loadChildren: () => import('./pages/terms-conditions/terms-conditions.module').then(m => m.TermsConditionsModule) },
-            { path: 'account', loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule) }, 
-            { path: 'submit-property', loadChildren: () => import('./pages/submit-property/submit-property.module').then(m => m.SubmitPropertyModule) }   
+            { path: 'account', loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule) },
+            { path: 'submit-property', loadChildren: () => import('./pages/submit-property/submit-property.module').then(m => m.SubmitPropertyModule) },
+            { path: 'test', loadChildren: () => import('./pages/test/test.module').then(m => m.TestModule) }
         ]
     },
     { path: 'landing', loadChildren: () => import('./pages/landing/landing.module').then(m => m.LandingModule) },
@@ -31,6 +32,6 @@ export const routes: Routes = [
 ];
 
 export const AppRouting: ModuleWithProviders = RouterModule.forRoot(routes, {
- //  preloadingStrategy: PreloadAllModules,  // <- comment this line for activate lazy load
-   // useHash: true
+    //  preloadingStrategy: PreloadAllModules,  // <- comment this line for activate lazy load
+    // useHash: true
 });

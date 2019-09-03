@@ -12,3 +12,16 @@
         }
     }
 }
+@mixin mat-select-filter-theme($theme) {
+    // Extract the palettes you need from the theme definition.
+    $primary: map-get($theme, primary);
+    $accent: map-get($theme, accent);
+  
+    .mat-filter {
+        $background: map-get($theme, background);
+        $foreground: map-get($theme, foreground);
+    
+        background-color: mat-color($background, background)!important;
+        color: mat-color($foreground, text)!important;
+    }
+  }

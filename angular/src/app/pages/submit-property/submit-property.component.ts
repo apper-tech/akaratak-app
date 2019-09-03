@@ -3,6 +3,8 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core'
 import { MatStepper } from '@angular/material';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
+import { PropertyService } from 'src/app/shared/services/property.service';
+import { Currency, Category, Tag, Country, City } from '../../app.models';
 import { MapsAPILoader } from '@agm/core';
 
 @Component({
@@ -11,78 +13,146 @@ import { MapsAPILoader } from '@agm/core';
   styleUrls: ['./submit-property.component.scss']
 })
 export class SubmitPropertyComponent implements OnInit {
-  @ViewChild('horizontalStepper', { static: true }) horizontalStepper: MatStepper; 
-  @ViewChild('addressAutocomplete', {static: false}) addressAutocomplete: ElementRef;
-  public submitForm:FormGroup; 
+  @ViewChild('horizontalStepper', { static: true }) horizontalStepper: MatStepper;
+  @ViewChild('addressAutocomplete', { static: false }) addressAutocomplete: ElementRef;
+  public submitForm: FormGroup;
   public features = [];
-  public propertyTypes = [];
+  public directions = [];
+  public propertyTypes: Category[];
+  public propertyTags: Tag[];
+  public countries: Country[];
+  public cities: City[];
+  public propertyCurrencies: Currency[];
   public propertyStatuses = [];
-  public cities = [];
-  public neighborhoods = [];
-  public streets = [];
   public lat: number = 40.678178;
   public lng: number = -73.944158;
-  public zoom: number = 12;  
-
-  constructor(public appService:AppService, 
-              private fb: FormBuilder, 
-              private mapsAPILoader: MapsAPILoader, 
-              private ngZone: NgZone) { }
+  public zoom: number = 12;
+  public filteredCurrencies;
+  public filteredTypes;
+  public filteredTags;
+  public filteredCountries;
+  public filteredCities;
+  public propertyStatusTypes = {
+    sale: false,
+    rent: false,
+    invest: false,
+    swapp: false
+  };
+  public submited: any;
+  constructor(public appService: AppService,
+    public propertyService: PropertyService,
+    private fb: FormBuilder,
+    private mapsAPILoader: MapsAPILoader,
+    private ngZone: NgZone) { }
 
   ngOnInit() {
-    this.features = this.appService.getFeatures();  
-    this.propertyTypes = this.appService.getPropertyTypes();
-    this.propertyStatuses = this.appService.getPropertyStatuses();
-    this.cities = this.appService.getCities();
-    this.neighborhoods = this.appService.getNeighborhoods();
-    this.streets = this.appService.getStreets();  
+    this.features = this.propertyService.getFeatures();
+    this.directions = this.propertyService.getDirections();
 
+    this.propertyService.getPropertyTypes().subscribe((data) => {
+      this.propertyTypes = data;
+      this.filteredTypes = data.slice();
+    });
+    this.propertyService.getCurrencies().subscribe((data) => {
+      this.propertyCurrencies = data;
+      this.filteredCurrencies = data.slice();
+    });
+    this.propertyService.getPropertyTags().subscribe((data) => {
+      this.propertyTags = data;
+      this.filteredTags = data.slice();
+    });
+    this.propertyService.GetCountries().subscribe((data) => {
+      this.countries = data;
+      this.filteredCountries = data.slice();
+    });
+    this.propertyStatuses = this.appService.getPropertyStatuses();
     this.submitForm = this.fb.group({
       basic: this.fb.group({
         title: [null, Validators.required],
-        desc: null,
-        priceDollar: null,
-        priceEuro: null,
+        desc: [null, Validators.required],
+        salePrice: null,
+        rentPrice: null,
+        investPrice: null,
         propertyType: [null, Validators.required],
-        propertyStatus: null, 
+        propertyCurrency: [null, Validators.required],
+        propertyStatus: null,
+        propertyTags: null,
         gallery: null
       }),
       address: this.fb.group({
         location: ['', Validators.required],
+        country: ['', Validators.required],
         city: ['', Validators.required],
         zipCode: '',
-        neighborhood: '',
         street: ''
       }),
       additional: this.fb.group({
         bedrooms: '',
         bathrooms: '',
-        garages: '',
+        rooms: '',
+        balconies: '',
         area: '',
+        owners: '',
         yearBuilt: '',
-        features: this.buildFeatures()
+        features: this.buildFeatures(),
+        directions: this.buildDirections()
       }),
-      media: this.fb.group({
-        videos: this.fb.array([ this.createVideo() ]),
-        plans: this.fb.array([ this.createPlan() ]), 
-        additionalFeatures: this.fb.array([ this.createFeature() ]),
-        featured: false
-      })
-    }); 
+      /*  media: this.fb.group({
+         videos: this.fb.array([this.createVideo()]),
+         plans: this.fb.array([this.createPlan()]),
+         additionalFeatures: this.fb.array([this.createFeature()]),
+         featured: false
+       }) */
+    });
 
     this.setCurrentPosition();
     this.placesAutocomplete();
   }
 
 
-  public onSelectionChange(e:any){ 
-    if(e.selectedIndex == 4){   
+  public onSelectionChange(e: any) {
+    if (e.selectedIndex == 4) {
       this.horizontalStepper._steps.forEach(step => step.editable = false);
-      console.log(this.submitForm.value);      
+      console.log(this.submitForm.value);
     }
   }
-  public reset(){
-    this.horizontalStepper.reset(); 
+  public log() {
+    console.log(this.submitForm);
+  }
+  public submit() {
+    this.submitForm.value['address']['lat'] = this.lat;
+    this.submitForm.value['address']['lng'] = this.lng;
+    this.propertyService.submitProperty(this.submitForm.value).subscribe(result => this.submited);
+  }
+  public getCurrentSign() {
+    if (this.submitForm.get('basic')['controls'].propertyCurrency.value) {
+      var currency = this.propertyCurrencies
+        .find(item => item.id == this.submitForm.get('basic')['controls'].propertyCurrency.value);
+      return currency.localSign;
+    }
+  }
+  public propertyStatusChange(e) {
+    var basic = this.submitForm.controls['basic'].value;
+    this.propertyStatusTypes.sale = false;
+    this.propertyStatusTypes.rent = false;
+    this.propertyStatusTypes.invest = false;
+    basic.propertyStatus.forEach(element => {
+      switch (element.id) {
+        case 1:
+          this.propertyStatusTypes.sale = true;
+          break;
+        case 2:
+          this.propertyStatusTypes.rent = true;
+          break;
+        case 3:
+          this.propertyStatusTypes.invest = true;
+          break;
+      }
+    });
+
+  }
+  public reset() {
+    this.horizontalStepper.reset();
 
     const videos = <FormArray>this.submitForm.controls.media.get('videos');
     while (videos.length > 1) {
@@ -96,195 +166,141 @@ export class SubmitPropertyComponent implements OnInit {
     while (additionalFeatures.length > 1) {
       additionalFeatures.removeAt(0)
     }
-    
+
     this.submitForm.reset({
       additional: {
         features: this.features
       },
-      media:{ 
-        featured: false
-      }
-    });   
-     
+      /*   media: {
+          featured: false
+        } */
+    });
+
   }
 
-  
+
 
   // -------------------- Address ---------------------------  
-  public onSelectCity(){
-    this.submitForm.controls.address.get('neighborhood').setValue(null, {emitEvent: false});
-    this.submitForm.controls.address.get('street').setValue(null, {emitEvent: false});
+  public onSelectCountry() {
+    var code = this.submitForm.controls.address.get('country').value;
+    if (code) {
+      this.propertyService.getPropertyCities(code).subscribe((data) => {
+        this.cities = data;
+        this.filteredCities = data.slice();
+      });
+    }
+    /*  this.submitForm.controls.address.get('neighborhood').setValue(null, { emitEvent: false });
+     this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false }); */
   }
-  public onSelectNeighborhood(){
-    this.submitForm.controls.address.get('street').setValue(null, {emitEvent: false}); 
+  public onSelectNeighborhood() {
+    this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false });
   }
 
   private setCurrentPosition() {
-    if("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => { 
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
         this.lat = position.coords.latitude;
-        this.lng = position.coords.longitude; 
+        this.lng = position.coords.longitude;
       });
     }
   }
-  private placesAutocomplete(){ 
+  private placesAutocomplete() {
     this.mapsAPILoader.load().then(() => {
       let autocomplete = new google.maps.places.Autocomplete(this.addressAutocomplete.nativeElement, {
         types: ["address"]
       });
       autocomplete.addListener("place_changed", () => {
-        this.ngZone.run(() => { 
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace(); 
+        this.ngZone.run(() => {
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
           if (place.geometry === undefined || place.geometry === null) {
             return;
           };
           this.lat = place.geometry.location.lat();
-          this.lng = place.geometry.location.lng(); 
+          this.lng = place.geometry.location.lng();
           this.getAddress();
         });
       });
     });
-  } 
-  
-  // public getAddress(){    
-  //   this.mapsAPILoader.load().then(() => {
-  //     let geocoder = new google.maps.Geocoder();
-  //     let latlng = new google.maps.LatLng(this.lat, this.lng); 
-  //     geocoder.geocode({'location': latlng}, (results, status) => {
-  //       if(status === google.maps.GeocoderStatus.OK) {
-  //         console.log(results); 
-  //         //this.addresstext.nativeElement.focus();  
-  //         let address = results[0].formatted_address; 
-  //         this.addressForm.controls.location.setValue(address); 
-  //         this.setAddresses(results[0]);          
-  //       }
-  //     });
-  //   });
-  // }
-  public getAddress(){    
-    this.appService.getAddress(this.lat, this.lng).subscribe(response => { 
-      let address = response['results'][0].formatted_address; 
-      this.submitForm.controls.address.get('location').setValue(address); 
-      this.setAddresses(response['results'][0]); 
+  }
+  public getAddress() {
+    this.appService.getAddress(this.lat, this.lng).subscribe(response => {
+      console.log(response);
+      let address = response['results'][0].formatted_address;
+      this.submitForm.controls.address.get('location').setValue(address);
+      this.setAddresses(response['results'][0]);
     })
   }
-  public onMapClick(e:any){
+  public onMapClick(e: any) {
     this.lat = e.coords.lat;
-    this.lng = e.coords.lng; 
+    this.lng = e.coords.lng;
     this.getAddress();
   }
-  public onMarkerClick(e:any){
+  public onMarkerClick(e: any) {
     console.log(e);
   }
-  
-  public setAddresses(result){
+
+  public setAddresses(result) {
+    console.log(result);
+
     this.submitForm.controls.address.get('city').setValue(null);
     this.submitForm.controls.address.get('zipCode').setValue(null);
-    this.submitForm.controls.address.get('street').setValue(null); 
+    this.submitForm.controls.address.get('street').setValue(null);
 
-    var newCity, newStreet, newNeighborhood;
-    
-    result.address_components.forEach(item =>{
-      if(item.types.indexOf('locality') > -1){  
-        if(this.cities.filter(city => city.name == item.long_name)[0]){
-          newCity = this.cities.filter(city => city.name == item.long_name)[0];
-        }
-        else{
-          newCity = { id: this.cities.length+1, name: item.long_name };
-          this.cities.push(newCity); 
-        }
-        this.submitForm.controls.address.get('city').setValue(newCity);    
-      }
-      if(item.types.indexOf('postal_code') > -1){ 
-        this.submitForm.controls.address.get('zipCode').setValue(item.long_name);
+    var newCity, newCountry;
+
+    result.address_components.forEach(item => {
+      if (item.types.indexOf('country') > -1) {
+        newCountry = item['short_name'];
+        this.submitForm.controls.address.get('country').setValue(newCountry);
       }
     });
 
-    if(!newCity){
-      result.address_components.forEach(item =>{
-        if(item.types.indexOf('administrative_area_level_1') > -1){  
-          if(this.cities.filter(city => city.name == item.long_name)[0]){
-            newCity = this.cities.filter(city => city.name == item.long_name)[0];
-          }
-          else{
-            newCity = { 
-              id: this.cities.length+1, 
-              name: item.long_name 
-            };
-            this.cities.push(newCity); 
-          }
-          this.submitForm.controls.address.get('city').setValue(newCity);    
-        } 
-      });
-    }
 
-    if(newCity){
-      result.address_components.forEach(item =>{ 
-        if(item.types.indexOf('neighborhood') > -1){ 
-          let neighborhood = this.neighborhoods.filter(n => n.name == item.long_name && n.cityId == newCity.id)[0];
-          if(neighborhood){
-            newNeighborhood = neighborhood;
-          }
-          else{
-            newNeighborhood = { 
-              id: this.neighborhoods.length+1, 
-              name: item.long_name, 
-              cityId: newCity.id 
-            };
-            this.neighborhoods.push(newNeighborhood);
-          }
-          this.neighborhoods = [...this.neighborhoods];
-          this.submitForm.controls.address.get('neighborhood').setValue([newNeighborhood]); 
-        }  
-      })
-    }
-
-    if(newCity){
-      result.address_components.forEach(item =>{            
-        if(item.types.indexOf('route') > -1){ 
-          if(this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0]){
-            newStreet = this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0];
-          }
-          else{
-            newStreet = { 
-              id: this.streets.length+1, 
-              name: item.long_name, 
-              cityId: newCity.id, 
-              neighborhoodId: (newNeighborhood) ? newNeighborhood.id : null 
-            };
-            this.streets.push(newStreet);
-          }          
-          this.streets = [...this.streets];
-          this.submitForm.controls.address.get('street').setValue([newStreet]); 
+    result.address_components.forEach(item => {
+      if (item.types.indexOf('administrative_area_level_1') > -1) {
+        if (this.cities.filter(city => city.name == item.long_name)[0]) {
+          newCity = this.cities.filter(city => city.name == item.long_name)[0];
         }
-      })
-    }
+        this.submitForm.controls.address.get('city').setValue(newCity);
+      }
+    });
+
 
   }
 
 
 
-   
+
   // -------------------- Additional ---------------------------  
   public buildFeatures() {
-    const arr = this.features.map(feature => { 
+    const arr = this.features.map(feature => {
       return this.fb.group({
         id: feature.id,
         name: feature.name,
         selected: feature.selected
       });
-    })   
+    })
     return this.fb.array(arr);
   }
-  
+  public buildDirections() {
+    const arr = this.directions.map(direction => {
+      return this.fb.group({
+        id: direction.id,
+        name: direction.name,
+        selected: direction.selected
+      });
+    })
+    return this.fb.array(arr);
+  }
 
-  
+
+
   // -------------------- Media --------------------------- 
-  public createVideo(): FormGroup {
+  /* public createVideo(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
-      link: null 
+      name: null,
+      link: null
     });
   }
   public addVideo(): void {
@@ -295,11 +311,11 @@ export class SubmitPropertyComponent implements OnInit {
     const videos = this.submitForm.controls.media.get('videos') as FormArray;
     videos.removeAt(index);
   }
-  
+
   public createPlan(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
+      name: null,
       desc: null,
       area: null,
       rooms: null,
@@ -314,14 +330,14 @@ export class SubmitPropertyComponent implements OnInit {
   public deletePlan(index) {
     const plans = this.submitForm.controls.media.get('plans') as FormArray;
     plans.removeAt(index);
-  } 
+  }
 
 
   public createFeature(): FormGroup {
     return this.fb.group({
       id: null,
-      name: null, 
-      value: null 
+      name: null,
+      value: null
     });
   }
   public addFeature(): void {
@@ -331,7 +347,7 @@ export class SubmitPropertyComponent implements OnInit {
   public deleteFeature(index) {
     const features = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
     features.removeAt(index);
-  } 
-
+  }
+ */
 
 }
