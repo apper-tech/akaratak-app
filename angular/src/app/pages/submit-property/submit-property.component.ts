@@ -4,8 +4,9 @@ import { MatStepper } from '@angular/material';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
 import { PropertyService } from 'src/app/shared/services/property.service';
-import { Currency, Category, Tag, Country, City } from '../../app.models';
+import { Category, Tag, Country, City } from '../../app.models';
 import { MapsAPILoader } from '@agm/core';
+import { CurrencyDto, CategoryDto, TagDto } from 'src/app/shared/services/service.base';
 
 @Component({
   selector: 'app-submit-property',
@@ -18,11 +19,11 @@ export class SubmitPropertyComponent implements OnInit {
   public submitForm: FormGroup;
   public features = [];
   public directions = [];
-  public propertyTypes: Category[];
-  public propertyTags: Tag[];
+  public propertyTypes: CategoryDto[];
+  public propertyTags: TagDto[];
   public countries: Country[];
   public cities: City[];
-  public propertyCurrencies: Currency[];
+  public propertyCurrencies: CurrencyDto[];
   public propertyStatuses = [];
   public lat: number = 40.678178;
   public lng: number = -73.944158;

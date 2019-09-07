@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SwiperModule } from 'ngx-swiper-wrapper';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { ServiceBaseModule } from './services/service.base.module'
 import {
   MatAutocompleteModule,
   MatBadgeModule,
@@ -117,7 +118,8 @@ import { LogoComponent } from './logo/logo.component';
     MatStepperModule,
     PerfectScrollbarModule,
     PipesModule,
-    DirectivesModule
+    DirectivesModule,
+    ServiceBaseModule
   ],
   exports: [
     RouterModule,
@@ -160,6 +162,7 @@ import { LogoComponent } from './logo/logo.component';
     PerfectScrollbarModule,
     PipesModule,
     DirectivesModule,
+    ServiceBaseModule,
     LogoComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpRequest } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Property, Location, Currency, Category, Tag, Country, City, InsertProperty, Offer } from '../../app.models';
-
+import * as Api from './service.base';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,23 +10,21 @@ export class PropertyService {
   public apiUrl = "api/";
 
 
-  constructor(public http: HttpClient) { }
+  constructor(public http: HttpClient,
+    public currencyService: Api.CurrencyService,
+    public categoryService: Api.CategoryService,
+    public tagService: Api.TagService
+  ) { }
 
-  public getCurrencies(): Observable<Currency[]> {
-    return this.http.get<Currency[]>(this.apiUrl + 'Currency');
-  }
+  public getCurrencies(): Observable<Api.CurrencyDto[]> { return this.currencyService.getAll(); }
 
-  public getPropertyTypes(): Observable<Category[]> {
-    return this.http.get<Category[]>(this.apiUrl + 'Category');
-  }
+  public getPropertyTypes(): Observable<Api.CategoryDto[]> { return this.categoryService.getAll(); }
 
   public getPropertyCities(code): Observable<City[]> {
     return this.http.get<City[]>(this.apiUrl + 'City/' + code);
   }
 
-  public getPropertyTags(): Observable<Tag[]> {
-    return this.http.get<Tag[]>(this.apiUrl + 'Tag');
-  }
+  public getPropertyTags(): Observable<Api.TagDto[]> { return this.tagService.getAll(); }
 
   public GetCountries(): Observable<Country[]> {
     return this.http.get<Country[]>(this.apiUrl + 'Country');
