@@ -8,7 +8,7 @@ namespace ApperTech.Akaratak.Realestate
     [Table("AppPropertyType")]
     public class PropertyType : FullAuditedEntity<int>
     {
-        public Category Category { get; set; }
+        public Category Category { get; set; } 
 
         [Required, MinLength(3), MaxLength(20)]
         public string Name { get; set; }

@@ -4,13 +4,12 @@ using Abp.AutoMapper;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
-    [AutoMapFrom(typeof(PropertyType))]
-    public class PropertyTypeDto : IEntityDto<int>
+    [AutoMapFrom(typeof(Tag))]
+    public class TagDto : IEntityDto<int>
     {
-        public virtual int Id { get; set; }
-        public int CategoryId { get; set; }
+        public int Id { get; set; }
 
-        [Required, MinLength(3), MaxLength(20)]
+        [Required, MinLength(3), MaxLength(50)]
         public string Name { get; set; }
 
         [Required, MinLength(10), MaxLength(50)]

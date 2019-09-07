@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Abp.Application.Services.Dto;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
-    public class FeaturesDto
+    public class FeaturesDto : IEntityDto<int>
     {
+        public virtual int Id { get; set; }
         [Required, MinLength(10), MaxLength(20)]
         public string Title { get; set; }
 

@@ -25,5 +25,17 @@ namespace ApperTech.Akaratak.Realestate
     public interface ICityAppService : IApplicationService
     {
         Task<List<CityDto>> GetAll();
+        Task<List<CityDto>> GetByCountry(int countryId);
+
+    }
+
+    public interface ICategoryAppService : IApplicationService
+    {
+        Task<List<CategoryDto>> GetAll();
+    }
+
+    public interface ITagAppService : IApplicationService
+    {
+        Task<List<TagDto>> GetAll();
     }
 }
