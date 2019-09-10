@@ -1,4 +1,5 @@
-﻿using Abp.Modules;
+﻿using Abp.AutoMapper;
+using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Abp.Timing;
 using Abp.Zero;
@@ -33,11 +34,14 @@ namespace ApperTech.Akaratak
             AppRoleConfig.Configure(Configuration.Modules.Zero().RoleManagement);
 
             Configuration.Settings.Providers.Add<AppSettingProvider>();
+
+            Configuration.Settings.Providers.Add<CloudinarySettingProvider>();
         }
 
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(typeof(AkaratakCoreModule).GetAssembly());
+
         }
 
         public override void PostInitialize()

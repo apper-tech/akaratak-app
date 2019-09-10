@@ -5,9 +5,9 @@ namespace ApperTech.Akaratak.Realestate
     [Flags]
     public enum Direction
     {
-        South = 1,
-        North = 2,
-        West = 3,
-        East = 4
-    }   
+        West = 1,
+        East = 2,
+        North = 3,
+        South = 4
+    }
 }

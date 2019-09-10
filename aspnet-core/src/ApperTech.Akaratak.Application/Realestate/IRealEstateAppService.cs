@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using ApperTech.Akaratak.Realestate.Dto;
+using Microsoft.AspNetCore.Http;
 
 namespace ApperTech.Akaratak.Realestate
 {
-    public interface IPropertyAppService : IAsyncCrudAppService<PropertyDto,
-        int,
-        GetAllPropertyInput,
-        CreatePropertyInput,
-        UpdatePropertyInput>
+    public interface IPropertyAppService : IApplicationService
     {
-
+        Task<PropertyDto> Create(CreatePropertyInput input);
     }
 
     public interface ICurrencyAppService : IApplicationService
@@ -28,14 +26,18 @@ namespace ApperTech.Akaratak.Realestate
         Task<List<CityDto>> GetByCountry(int countryId);
 
     }
-
     public interface ICategoryAppService : IApplicationService
     {
         Task<List<CategoryDto>> GetAll();
     }
-
     public interface ITagAppService : IApplicationService
     {
         Task<List<TagDto>> GetAll();
+    }
+    public interface IPhotoAppService : IApplicationService
+    {
+        Task<List<PhotoDto>> GetPhotos(int propertyId);
+
+        Task<List<PhotoDto>> AddPhotoForProperty(int propertyId, IFormFile file);
     }
 }

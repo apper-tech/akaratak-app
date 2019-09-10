@@ -75,6 +75,8 @@ namespace ApperTech.Akaratak.Web.Host.Startup
                     In = "header",
                     Type = "apiKey"
                 });
+
+                options.OperationFilter<FormFileSwaggerFilter>();
             });
 
             // Configure Abp and Dependency Injection

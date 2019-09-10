@@ -2,6 +2,7 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using ApperTech.Akaratak.Authorization;
+using ApperTech.Akaratak.Realestate.Dto;
 
 namespace ApperTech.Akaratak
 {
@@ -23,8 +24,11 @@ namespace ApperTech.Akaratak
 
             Configuration.Modules.AbpAutoMapper().Configurators.Add(
                 // Scan the assembly for classes which inherit from AutoMapper.Profile
-                cfg => cfg.AddMaps(thisAssembly)
-            );
+                cfg =>
+                {
+                    cfg.AddMaps(thisAssembly);
+                    cfg.AddProfile(new RealestateMapProfile());
+                });
         }
     }
 }

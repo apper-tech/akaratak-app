@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
+using Newtonsoft.Json;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
     public class FeaturesDto : IEntityDto<int>
     {
         public virtual int Id { get; set; }
-        [Required, MinLength(10), MaxLength(20)]
+
+        [Required, MinLength(10), MaxLength(99)]
         public string Title { get; set; }
 
         [Required, MinLength(10), MaxLength(50)]
@@ -33,19 +36,25 @@ namespace ApperTech.Akaratak.Realestate.Dto
         [Required]
         public bool Parking { get; set; }
 
-        [Required, Range(20, 999)]
+        [Required, Range(1, 999)]
         public int Area { get; set; }
-        [Required, Range(1, 20)]
+        [Required, Range(1, 99)]
         public int Owners { get; set; }
-        [Required, Range(1, 20)]
+        [Required, Range(1, 99)]
         public int Rooms { get; set; }
-        [Required, Range(1, 20)]
+        [Required, Range(1, 99)]
         public int Bathrooms { get; set; }
-        [Required, Range(1, 20)]
+        [Required, Range(1, 99)]
         public int Bedrooms { get; set; }
-        [Required, Range(1, 20)]
+        [Required, Range(1, 99)]
         public int Balconies { get; set; }
         [Required, Range(0, 600)]
         public int PropertyAge { get; set; }
+    }
+    [AutoMapTo(typeof(Features))]
+    public class CreateFeaturesInput : FeaturesDto
+    {
+        [JsonIgnore]
+        public override int Id { get; set; }
     }
 }

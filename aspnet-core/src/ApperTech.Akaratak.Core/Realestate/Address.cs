@@ -20,7 +20,5 @@ namespace ApperTech.Akaratak.Realestate
         public float Latitude { get; set; }
         [Required, MinLength(5), MaxLength(50)]
         public float Longitude { get; set; }
-
-       
     }
 }
