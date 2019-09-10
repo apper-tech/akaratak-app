@@ -4,6 +4,7 @@ import { ModuleWithProviders } from '@angular/core';
 import { PagesComponent } from './pages/pages.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
+import { TestComponent } from './pages/test/test.component';
 
 export const routes: Routes = [
     {
@@ -23,7 +24,7 @@ export const routes: Routes = [
             { path: 'terms-conditions', loadChildren: () => import('./pages/terms-conditions/terms-conditions.module').then(m => m.TermsConditionsModule) },
             { path: 'account', loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule) },
             { path: 'submit-property', loadChildren: () => import('./pages/submit-property/submit-property.module').then(m => m.SubmitPropertyModule) },
-            { path: 'test', loadChildren: () => import('./pages/test/test.module').then(m => m.TestModule) }
+            /* { path: 'test', loadChildren: () => import('./pages/test/test.module').then(m => m.TestModule) } */
         ]
     },
     { path: 'landing', loadChildren: () => import('./pages/landing/landing.module').then(m => m.LandingModule) },

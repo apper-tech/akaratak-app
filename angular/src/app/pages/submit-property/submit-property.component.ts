@@ -4,9 +4,9 @@ import { MatStepper } from '@angular/material';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { AppService } from 'src/app/app.service';
 import { PropertyService } from 'src/app/shared/services/property.service';
-import { Category, Tag, Country, City } from '../../app.models';
+import { MapResult, MapAddressComponent } from '../../app.models';
 import { MapsAPILoader } from '@agm/core';
-import { CurrencyDto, CategoryDto, TagDto } from 'src/app/shared/services/service.base';
+import { CurrencyDto, CategoryDto, TagDto, CountryDto, CityDto } from 'src/app/shared/services/service.base';
 
 @Component({
   selector: 'app-submit-property',
@@ -21,8 +21,8 @@ export class SubmitPropertyComponent implements OnInit {
   public directions = [];
   public propertyTypes: CategoryDto[];
   public propertyTags: TagDto[];
-  public countries: Country[];
-  public cities: City[];
+  public countries: CountryDto[];
+  public cities: CityDto[];
   public propertyCurrencies: CurrencyDto[];
   public propertyStatuses = [];
   public lat: number = 40.678178;
@@ -123,6 +123,7 @@ export class SubmitPropertyComponent implements OnInit {
   public submit() {
     this.submitForm.value['address']['lat'] = this.lat;
     this.submitForm.value['address']['lng'] = this.lng;
+
     this.propertyService.submitProperty(this.submitForm.value).subscribe(result => this.submited);
   }
   public getCurrentSign() {
@@ -183,15 +184,14 @@ export class SubmitPropertyComponent implements OnInit {
 
   // -------------------- Address ---------------------------  
   public onSelectCountry() {
-    var code = this.submitForm.controls.address.get('country').value;
-    if (code) {
-      this.propertyService.getPropertyCities(code).subscribe((data) => {
+    var id = this.submitForm.controls.address.get('country').value;
+    if (id) {
+      this.propertyService.getPropertyCities(id).subscribe((data) => {
         this.cities = data;
         this.filteredCities = data.slice();
+        return data;
       });
     }
-    /*  this.submitForm.controls.address.get('neighborhood').setValue(null, { emitEvent: false });
-     this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false }); */
   }
   public onSelectNeighborhood() {
     this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false });
@@ -228,7 +228,7 @@ export class SubmitPropertyComponent implements OnInit {
       console.log(response);
       let address = response['results'][0].formatted_address;
       this.submitForm.controls.address.get('location').setValue(address);
-      this.setAddresses(response['results'][0]);
+      this.setAddresses(response['results']);
     })
   }
   public onMapClick(e: any) {
@@ -241,32 +241,37 @@ export class SubmitPropertyComponent implements OnInit {
   }
 
   public setAddresses(result) {
-    console.log(result);
-
-    this.submitForm.controls.address.get('city').setValue(null);
-    this.submitForm.controls.address.get('zipCode').setValue(null);
-    this.submitForm.controls.address.get('street').setValue(null);
-
-    var newCity, newCountry;
-
-    result.address_components.forEach(item => {
-      if (item.types.indexOf('country') > -1) {
-        newCountry = item['short_name'];
-        this.submitForm.controls.address.get('country').setValue(newCountry);
-      }
-    });
+    var countryCode = (<MapResult>result[0])
+      .address_components
+      .filter(x => x.types.includes('country'))[0].short_name;
+    if (countryCode) {
+      var countries = (<CountryDto[]>this.filteredCountries)
+        .filter(x => x.code === countryCode);
+      this.submitForm.controls.address.get('country')
+        .setValue(countries.length > 0 ? countries[0].id : -1);
+    }
 
 
-    result.address_components.forEach(item => {
-      if (item.types.indexOf('administrative_area_level_1') > -1) {
-        if (this.cities.filter(city => city.name == item.long_name)[0]) {
-          newCity = this.cities.filter(city => city.name == item.long_name)[0];
+
+
+    this.propertyService
+      .getPropertyCities(this.submitForm.controls.address.get('country').value)
+      .subscribe((data) => {
+        this.cities = data;
+        this.filteredCities = data.slice();
+
+        var cityName = (<MapResult>result[1])
+          .address_components
+          .filter(x => x.types.includes('political'))[0].short_name;
+
+        if (cityName) {
+          var cities = (<CityDto[]>this.filteredCities)
+            .filter(x => x.name === cityName);
+
+          this.submitForm.controls.address.get('city')
+            .setValue(cities.length > 0 ? cities[0].id : -1);
         }
-        this.submitForm.controls.address.get('city').setValue(newCity);
-      }
-    });
-
-
+      });
   }
 
 

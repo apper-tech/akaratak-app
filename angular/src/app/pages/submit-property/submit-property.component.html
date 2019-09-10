@@ -17,8 +17,12 @@
               <div fxFlex="100" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Title</mat-label>
-                  <input matInput placeholder="Title" formControlName="title" required autocomplete="off">
+                  <input matInput placeholder="Title" formControlName="title" required autocomplete="off"
+                    minlength="20">
                   <mat-error *ngIf="submitForm.get('basic')['controls'].title.errors?.required">Title is required
+                  </mat-error>
+                  <mat-error *ngIf="submitForm.get('basic')['controls'].title.errors?.minlength">Title Must be Greater
+                    than 20
                   </mat-error>
                 </mat-form-field>
               </div>
@@ -26,8 +30,13 @@
               <div fxFlex="100" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Description</mat-label>
-                  <textarea matInput placeholder="Description" required formControlName="desc" rows="7"></textarea>
+                  <textarea matInput placeholder="Description" required formControlName="desc" rows="7"
+                    minlength="10"></textarea>
                   <mat-error *ngIf="submitForm.get('basic')['controls'].desc.errors?.required">Description is required
+                  </mat-error>
+                  <mat-error *ngIf="submitForm.get('basic')['controls'].title.errors?.minlength">Description Must be
+                    Greater
+                    than 10
                   </mat-error>
                 </mat-form-field>
               </div>
@@ -203,7 +212,7 @@
                     <mat-select-filter [array]="countries" [displayMember]="'name'" class="mat-filter"
                       [placeholder]="'Find By Country..'" (filteredReturn)="filteredCountries = $event">
                     </mat-select-filter>
-                    <mat-option *ngFor="let country of filteredCountries" [value]="country.code">
+                    <mat-option *ngFor="let country of filteredCountries" [value]="country.id">
                       {{country.name}} -<i> {{country.nativeName}}</i>
                     </mat-option>
                   </mat-select>
@@ -239,8 +248,11 @@
               <div fxFlex="100" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Street</mat-label>
-                  <input matInput placeholder="Street" formControlName="street" required autocomplete="off">
+                  <input matInput placeholder="Street" formControlName="street" required autocomplete="off"
+                    minlength="15">
                   <mat-error *ngIf="submitForm.get('address')['controls'].street.errors?.required">Street is required
+                  </mat-error>
+                  <mat-error *ngIf="submitForm.get('address')['controls'].street.errors?.required">Street is Too Short
                   </mat-error>
                 </mat-form-field>
               </div>
@@ -275,55 +287,56 @@
               <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Bedrooms</mat-label>
-                  <input matInput placeholder="bedrooms" autocomplete="off" formControlName="bedrooms" onlyNumber
-                    maxlength="2">
+                  <input matInput required placeholder="bedrooms" autocomplete="off" formControlName="bedrooms"
+                    onlyNumber minlength="1" maxlength="2">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Bathrooms</mat-label>
-                  <input matInput placeholder="bathrooms" autocomplete="off" formControlName="bathrooms" onlyNumber
-                    maxlength="2">
+                  <input matInput required placeholder="bathrooms" autocomplete="off" formControlName="bathrooms"
+                    onlyNumber minlength="1" maxlength="2">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="33.3" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Rooms</mat-label>
-                  <input matInput placeholder="Rooms" autocomplete="off" formControlName="rooms" onlyNumber
-                    maxlength="2">
+                  <input matInput required placeholder="Rooms" autocomplete="off" formControlName="rooms" onlyNumber
+                    minlength="1" maxlength="2">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="25" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Balconies</mat-label>
-                  <input matInput placeholder="Balconies" autocomplete="off" formControlName="balconies" onlyNumber
-                    maxlength="4">
+                  <input matInput required placeholder="Balconies" autocomplete="off" formControlName="balconies"
+                    onlyNumber minlength="1" maxlength="4">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="25" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Area (ft²)</mat-label>
-                  <input matInput placeholder="Area" autocomplete="off" formControlName="area" onlyNumber>
+                  <input matInput required placeholder="Area" autocomplete="off" formControlName="area" onlyNumber
+                    minlength="1" maxlength="3">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="25" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Year Built</mat-label>
-                  <input matInput placeholder="Year Built" autocomplete="off" formControlName="yearBuilt" onlyNumber
-                    maxlength="4">
+                  <input matInput required placeholder="Year Built" autocomplete="off" formControlName="yearBuilt"
+                    onlyNumber minlength="1" maxlength="4">
                 </mat-form-field>
               </div>
 
               <div fxFlex="100" fxFlex.gt-xs="25" class="px-2">
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Owners</mat-label>
-                  <input matInput placeholder="Number of Owners" autocomplete="off" formControlName="owners" onlyNumber
-                    maxlength="4">
+                  <input matInput required placeholder="Number of Owners" autocomplete="off" formControlName="owners"
+                    onlyNumber minlength="1" maxlength="4">
                 </mat-form-field>
               </div>
 

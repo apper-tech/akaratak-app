@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Category } from '../../app.models'
 import { AppService } from '../../app.service';
 import { PropertyService } from '../services/property.service';
+import { CategoryDto } from '../services/service.base';
 
 @Component({
   selector: 'app-properties-search',
@@ -18,7 +19,7 @@ export class PropertiesSearchComponent implements OnInit {
   @Output() onSearchClick: EventEmitter<any> = new EventEmitter<any>();
   public showMore: boolean = false;
   public form: FormGroup;
-  public propertyTypes: Category[];
+  public propertyTypes: CategoryDto[];
   public propertyStatuses = [];
   public cities = [];
   public neighborhoods = [];

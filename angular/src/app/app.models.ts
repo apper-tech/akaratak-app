@@ -3,6 +3,49 @@ export class Describer {
         return Object.getOwnPropertyNames(instance);
     }
 }
+export interface MapAddressDto {
+    plus_code: MapPlusCode;
+    results: MapResult[];
+    status: string;
+}
+
+export interface MapPlusCode {
+    compound_code: string;
+    global_code: string;
+}
+
+export interface MapResult {
+    address_components: MapAddressComponent[];
+    formatted_address: string;
+    geometry: MapGeometry;
+    place_id: string;
+    plus_code?: MapPlusCode;
+    types: string[];
+}
+
+export interface MapAddressComponent {
+    long_name: string;
+    short_name: string;
+    types: string[];
+}
+
+export interface MapGeometry {
+    location: MapLocation;
+    location_type: string;
+    viewport: MapBounds;
+    bounds?: MapBounds;
+}
+
+export interface MapBounds {
+    northeast: MapLocation;
+    southwest: MapLocation;
+}
+
+export interface MapLocation {
+    lat: number;
+    lng: number;
+}
+
 export class Property {
     constructor(public id: number,
         public title: string = "",
@@ -120,6 +163,7 @@ export class SubCategory {
         public name: string,
         public description: string) { }
 }
+
 export class Area {
     constructor(public id: number,
         public value: number,

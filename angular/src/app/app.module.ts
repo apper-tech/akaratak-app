@@ -21,7 +21,7 @@ import { AppComponent } from './app.component';
 import { AppSettings } from './app.settings';
 import { AppInterceptor } from './theme/utils/app-interceptor';
 
-  
+
 import { PagesComponent } from './pages/pages.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { Toolbar1Component } from './theme/components/toolbar1/toolbar1.component';
@@ -36,6 +36,7 @@ import { HorizontalMenuComponent } from './theme/components/menu/horizontal-menu
 import { VerticalMenuComponent } from './theme/components/menu/vertical-menu/vertical-menu.component';
 import { FooterComponent } from './theme/components/footer/footer.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
+import { TestModule } from './pages/test/test.module'
 
 
 @NgModule({
@@ -60,9 +61,10 @@ import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
+    TestModule,
     HttpClientModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyAAYi6itRZ0rPgI76O3I83BhhzZHIgMwPg',
+      apiKey: 'AIzaSyBpW6QIG6xYhHnfuxmwx47k2RAE8TXGNBQ',
       libraries: ["places"]
     }),
     EmbedVideo.forRoot(),

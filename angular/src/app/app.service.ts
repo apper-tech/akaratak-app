@@ -24,7 +24,7 @@ export class AppService {
     []  // locations
   )
   public url = "assets/data/";
-  public apiKey = 'AIzaSyBFHJ4va9HHPRJ4LvzihgXJ47qFCFYBQ38';
+  public apiKey = 'AIzaSyBpW6QIG6xYhHnfuxmwx47k2RAE8TXGNBQ';
 
   constructor(public http: HttpClient,
     private bottomSheet: MatBottomSheet,

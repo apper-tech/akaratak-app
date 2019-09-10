@@ -1,7 +1,7 @@
 @import "~@angular/material/theming";
 
 $custom-typography: mat-typography-config(
-  $font-family: 'Montserrat'
+  $font-family: 'Montserrat ,Cairo'
 );
 
 @include mat-core($custom-typography);
