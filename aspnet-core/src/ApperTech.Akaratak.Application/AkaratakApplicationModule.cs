@@ -1,7 +1,9 @@
 ﻿using Abp.AutoMapper;
+using Abp.Domain.Repositories;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using ApperTech.Akaratak.Authorization;
+using ApperTech.Akaratak.Realestate;
 using ApperTech.Akaratak.Realestate.Dto;
 
 namespace ApperTech.Akaratak
@@ -14,6 +16,8 @@ namespace ApperTech.Akaratak
         public override void PreInitialize()
         {
             Configuration.Authorization.Providers.Add<AkaratakAuthorizationProvider>();
+            Configuration.MultiTenancy.IsEnabled = false;
+            Configuration.MultiTenancy.IgnoreFeatureCheckForHostUsers = true;
         }
 
         public override void Initialize()

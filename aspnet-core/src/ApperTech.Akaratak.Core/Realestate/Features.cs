@@ -2,14 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities.Auditing;
+using Newtonsoft.Json;
 
 namespace ApperTech.Akaratak.Realestate
 {
     [Table("AppFeatures")]
     public class Features : FullAuditedEntity<int>
     {
-        public ICollection<Tag> Tags { get; set; }
+        public ICollection<FeaturesTag> FeaturesTags { get; set; }
 
+        [JsonIgnore]
         public Property Property { get; set; }
 
         [Required]

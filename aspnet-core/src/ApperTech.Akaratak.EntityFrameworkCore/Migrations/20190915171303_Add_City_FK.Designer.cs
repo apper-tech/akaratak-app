@@ -4,14 +4,16 @@ using ApperTech.Akaratak.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.Migrations
 {
     [DbContext(typeof(AkaratakDbContext))]
-    partial class AkaratakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190915171303_Add_City_FK")]
+    partial class Add_City_FK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1106,13 +1108,15 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<long?>("LastModifierUserId");
 
-                    b.Property<float>("Latitude");
+                    b.Property<float>("Latitude")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(40);
 
-                    b.Property<float>("Longitude");
+                    b.Property<float>("Longitude")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Street")
                         .IsRequired()
@@ -1167,7 +1171,7 @@ namespace ApperTech.Akaratak.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CountryId");
+                    b.Property<int?>("CountryId");
 
                     b.Property<DateTime>("CreationTime");
 
@@ -1187,9 +1191,11 @@ namespace ApperTech.Akaratak.Migrations
                         .IsRequired()
                         .HasMaxLength(50);
 
-                    b.Property<float>("Latitude");
+                    b.Property<float>("Latitude")
+                        .HasMaxLength(50);
 
-                    b.Property<float>("Longitude");
+                    b.Property<float>("Longitude")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1347,19 +1353,6 @@ namespace ApperTech.Akaratak.Migrations
                     b.ToTable("AppFeatures");
                 });
 
-            modelBuilder.Entity("ApperTech.Akaratak.Realestate.FeaturesTag", b =>
-                {
-                    b.Property<int>("TagId");
-
-                    b.Property<int>("FeaturesId");
-
-                    b.HasKey("TagId", "FeaturesId");
-
-                    b.HasIndex("FeaturesId");
-
-                    b.ToTable("AppFeaturesTag");
-                });
-
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Offer", b =>
                 {
                     b.Property<int>("Id")
@@ -1370,7 +1363,7 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<long?>("CreatorUserId");
 
-                    b.Property<int>("CurrencyId");
+                    b.Property<int?>("CurrencyId");
 
                     b.Property<long?>("DeleterUserId");
 
@@ -1407,11 +1400,14 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<long?>("CreatorUserId");
 
+                    b.Property<DateTime>("DateAdded");
+
                     b.Property<long?>("DeleterUserId");
 
                     b.Property<DateTime?>("DeletionTime");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(50);
 
                     b.Property<bool>("IsDeleted");
@@ -1424,8 +1420,6 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<int?>("Photo");
 
-                    b.Property<int>("PropertyId");
-
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasMaxLength(50);
@@ -1435,7 +1429,7 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PropertyId");
+                    b.HasIndex("Photo");
 
                     b.ToTable("AppPhoto");
                 });
@@ -1506,7 +1500,7 @@ namespace ApperTech.Akaratak.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CategoryId");
+                    b.Property<int?>("CategoryId");
 
                     b.Property<DateTime>("CreationTime");
 
@@ -1551,7 +1545,11 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<DateTime?>("DeletionTime");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50);
+
+                    b.Property<int?>("FeaturesId");
 
                     b.Property<bool>("IsDeleted");
 
@@ -1564,6 +1562,8 @@ namespace ApperTech.Akaratak.Migrations
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FeaturesId");
 
                     b.ToTable("AppTag");
                 });
@@ -1749,37 +1749,21 @@ namespace ApperTech.Akaratak.Migrations
                 {
                     b.HasOne("ApperTech.Akaratak.Realestate.Country", "Country")
                         .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ApperTech.Akaratak.Realestate.FeaturesTag", b =>
-                {
-                    b.HasOne("ApperTech.Akaratak.Realestate.Features", "Features")
-                        .WithMany("FeaturesTags")
-                        .HasForeignKey("FeaturesId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ApperTech.Akaratak.Realestate.Tag", "Tag")
-                        .WithMany("FeaturesTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CountryId");
                 });
 
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Offer", b =>
                 {
                     b.HasOne("ApperTech.Akaratak.Realestate.Currency", "Currency")
                         .WithMany()
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CurrencyId");
                 });
 
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Photo", b =>
                 {
                     b.HasOne("ApperTech.Akaratak.Realestate.Property", "Property")
                         .WithMany("Photos")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("Photo");
                 });
 
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Property", b =>
@@ -1821,8 +1805,14 @@ namespace ApperTech.Akaratak.Migrations
                 {
                     b.HasOne("ApperTech.Akaratak.Realestate.Category", "Category")
                         .WithMany("PropertyTypes")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CategoryId");
+                });
+
+            modelBuilder.Entity("ApperTech.Akaratak.Realestate.Tag", b =>
+                {
+                    b.HasOne("ApperTech.Akaratak.Realestate.Features")
+                        .WithMany("Tags")
+                        .HasForeignKey("FeaturesId");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>

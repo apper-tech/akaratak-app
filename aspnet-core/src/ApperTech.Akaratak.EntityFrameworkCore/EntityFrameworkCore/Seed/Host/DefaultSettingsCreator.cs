@@ -20,7 +20,7 @@ namespace ApperTech.Akaratak.EntityFrameworkCore.Seed.Host
         {
             int? tenantId = null;
 
-            if (AkaratakConsts.MultiTenancyEnabled == false)
+            if (!AkaratakConsts.MultiTenancyEnabled)
             {
                 tenantId = MultiTenancyConsts.DefaultTenantId;
             }

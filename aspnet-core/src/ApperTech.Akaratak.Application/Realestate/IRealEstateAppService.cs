@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using ApperTech.Akaratak.Realestate.Dto;
@@ -9,9 +9,10 @@ namespace ApperTech.Akaratak.Realestate
 {
     public interface IPropertyAppService : IApplicationService
     {
-        Task<PropertyDto> Create(CreatePropertyInput input);
+        Task<int> Create(CreatePropertyInput input);
+        Task<PropertyDto> GetById(int propertyId);
+        Task<List<PropertyDto>> GetAll(GetAllPropertyInput input);
     }
-
     public interface ICurrencyAppService : IApplicationService
     {
         Task<List<CurrencyDto>> GetAll();
@@ -33,11 +34,14 @@ namespace ApperTech.Akaratak.Realestate
     public interface ITagAppService : IApplicationService
     {
         Task<List<TagDto>> GetAll();
+        Task<TagDto> Create(CreateTagInput input);
+
     }
+
     public interface IPhotoAppService : IApplicationService
     {
         Task<List<PhotoDto>> GetPhotos(int propertyId);
 
-        Task<List<PhotoDto>> AddPhotoForProperty(int propertyId, IFormFile file);
+        Task<bool> AddPhotoForProperty(int propertyId, IFormFile file);
     }
 }

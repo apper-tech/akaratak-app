@@ -25,6 +25,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ApperTech.Akaratak.EntityFrameworkCore\ApperTech.Akaratak.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\ApperTech.Akaratak.Web.Core\ApperTech.Akaratak.Web.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

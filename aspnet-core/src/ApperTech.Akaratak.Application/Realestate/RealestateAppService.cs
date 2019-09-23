@@ -2,12 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
+using Abp.Authorization;
+using Abp.Collections.Extensions;
 using Abp.Configuration;
 using Abp.Domain.Repositories;
 using Abp.ObjectMapping;
 using Abp.Timing;
 using Abp.UI;
 using ApperTech.Akaratak.Realestate.Dto;
+using ApperTech.Akaratak.Realestate.Manager;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
@@ -19,29 +22,77 @@ namespace ApperTech.Akaratak.Realestate
     public class PropertyAppService : ApplicationService, IPropertyAppService
     {
         private readonly IRepository<Property> _repository;
+        private readonly ITagManager _tagManager;
         private readonly IObjectMapper _objectMapper;
 
         public PropertyAppService(IRepository<Property> repository,
+            ITagManager tagManager,
             IObjectMapper objectMapper)
         {
             _repository = repository;
+            _tagManager = tagManager;
             _objectMapper = objectMapper;
         }
-        public async Task<PropertyDto> Create(CreatePropertyInput input)
+        [AbpAuthorize()]
+        public async Task<int> Create(CreatePropertyInput input)
         {
-            return _objectMapper.Map<PropertyDto>(
-                await _repository.InsertAsync(new Property
-                {
-                    Address = _objectMapper.Map<Address>(input.Address),
-                    Offer = _objectMapper.Map<Offer>(input.Offer),
-                    Features = _objectMapper.Map<Features>(input.Features),
-                    PropertyType = new PropertyType { Id = input.PropertyType },
-                    ListingDate = Clock.Now,
-                    PublishDate = Clock.Now,
-                    ExpireDate = input.ExpireDate,
-                }));
+            var property = new Property
+            {
+                Address = _objectMapper.Map<Address>(input.Address),
+                Offer = _objectMapper.Map<Offer>(input.Offer),
+                Features = _objectMapper.Map<Features>(input.Features),
+                PropertyTypeId = input.PropertyType,
+                ListingDate = Clock.Now,
+                PublishDate = Clock.Now,
+                ExpireDate = input.ExpireDate,
+            };
+            (await _tagManager.GetByIds(input.Features.Tags))
+                .ToList().ForEach(x => property.Features.FeaturesTags
+                    .Add(new FeaturesTag { Tag = x, Features = property.Features }));
+
+            var id = await _repository.InsertAndGetIdAsync(property);
+
+            if (id > 0)
+                return id;
+            else
+                throw new UserFriendlyException("Error While Inserting Property");
+        }
+
+        public async Task<PropertyDto> GetById(int propertyId)
+        {
+            return _objectMapper.Map<PropertyDto>(await GetPropertyWithDependencies(propertyId));
+        }
+
+        public async Task<List<PropertyDto>> GetAll(GetAllPropertyInput input)
+        {
+            return _objectMapper.Map<List<PropertyDto>>(
+                (await _repository.GetAllListAsync())
+                .Select(async x => (await GetPropertyWithDependencies(x.Id)))
+                .Select(t => t.Result)
+                .WhereIf(input.Bedrooms.HasValue,
+                    p => p.Features.Bedrooms > input.Bedrooms)
+                .ToList()
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount));
+        }
+
+        private async Task<Property> GetPropertyWithDependencies(int propertyId)
+        {
+            return (await _repository
+                .GetAllIncluding(
+                    x => x.Address.City.Country,
+                    x => x.PropertyType,
+                    x => x.Features,
+                    x => x.Offer.Currency
+                )
+                .Include(x => x.Photos)
+                .Include(x => x.Features.FeaturesTags)
+                .ThenInclude(x => x.Tag)
+                .Where(x => x.Id == propertyId)
+                .FirstOrDefaultAsync());
         }
     }
+
     public class CurrencyAppService : ApplicationService, ICurrencyAppService
     {
         private readonly IRepository<Currency> _repository;
@@ -144,23 +195,37 @@ namespace ApperTech.Akaratak.Realestate
             _repository = repository;
             _objectMapper = objectMapper;
         }
-
+        [AbpAuthorize()]
         public async Task<List<TagDto>> GetAll()
         {
             return _objectMapper.Map<List<TagDto>>
             (await _repository
                 .GetAllListAsync());
         }
+        [AbpAuthorize()]
+        public async Task<TagDto> Create(CreateTagInput input)
+        {
+            if ((await _repository.GetAllListAsync())
+                .Where(x => x.Name == input.Name)
+                .ToList().Count == 0)
+                return _objectMapper.Map<TagDto>(
+                   await _repository.GetAsync(
+                       await _repository.InsertAndGetIdAsync(new Tag
+                       {
+                           Name = input.Name
+                       })));
+            throw new UserFriendlyException("Tag Already Exists!");
+        }
     }
 
     public class PhotoAppService : ApplicationService, IPhotoAppService
     {
-        private readonly IRepository<Property> _repository;
+        private readonly IRepository<Photo> _repository;
         private readonly IObjectMapper _objectMapper;
         private readonly ISettingManager _settingManager;
         private Cloudinary _cloudinary;
 
-        public PhotoAppService(IRepository<Property> repository
+        public PhotoAppService(IRepository<Photo> repository
             , IObjectMapper objectMapper
             , ISettingManager settingManager)
         {
@@ -188,22 +253,18 @@ namespace ApperTech.Akaratak.Realestate
             (await _repository
                 .GetAllListAsync());
         }
-
-        public async Task<List<PhotoDto>> AddPhotoForProperty(int propertyId, [FromForm]IFormFile file)
+        [AbpAuthorize()]
+        public async Task<bool> AddPhotoForProperty(int propertyId, [FromForm]IFormFile file)
         {
-            var property = await _repository
-                .GetAllIncluding(p => p.Photos)
-                .Where(p => p.Id == propertyId)
-                .FirstAsync();
 
-            if (property == null)
+            if (propertyId <= 0)
                 throw new UserFriendlyException("Property Doesn't Exist");
-            var photoDto = new PhotoDto();
 
             ImageUploadResult uploadResult;
 
             if (file.Length <= 0)
-                return ObjectMapper.Map<List<PhotoDto>>((await _repository.UpdateAsync(property)).Photos);
+                throw new UserFriendlyException("No Image");
+
             using (var stream = file.OpenReadStream())
             {
                 var uploadParams = new ImageUploadParams()
@@ -214,17 +275,20 @@ namespace ApperTech.Akaratak.Realestate
                 uploadResult = _cloudinary.Upload(uploadParams);
             }
 
+            var photo = new Photo
+            {
+                Url = uploadResult.Uri.ToString(),
+                PublicId = uploadResult.PublicId,
+                PropertyId = propertyId
+            };
 
-            photoDto.Url = uploadResult.Uri.ToString();
-            photoDto.PublicId = uploadResult.PublicId;
+            if (!(await _repository.GetAllListAsync())
+                .Where(x => x.PropertyId == propertyId)
+                .Any(m => m.IsMain))
+                photo.IsMain = true;
 
-
-            if (!property.Photos.Any(m => m.IsMain))
-                photoDto.IsMain = true;
-
-            property.Photos.Add(ObjectMapper.Map<Photo>(photoDto));
-
-            return ObjectMapper.Map<List<PhotoDto>>((await _repository.UpdateAsync(property)).Photos);
+            var id = await _repository.InsertAndGetIdAsync(photo);
+            return id > 0;
         }
     }
 }

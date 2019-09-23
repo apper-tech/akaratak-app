@@ -1,4 +1,5 @@
 ﻿using Abp.EntityFrameworkCore.Configuration;
+
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Abp.Zero.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using ApperTech.Akaratak.EntityFrameworkCore.Seed;
 namespace ApperTech.Akaratak.EntityFrameworkCore
 {
     [DependsOn(
-        typeof(AkaratakCoreModule), 
+        typeof(AkaratakCoreModule),
         typeof(AbpZeroCoreEntityFrameworkCoreModule))]
     public class AkaratakEntityFrameworkModule : AbpModule
     {

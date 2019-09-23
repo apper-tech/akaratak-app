@@ -8,6 +8,8 @@ namespace ApperTech.Akaratak.Realestate
     [Table("AppPropertyType")]
     public class PropertyType : FullAuditedEntity<int>
     {
+        [ForeignKey("CategoryFK")]
+        public int CategoryId { get; set; }
         public Category Category { get; set; } 
 
         [Required, MinLength(3), MaxLength(20)]

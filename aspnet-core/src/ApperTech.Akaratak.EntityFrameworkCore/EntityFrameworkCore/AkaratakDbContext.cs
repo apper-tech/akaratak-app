@@ -9,6 +9,11 @@ namespace ApperTech.Akaratak.EntityFrameworkCore
 {
     public class AkaratakDbContext : AbpZeroDbContext<Tenant, Role, User, AkaratakDbContext>
     {
+        /* Identity Server Models*/
+
+
+
+        /* Real Estate Models*/
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
@@ -47,10 +52,26 @@ namespace ApperTech.Akaratak.EntityFrameworkCore
             modelBuilder.Entity<PropertyType>()
                 .HasOne(p => p.Category);
 
+            modelBuilder.Entity<FeaturesTag>()
+                .HasKey(bc => new { bc.TagId, bc.FeaturesId });
+
+            modelBuilder.Entity<FeaturesTag>()
+                .HasOne(bc => bc.Tag)
+                .WithMany(b => b.FeaturesTags)
+                .HasForeignKey(bc => bc.TagId);
+
+            modelBuilder.Entity<Property>()
+                .HasMany(x => x.Photos)
+                .WithOne(x => x.Property)
+                .HasForeignKey(x => x.PropertyId);
+
+            modelBuilder.Entity<FeaturesTag>()
+                .HasOne(bc => bc.Features)
+                .WithMany(c => c.FeaturesTags)
+                .HasForeignKey(bc => bc.FeaturesId);
 
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }
 

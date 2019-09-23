@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
+    [AutoMapFrom(typeof(Features))]
     public class FeaturesDto : IEntityDto<int>
     {
         public virtual int Id { get; set; }
@@ -16,10 +17,10 @@ namespace ApperTech.Akaratak.Realestate.Dto
         [Required, MinLength(10), MaxLength(50)]
         public string Description { get; set; }
 
-        public ICollection<int> Tags { get; set; }
+        public ICollection<TagDto> Tags { get; set; }
 
         [Required]
-        public ICollection<int> Direction { get; set; }
+        public Direction Direction { get; set; } = Direction.East | Direction.North;
 
         [Required]
         public bool Cladding { get; set; }
@@ -56,5 +57,8 @@ namespace ApperTech.Akaratak.Realestate.Dto
     {
         [JsonIgnore]
         public override int Id { get; set; }
+        public new ICollection<int> Tags { get; set; }
+        [Required]
+        public new ICollection<int> Direction { get; set; }
     }
 }

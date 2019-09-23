@@ -33,6 +33,7 @@ namespace ApperTech.Akaratak.Realestate
         [ForeignKey("Photo")]
         public ICollection<Photo> Photos { get; set; }
 
+
         [Required, DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true)]
         public DateTime ListingDate { get; set; } = Clock.Now;
 

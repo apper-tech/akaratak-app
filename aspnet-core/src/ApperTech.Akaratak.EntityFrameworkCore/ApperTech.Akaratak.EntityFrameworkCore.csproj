@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
@@ -37,8 +37,17 @@
     <Compile Remove="Migrations\20190831155154_Add_Entities.Designer.cs" />
     <Compile Remove="Migrations\20190831155845_Add_Entities.cs" />
     <Compile Remove="Migrations\20190831155845_Add_Entities.Designer.cs" />
+    <Compile Remove="Migrations\20190917092108_Photo_FK.cs" />
+    <Compile Remove="Migrations\20190917092108_Photo_FK.Designer.cs" />
+    <Compile Remove="Migrations\20190917093105_Photo_FK_Update.cs" />
+    <Compile Remove="Migrations\20190917093105_Photo_FK_Update.Designer.cs" />
+    <Compile Remove="Migrations\20190917094342_Photo_FK_Update.cs" />
+    <Compile Remove="Migrations\20190917094342_Photo_FK_Update.Designer.cs" />
+    <Compile Remove="Migrations\20190917105515_Photo_Remove_Date_Added.cs" />
+    <Compile Remove="Migrations\20190917105515_Photo_Remove_Date_Added.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Abp.EntityFramework" Version="4.9.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.4">
       <PrivateAssets>all</PrivateAssets>

@@ -17,6 +17,8 @@ using ApperTech.Akaratak.Identity;
 
 using Abp.AspNetCore.SignalR.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using ApperTech.Akaratak.Authorization.Users;
+using ApperTech.Akaratak.EntityFrameworkCore;
 
 namespace ApperTech.Akaratak.Web.Host.Startup
 {
@@ -78,6 +80,10 @@ namespace ApperTech.Akaratak.Web.Host.Startup
 
                 options.OperationFilter<FormFileSwaggerFilter>();
             });
+
+            //Add Identity Server 4 Integration
+           
+
 
             // Configure Abp and Dependency Injection
             return services.AddAbp<AkaratakWebHostModule>(

@@ -10,7 +10,7 @@ namespace ApperTech.Akaratak.Realestate.Dto
     {
         public virtual int Id { get; set; }
 
-        public int City { get; set; }
+        public CityDto City { get; set; }
 
         [Required, MinLength(10), MaxLength(40)]
         public string Location { get; set; }
@@ -18,14 +18,15 @@ namespace ApperTech.Akaratak.Realestate.Dto
         public string ZipCode { get; set; }
         [Required, MinLength(15), MaxLength(60)]
         public string Street { get; set; }
-        [Required, Range(0, int.MaxValue)]
+        [Required, Range(-90f, +90f)]
         public float Latitude { get; set; }
-        [Required, Range(0, int.MaxValue)]
+        [Required, Range(-180f, +180f)]
         public float Longitude { get; set; }
     }
     [AutoMapTo(typeof(Address))]
     public class CreateAddressInput : AddressDto
     {
-        [JsonIgnore] public int Id { get; set; }
+        [JsonIgnore] public override int Id { get; set; }
+        public new int City { get; set; }
     }
 }

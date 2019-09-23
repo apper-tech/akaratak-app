@@ -9,5 +9,7 @@ namespace ApperTech.Akaratak.Authorization.Accounts
         Task<IsTenantAvailableOutput> IsTenantAvailable(IsTenantAvailableInput input);
 
         Task<RegisterOutput> Register(RegisterInput input);
+
+        Task<LogInOutput> LogIn(LogInInput input);
     }
 }

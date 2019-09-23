@@ -2,23 +2,25 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using Abp.Timing;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
+    [AutoMapFrom(typeof(Property))]
     public class PropertyDto : IEntityDto<int>
     {
         public virtual int Id { get; set; }
         [Required]
-        public Address Address { get; set; }
+        public AddressDto Address { get; set; }
         [Required]
-        public PropertyType PropertyType { get; set; }
+        public PropertyTypeDto PropertyType { get; set; }
         [Required]
-        public Offer Offer { get; set; }
+        public OfferDto Offer { get; set; }
         [Required]
-        public Features Features { get; set; }
+        public FeaturesDto Features { get; set; }
         [Required]
-        public ICollection<Photo> Photos { get; set; }
+        public ICollection<PhotoDto> Photos { get; set; }
 
         [Required, DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true)]
         public DateTime ListingDate { get; set; } = Clock.Now;

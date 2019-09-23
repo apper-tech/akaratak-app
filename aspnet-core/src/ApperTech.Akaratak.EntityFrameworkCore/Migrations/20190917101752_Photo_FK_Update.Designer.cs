@@ -4,14 +4,16 @@ using ApperTech.Akaratak.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.Migrations
 {
     [DbContext(typeof(AkaratakDbContext))]
-    partial class AkaratakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190917101752_Photo_FK_Update")]
+    partial class Photo_FK_Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1551,7 +1553,9 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<DateTime?>("DeletionTime");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.Property<bool>("IsDeleted");
 

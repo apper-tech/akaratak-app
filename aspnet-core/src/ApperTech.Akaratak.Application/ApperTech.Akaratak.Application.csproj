@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApperTech.Akaratak.Core\ApperTech.Akaratak.Core.csproj" />
+    <ProjectReference Include="..\ApperTech.Akaratak.EntityFrameworkCore\ApperTech.Akaratak.EntityFrameworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNetCore.Mvc.Core">

@@ -21,10 +21,10 @@ namespace ApperTech.Akaratak.Realestate.Dto
         [Required, MinLength(5), MaxLength(50)]
         public string LatinName { get; set; }
 
-        [Required, MinLength(5), MaxLength(50)]
+        [Required, Range(-90f, +90f)]
         public float Latitude { get; set; }
 
-        [Required, MinLength(5), MaxLength(50)]
+        [Required, Range(-180f, +180f)]
         public float Longitude { get; set; }
     }
 }
