@@ -73,6 +73,7 @@ import { OurAgentsComponent } from './our-agents/our-agents.component';
 import { MissionComponent } from './mission/mission.component';
 import { OurServicesComponent } from './our-services/our-services.component';
 import { LogoComponent } from './logo/logo.component';
+import { LogoLargeComponent } from './logo-large/logo-large.component';
 
 @NgModule({
   imports: [
@@ -164,6 +165,7 @@ import { LogoComponent } from './logo/logo.component';
     DirectivesModule,
     ServiceBaseModule,
     LogoComponent,
+    LogoLargeComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
     PropertyItemComponent,
@@ -184,6 +186,7 @@ import { LogoComponent } from './logo/logo.component';
   ],
   declarations: [
     LogoComponent,
+    LogoLargeComponent,
     HeaderImageComponent,
     HeaderCarouselComponent,
     PropertyItemComponent,

@@ -57,10 +57,11 @@
     .toolbar-2 #main-toolbar{
         @include _mat-toolbar-color($primary);
     }
+    .logo svg{
+        fill: mat-color($primary);
+        max-width: 100%;
+    } 
     header{
-        .logo svg{
-            fill: mat-color($primary);
-        } 
         &.toolbar-1{        
             &.has-bg-image:not(.main-toolbar-fixed){
                 .logo svg{

@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import * as Api from './service.base';
 import * as moment from 'moment';
 import { CreateOfferInput, CreateFeaturesInput, PhotoService } from './service.base';
+import { async } from '@angular/core/testing';
 
 @Injectable({
   providedIn: 'root'
@@ -166,30 +167,26 @@ export class PropertyService {
     );
   }
 
-  public submitProperty(property): Observable<string> {
-    var propertyDto = this.ToPropertyDto(property);
-    console.log(propertyDto);
-
-    this.propertyService.create(propertyDto)
-      .subscribe(result => {
-        if (result.id) {
+  public async submitProperty(property): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      var result = true;
+      this.propertyService.create(this.ToPropertyDto(property)).subscribe(id => {
+        if (id) {
           var photos = property['basic']['gallery'];
-          if (photos.length === 0)
-            return of('success');
-          else {
+          if (photos)
             photos.forEach(photo => {
-              this.photoService.addPhotoForProperty(result.id,
-                ({ data: photo, fileName: photo.name } as Api.FileParameter))
-                .subscribe(photos => {
-                  if (photos.length > 0) {
-                    console.log(photos);
-                    return of('success');
-                  }
+              this.photoService.addPhotoForProperty(id,
+                ({ fileName: photo.file.name, data: photo.file } as Api.FileParameter))
+                .subscribe(added => {
+                  result = added;
                 });
             });
-          }
         }
-      });
-    return of('failed');
+        if (result)
+          resolve('success');
+        else
+          reject('Error While Adding');
+      })
+    })
   }
 }

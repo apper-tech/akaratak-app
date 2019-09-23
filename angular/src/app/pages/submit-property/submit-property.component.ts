@@ -7,6 +7,7 @@ import { PropertyService } from 'src/app/shared/services/property.service';
 import { MapResult, MapAddressComponent } from '../../app.models';
 import { MapsAPILoader } from '@agm/core';
 import { CurrencyDto, CategoryDto, TagDto, CountryDto, CityDto } from 'src/app/shared/services/service.base';
+import { error } from '@angular/compiler/src/util';
 
 @Component({
   selector: 'app-submit-property',
@@ -123,8 +124,12 @@ export class SubmitPropertyComponent implements OnInit {
   public submit() {
     this.submitForm.value['address']['lat'] = this.lat;
     this.submitForm.value['address']['lng'] = this.lng;
-
-    this.propertyService.submitProperty(this.submitForm.value).subscribe(result => this.submited);
+    this.propertyService.submitProperty(this.submitForm.value).then(value => {
+      this.submited = value;
+      console.log(value);
+    }).catch(error => {
+      console.error(error);
+    });
   }
   public getCurrentSign() {
     if (this.submitForm.get('basic')['controls'].propertyCurrency.value) {

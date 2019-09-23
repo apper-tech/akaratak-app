@@ -607,7 +607,7 @@ export interface IPhotoService {
      * @param file (optional) 
      * @return Success
      */
-    addPhotoForProperty(propertyId?: number | null | undefined, file?: FileParameter | null | undefined): Observable<PhotoDto[]>;
+    addPhotoForProperty(propertyId?: number | null | undefined, file?: FileParameter | null | undefined): Observable<boolean>;
 }
 
 @Injectable({
@@ -686,7 +686,7 @@ export class PhotoService implements IPhotoService {
      * @param file (optional) 
      * @return Success
      */
-    addPhotoForProperty(propertyId?: number | null | undefined, file?: FileParameter | null | undefined): Observable<PhotoDto[]> {
+    addPhotoForProperty(propertyId?: number | null | undefined, file?: FileParameter | null | undefined): Observable<boolean> {
         let url_ = this.baseUrl + "/api/services/app/Photo/AddPhotoForProperty?";
         if (propertyId !== undefined)
             url_ += "propertyId=" + encodeURIComponent("" + propertyId) + "&"; 
@@ -712,14 +712,14 @@ export class PhotoService implements IPhotoService {
                 try {
                     return this.processAddPhotoForProperty(<any>response_);
                 } catch (e) {
-                    return <Observable<PhotoDto[]>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<PhotoDto[]>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddPhotoForProperty(response: HttpResponseBase): Observable<PhotoDto[]> {
+    protected processAddPhotoForProperty(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -730,11 +730,7 @@ export class PhotoService implements IPhotoService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver).result;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(PhotoDto.fromJS(item));
-            }
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -742,7 +738,7 @@ export class PhotoService implements IPhotoService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<PhotoDto[]>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 }
 
@@ -751,7 +747,12 @@ export interface IPropertyService {
      * @param input (optional) 
      * @return Success
      */
-    create(input?: CreatePropertyInput | null | undefined): Observable<PropertyDto>;
+    create(input?: CreatePropertyInput | null | undefined): Observable<number>;
+    /**
+     * @param propertyId (optional) 
+     * @return Success
+     */
+    getById(propertyId?: number | null | undefined): Observable<PropertyDto>;
 }
 
 @Injectable({
@@ -771,7 +772,7 @@ export class PropertyService implements IPropertyService {
      * @param input (optional) 
      * @return Success
      */
-    create(input?: CreatePropertyInput | null | undefined): Observable<PropertyDto> {
+    create(input?: CreatePropertyInput | null | undefined): Observable<number> {
         let url_ = this.baseUrl + "/api/services/app/Property/Create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -794,6 +795,60 @@ export class PropertyService implements IPropertyService {
                 try {
                     return this.processCreate(<any>response_);
                 } catch (e) {
+                    return <Observable<number>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<number>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver).result;
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<number>(<any>null);
+    }
+
+    /**
+     * @param propertyId (optional) 
+     * @return Success
+     */
+    getById(propertyId?: number | null | undefined): Observable<PropertyDto> {
+        let url_ = this.baseUrl + "/api/services/app/Property/GetById?";
+        if (propertyId !== undefined)
+            url_ += "propertyId=" + encodeURIComponent("" + propertyId) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetById(<any>response_);
+                } catch (e) {
                     return <Observable<PropertyDto>><any>_observableThrow(e);
                 }
             } else
@@ -801,7 +856,7 @@ export class PropertyService implements IPropertyService {
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<PropertyDto> {
+    protected processGetById(response: HttpResponseBase): Observable<PropertyDto> {
         const status = response.status;
         const responseBlob = 
             response instanceof HttpResponse ? response.body : 
@@ -3015,9 +3070,9 @@ export interface ICurrencyDto {
 
 export class PhotoDto implements IPhotoDto {
     id?: number | undefined;
+    propertyId?: number | undefined;
     url!: string;
     description!: string;
-    dateAdded!: moment.Moment;
     isMain!: boolean;
     publicId!: string;
 
@@ -3033,9 +3088,9 @@ export class PhotoDto implements IPhotoDto {
     init(data?: any) {
         if (data) {
             this.id = data["id"];
+            this.propertyId = data["propertyId"];
             this.url = data["url"];
             this.description = data["description"];
-            this.dateAdded = data["dateAdded"] ? moment(data["dateAdded"].toString()) : <any>undefined;
             this.isMain = data["isMain"];
             this.publicId = data["publicId"];
         }
@@ -3051,9 +3106,9 @@ export class PhotoDto implements IPhotoDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["propertyId"] = this.propertyId;
         data["url"] = this.url;
         data["description"] = this.description;
-        data["dateAdded"] = this.dateAdded ? this.dateAdded.format('YYYY-MM-DD') : <any>undefined;
         data["isMain"] = this.isMain;
         data["publicId"] = this.publicId;
         return data; 
@@ -3062,9 +3117,9 @@ export class PhotoDto implements IPhotoDto {
 
 export interface IPhotoDto {
     id?: number | undefined;
+    propertyId?: number | undefined;
     url: string;
     description: string;
-    dateAdded: moment.Moment;
     isMain: boolean;
     publicId: string;
 }
@@ -3235,10 +3290,10 @@ export interface ICreateOfferInput {
 }
 
 export class CreateFeaturesInput implements ICreateFeaturesInput {
-    title!: string;
-    description!: string;
     tags?: number[] | undefined;
     direction!: number[];
+    title!: string;
+    description!: string;
     cladding!: boolean;
     empty!: boolean;
     heating!: boolean;
@@ -3268,8 +3323,6 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
 
     init(data?: any) {
         if (data) {
-            this.title = data["title"];
-            this.description = data["description"];
             if (Array.isArray(data["tags"])) {
                 this.tags = [] as any;
                 for (let item of data["tags"])
@@ -3280,6 +3333,8 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
                 for (let item of data["direction"])
                     this.direction!.push(item);
             }
+            this.title = data["title"];
+            this.description = data["description"];
             this.cladding = data["cladding"];
             this.empty = data["empty"];
             this.heating = data["heating"];
@@ -3306,8 +3361,6 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["description"] = this.description;
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
             for (let item of this.tags)
@@ -3318,6 +3371,8 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
             for (let item of this.direction)
                 data["direction"].push(item);
         }
+        data["title"] = this.title;
+        data["description"] = this.description;
         data["cladding"] = this.cladding;
         data["empty"] = this.empty;
         data["heating"] = this.heating;
@@ -3337,10 +3392,10 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
 }
 
 export interface ICreateFeaturesInput {
-    title: string;
-    description: string;
     tags?: number[] | undefined;
     direction: number[];
+    title: string;
+    description: string;
     cladding: boolean;
     empty: boolean;
     heating: boolean;
@@ -3359,11 +3414,11 @@ export interface ICreateFeaturesInput {
 
 export class PropertyDto implements IPropertyDto {
     id?: number | undefined;
-    address!: Address;
-    propertyType!: PropertyType;
-    offer!: Offer;
-    features!: Features;
-    photos!: Photo[];
+    address!: AddressDto;
+    propertyType!: PropertyTypeDto;
+    offer!: OfferDto;
+    features!: FeaturesDto;
+    photos!: PhotoDto[];
     listingDate!: moment.Moment;
     expireDate!: moment.Moment;
     publishDate!: moment.Moment;
@@ -3378,10 +3433,10 @@ export class PropertyDto implements IPropertyDto {
             }
         }
         if (!data) {
-            this.address = new Address();
-            this.propertyType = new PropertyType();
-            this.offer = new Offer();
-            this.features = new Features();
+            this.address = new AddressDto();
+            this.propertyType = new PropertyTypeDto();
+            this.offer = new OfferDto();
+            this.features = new FeaturesDto();
             this.photos = [];
         }
     }
@@ -3389,14 +3444,14 @@ export class PropertyDto implements IPropertyDto {
     init(data?: any) {
         if (data) {
             this.id = data["id"];
-            this.address = data["address"] ? Address.fromJS(data["address"]) : new Address();
-            this.propertyType = data["propertyType"] ? PropertyType.fromJS(data["propertyType"]) : new PropertyType();
-            this.offer = data["offer"] ? Offer.fromJS(data["offer"]) : new Offer();
-            this.features = data["features"] ? Features.fromJS(data["features"]) : new Features();
+            this.address = data["address"] ? AddressDto.fromJS(data["address"]) : new AddressDto();
+            this.propertyType = data["propertyType"] ? PropertyTypeDto.fromJS(data["propertyType"]) : new PropertyTypeDto();
+            this.offer = data["offer"] ? OfferDto.fromJS(data["offer"]) : new OfferDto();
+            this.features = data["features"] ? FeaturesDto.fromJS(data["features"]) : new FeaturesDto();
             if (Array.isArray(data["photos"])) {
                 this.photos = [] as any;
                 for (let item of data["photos"])
-                    this.photos!.push(Photo.fromJS(item));
+                    this.photos!.push(PhotoDto.fromJS(item));
             }
             this.listingDate = data["listingDate"] ? moment(data["listingDate"].toString()) : <any>undefined;
             this.expireDate = data["expireDate"] ? moment(data["expireDate"].toString()) : <any>undefined;
@@ -3436,11 +3491,11 @@ export class PropertyDto implements IPropertyDto {
 
 export interface IPropertyDto {
     id?: number | undefined;
-    address: Address;
-    propertyType: PropertyType;
-    offer: Offer;
-    features: Features;
-    photos: Photo[];
+    address: AddressDto;
+    propertyType: PropertyTypeDto;
+    offer: OfferDto;
+    features: FeaturesDto;
+    photos: PhotoDto[];
     listingDate: moment.Moment;
     expireDate: moment.Moment;
     publishDate: moment.Moment;
@@ -3448,24 +3503,16 @@ export interface IPropertyDto {
     extraData?: string | undefined;
 }
 
-export class Address implements IAddress {
-    property?: Property | undefined;
-    city?: City | undefined;
+export class AddressDto implements IAddressDto {
+    id?: number | undefined;
+    city?: CityDto | undefined;
     location!: string;
     zipCode?: string | undefined;
     street!: string;
     latitude!: number;
     longitude!: number;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 
-    constructor(data?: IAddress) {
+    constructor(data?: IAddressDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3476,238 +3523,111 @@ export class Address implements IAddress {
 
     init(data?: any) {
         if (data) {
-            this.property = data["property"] ? Property.fromJS(data["property"]) : <any>undefined;
-            this.city = data["city"] ? City.fromJS(data["city"]) : <any>undefined;
+            this.id = data["id"];
+            this.city = data["city"] ? CityDto.fromJS(data["city"]) : <any>undefined;
             this.location = data["location"];
             this.zipCode = data["zipCode"];
             this.street = data["street"];
             this.latitude = data["latitude"];
             this.longitude = data["longitude"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
         }
     }
 
-    static fromJS(data: any): Address {
+    static fromJS(data: any): AddressDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Address();
+        let result = new AddressDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["property"] = this.property ? this.property.toJSON() : <any>undefined;
+        data["id"] = this.id;
         data["city"] = this.city ? this.city.toJSON() : <any>undefined;
         data["location"] = this.location;
         data["zipCode"] = this.zipCode;
         data["street"] = this.street;
         data["latitude"] = this.latitude;
         data["longitude"] = this.longitude;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
         return data; 
     }
 }
 
-export interface IAddress {
-    property?: Property | undefined;
-    city?: City | undefined;
+export interface IAddressDto {
+    id?: number | undefined;
+    city?: CityDto | undefined;
     location: string;
     zipCode?: string | undefined;
     street: string;
     latitude: number;
     longitude: number;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 }
 
-export class PropertyType implements IPropertyType {
-    category?: Category | undefined;
-    name!: string;
-    description!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
+export class OfferDto implements IOfferDto {
     id?: number | undefined;
-
-    constructor(data?: IPropertyType) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.category = data["category"] ? Category.fromJS(data["category"]) : <any>undefined;
-            this.name = data["name"];
-            this.description = data["description"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): PropertyType {
-        data = typeof data === 'object' ? data : {};
-        let result = new PropertyType();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["category"] = this.category ? this.category.toJSON() : <any>undefined;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IPropertyType {
-    category?: Category | undefined;
-    name: string;
-    description: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Offer implements IOffer {
-    currency?: Currency | undefined;
-    property?: Property | undefined;
+    currency!: CurrencyDto;
     sale!: number;
     rent!: number;
     invest!: number;
     swap!: boolean;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 
-    constructor(data?: IOffer) {
+    constructor(data?: IOfferDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.currency = new CurrencyDto();
+        }
     }
 
     init(data?: any) {
         if (data) {
-            this.currency = data["currency"] ? Currency.fromJS(data["currency"]) : <any>undefined;
-            this.property = data["property"] ? Property.fromJS(data["property"]) : <any>undefined;
+            this.id = data["id"];
+            this.currency = data["currency"] ? CurrencyDto.fromJS(data["currency"]) : new CurrencyDto();
             this.sale = data["sale"];
             this.rent = data["rent"];
             this.invest = data["invest"];
             this.swap = data["swap"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
         }
     }
 
-    static fromJS(data: any): Offer {
+    static fromJS(data: any): OfferDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Offer();
+        let result = new OfferDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["currency"] = this.currency ? this.currency.toJSON() : <any>undefined;
-        data["property"] = this.property ? this.property.toJSON() : <any>undefined;
         data["sale"] = this.sale;
         data["rent"] = this.rent;
         data["invest"] = this.invest;
         data["swap"] = this.swap;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
         return data; 
     }
 }
 
-export interface IOffer {
-    currency?: Currency | undefined;
-    property?: Property | undefined;
+export interface IOfferDto {
+    id?: number | undefined;
+    currency: CurrencyDto;
     sale: number;
     rent: number;
     invest: number;
     swap: boolean;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 }
 
-export class Features implements IFeatures {
-    tags?: Tag[] | undefined;
-    property?: Property | undefined;
-    direction!: FeaturesDirection;
+export class FeaturesDto implements IFeaturesDto {
+    id?: number | undefined;
+    title!: string;
+    description!: string;
+    tags?: TagDto[] | undefined;
+    direction!: FeaturesDtoDirection;
     cladding!: boolean;
     empty!: boolean;
     heating!: boolean;
@@ -3722,18 +3642,8 @@ export class Features implements IFeatures {
     bedrooms!: number;
     balconies!: number;
     propertyAge!: number;
-    title!: string;
-    description!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 
-    constructor(data?: IFeatures) {
+    constructor(data?: IFeaturesDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3744,12 +3654,14 @@ export class Features implements IFeatures {
 
     init(data?: any) {
         if (data) {
+            this.id = data["id"];
+            this.title = data["title"];
+            this.description = data["description"];
             if (Array.isArray(data["tags"])) {
                 this.tags = [] as any;
                 for (let item of data["tags"])
-                    this.tags!.push(Tag.fromJS(item));
+                    this.tags!.push(TagDto.fromJS(item));
             }
-            this.property = data["property"] ? Property.fromJS(data["property"]) : <any>undefined;
             this.direction = data["direction"];
             this.cladding = data["cladding"];
             this.empty = data["empty"];
@@ -3765,34 +3677,26 @@ export class Features implements IFeatures {
             this.bedrooms = data["bedrooms"];
             this.balconies = data["balconies"];
             this.propertyAge = data["propertyAge"];
-            this.title = data["title"];
-            this.description = data["description"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
         }
     }
 
-    static fromJS(data: any): Features {
+    static fromJS(data: any): FeaturesDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Features();
+        let result = new FeaturesDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["description"] = this.description;
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
             for (let item of this.tags)
                 data["tags"].push(item.toJSON());
         }
-        data["property"] = this.property ? this.property.toJSON() : <any>undefined;
         data["direction"] = this.direction;
         data["cladding"] = this.cladding;
         data["empty"] = this.empty;
@@ -3808,24 +3712,16 @@ export class Features implements IFeatures {
         data["bedrooms"] = this.bedrooms;
         data["balconies"] = this.balconies;
         data["propertyAge"] = this.propertyAge;
-        data["title"] = this.title;
-        data["description"] = this.description;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
         return data; 
     }
 }
 
-export interface IFeatures {
-    tags?: Tag[] | undefined;
-    property?: Property | undefined;
-    direction: FeaturesDirection;
+export interface IFeaturesDto {
+    id?: number | undefined;
+    title: string;
+    description: string;
+    tags?: TagDto[] | undefined;
+    direction: FeaturesDtoDirection;
     cladding: boolean;
     empty: boolean;
     heating: boolean;
@@ -3840,348 +3736,14 @@ export interface IFeatures {
     bedrooms: number;
     balconies: number;
     propertyAge: number;
-    title: string;
-    description: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 }
 
-export class Photo implements IPhoto {
-    property?: Property | undefined;
-    url!: string;
-    description!: string;
-    dateAdded!: moment.Moment;
-    isMain!: boolean;
-    publicId!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
+export class TagDto implements ITagDto {
     id?: number | undefined;
-
-    constructor(data?: IPhoto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.property = data["property"] ? Property.fromJS(data["property"]) : <any>undefined;
-            this.url = data["url"];
-            this.description = data["description"];
-            this.dateAdded = data["dateAdded"] ? moment(data["dateAdded"].toString()) : <any>undefined;
-            this.isMain = data["isMain"];
-            this.publicId = data["publicId"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Photo {
-        data = typeof data === 'object' ? data : {};
-        let result = new Photo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["property"] = this.property ? this.property.toJSON() : <any>undefined;
-        data["url"] = this.url;
-        data["description"] = this.description;
-        data["dateAdded"] = this.dateAdded ? this.dateAdded.format('YYYY-MM-DD') : <any>undefined;
-        data["isMain"] = this.isMain;
-        data["publicId"] = this.publicId;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IPhoto {
-    property?: Property | undefined;
-    url: string;
-    description: string;
-    dateAdded: moment.Moment;
-    isMain: boolean;
-    publicId: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Property implements IProperty {
-    addressId?: number | undefined;
-    address?: Address | undefined;
-    propertyTypeId?: number | undefined;
-    propertyType?: PropertyType | undefined;
-    offerId?: number | undefined;
-    offer?: Offer | undefined;
-    featuresId?: number | undefined;
-    features?: Features | undefined;
-    photos?: Photo[] | undefined;
-    listingDate!: moment.Moment;
-    expireDate!: moment.Moment;
-    publishDate!: moment.Moment;
-    views?: number | undefined;
-    extraData?: string | undefined;
-    isDeleted?: boolean | undefined;
-    deleterUser?: User | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    creatorUser?: User | undefined;
-    lastModifierUser?: User | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IProperty) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.addressId = data["addressId"];
-            this.address = data["address"] ? Address.fromJS(data["address"]) : <any>undefined;
-            this.propertyTypeId = data["propertyTypeId"];
-            this.propertyType = data["propertyType"] ? PropertyType.fromJS(data["propertyType"]) : <any>undefined;
-            this.offerId = data["offerId"];
-            this.offer = data["offer"] ? Offer.fromJS(data["offer"]) : <any>undefined;
-            this.featuresId = data["featuresId"];
-            this.features = data["features"] ? Features.fromJS(data["features"]) : <any>undefined;
-            if (Array.isArray(data["photos"])) {
-                this.photos = [] as any;
-                for (let item of data["photos"])
-                    this.photos!.push(Photo.fromJS(item));
-            }
-            this.listingDate = data["listingDate"] ? moment(data["listingDate"].toString()) : <any>undefined;
-            this.expireDate = data["expireDate"] ? moment(data["expireDate"].toString()) : <any>undefined;
-            this.publishDate = data["publishDate"] ? moment(data["publishDate"].toString()) : <any>undefined;
-            this.views = data["views"];
-            this.extraData = data["extraData"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUser = data["deleterUser"] ? User.fromJS(data["deleterUser"]) : <any>undefined;
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.creatorUser = data["creatorUser"] ? User.fromJS(data["creatorUser"]) : <any>undefined;
-            this.lastModifierUser = data["lastModifierUser"] ? User.fromJS(data["lastModifierUser"]) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Property {
-        data = typeof data === 'object' ? data : {};
-        let result = new Property();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["addressId"] = this.addressId;
-        data["address"] = this.address ? this.address.toJSON() : <any>undefined;
-        data["propertyTypeId"] = this.propertyTypeId;
-        data["propertyType"] = this.propertyType ? this.propertyType.toJSON() : <any>undefined;
-        data["offerId"] = this.offerId;
-        data["offer"] = this.offer ? this.offer.toJSON() : <any>undefined;
-        data["featuresId"] = this.featuresId;
-        data["features"] = this.features ? this.features.toJSON() : <any>undefined;
-        if (Array.isArray(this.photos)) {
-            data["photos"] = [];
-            for (let item of this.photos)
-                data["photos"].push(item.toJSON());
-        }
-        data["listingDate"] = this.listingDate ? this.listingDate.format('YYYY-MM-DD') : <any>undefined;
-        data["expireDate"] = this.expireDate ? this.expireDate.format('YYYY-MM-DD') : <any>undefined;
-        data["publishDate"] = this.publishDate ? this.publishDate.format('YYYY-MM-DD') : <any>undefined;
-        data["views"] = this.views;
-        data["extraData"] = this.extraData;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUser"] = this.deleterUser ? this.deleterUser.toJSON() : <any>undefined;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["creatorUser"] = this.creatorUser ? this.creatorUser.toJSON() : <any>undefined;
-        data["lastModifierUser"] = this.lastModifierUser ? this.lastModifierUser.toJSON() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IProperty {
-    addressId?: number | undefined;
-    address?: Address | undefined;
-    propertyTypeId?: number | undefined;
-    propertyType?: PropertyType | undefined;
-    offerId?: number | undefined;
-    offer?: Offer | undefined;
-    featuresId?: number | undefined;
-    features?: Features | undefined;
-    photos?: Photo[] | undefined;
-    listingDate: moment.Moment;
-    expireDate: moment.Moment;
-    publishDate: moment.Moment;
-    views?: number | undefined;
-    extraData?: string | undefined;
-    isDeleted?: boolean | undefined;
-    deleterUser?: User | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    creatorUser?: User | undefined;
-    lastModifierUser?: User | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class City implements ICity {
-    country?: Country | undefined;
-    name!: string;
-    nativeName!: string;
-    latinName!: string;
-    latitude!: number;
-    longitude!: number;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: ICity) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.country = data["country"] ? Country.fromJS(data["country"]) : <any>undefined;
-            this.name = data["name"];
-            this.nativeName = data["nativeName"];
-            this.latinName = data["latinName"];
-            this.latitude = data["latitude"];
-            this.longitude = data["longitude"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): City {
-        data = typeof data === 'object' ? data : {};
-        let result = new City();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["country"] = this.country ? this.country.toJSON() : <any>undefined;
-        data["name"] = this.name;
-        data["nativeName"] = this.nativeName;
-        data["latinName"] = this.latinName;
-        data["latitude"] = this.latitude;
-        data["longitude"] = this.longitude;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface ICity {
-    country?: Country | undefined;
-    name: string;
-    nativeName: string;
-    latinName: string;
-    latitude: number;
-    longitude: number;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Category implements ICategory {
-    propertyTypes?: PropertyType[] | undefined;
     name!: string;
     description!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 
-    constructor(data?: ICategory) {
+    constructor(data?: ITagDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4192,884 +3754,32 @@ export class Category implements ICategory {
 
     init(data?: any) {
         if (data) {
-            if (Array.isArray(data["propertyTypes"])) {
-                this.propertyTypes = [] as any;
-                for (let item of data["propertyTypes"])
-                    this.propertyTypes!.push(PropertyType.fromJS(item));
-            }
+            this.id = data["id"];
             this.name = data["name"];
             this.description = data["description"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
         }
     }
 
-    static fromJS(data: any): Category {
+    static fromJS(data: any): TagDto {
         data = typeof data === 'object' ? data : {};
-        let result = new Category();
+        let result = new TagDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.propertyTypes)) {
-            data["propertyTypes"] = [];
-            for (let item of this.propertyTypes)
-                data["propertyTypes"].push(item.toJSON());
-        }
+        data["id"] = this.id;
         data["name"] = this.name;
         data["description"] = this.description;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
         return data; 
     }
 }
 
-export interface ICategory {
-    propertyTypes?: PropertyType[] | undefined;
+export interface ITagDto {
+    id?: number | undefined;
     name: string;
     description: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Currency implements ICurrency {
-    country!: string;
-    name!: string;
-    sign!: string;
-    localSign!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: ICurrency) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.country = data["country"];
-            this.name = data["name"];
-            this.sign = data["sign"];
-            this.localSign = data["localSign"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Currency {
-        data = typeof data === 'object' ? data : {};
-        let result = new Currency();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["country"] = this.country;
-        data["name"] = this.name;
-        data["sign"] = this.sign;
-        data["localSign"] = this.localSign;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface ICurrency {
-    country: string;
-    name: string;
-    sign: string;
-    localSign: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Tag implements ITag {
-    name!: string;
-    description!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: ITag) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.name = data["name"];
-            this.description = data["description"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Tag {
-        data = typeof data === 'object' ? data : {};
-        let result = new Tag();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface ITag {
-    name: string;
-    description: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class User implements IUser {
-    normalizedUserName!: string;
-    normalizedEmailAddress!: string;
-    concurrencyStamp?: string | undefined;
-    tokens?: UserToken[] | undefined;
-    deleterUser?: User | undefined;
-    creatorUser?: User | undefined;
-    lastModifierUser?: User | undefined;
-    authenticationSource?: string | undefined;
-    userName!: string;
-    tenantId?: number | undefined;
-    emailAddress!: string;
-    name!: string;
-    surname!: string;
-    readonly fullName?: string | undefined;
-    password!: string;
-    emailConfirmationCode?: string | undefined;
-    passwordResetCode?: string | undefined;
-    lockoutEndDateUtc?: moment.Moment | undefined;
-    accessFailedCount?: number | undefined;
-    isLockoutEnabled?: boolean | undefined;
-    phoneNumber?: string | undefined;
-    isPhoneNumberConfirmed?: boolean | undefined;
-    securityStamp?: string | undefined;
-    isTwoFactorEnabled?: boolean | undefined;
-    logins?: UserLogin[] | undefined;
-    roles?: UserRole[] | undefined;
-    claims?: UserClaim[] | undefined;
-    permissions?: UserPermissionSetting[] | undefined;
-    settings?: Setting[] | undefined;
-    isEmailConfirmed?: boolean | undefined;
-    isActive?: boolean | undefined;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IUser) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.normalizedUserName = data["normalizedUserName"];
-            this.normalizedEmailAddress = data["normalizedEmailAddress"];
-            this.concurrencyStamp = data["concurrencyStamp"];
-            if (Array.isArray(data["tokens"])) {
-                this.tokens = [] as any;
-                for (let item of data["tokens"])
-                    this.tokens!.push(UserToken.fromJS(item));
-            }
-            this.deleterUser = data["deleterUser"] ? User.fromJS(data["deleterUser"]) : <any>undefined;
-            this.creatorUser = data["creatorUser"] ? User.fromJS(data["creatorUser"]) : <any>undefined;
-            this.lastModifierUser = data["lastModifierUser"] ? User.fromJS(data["lastModifierUser"]) : <any>undefined;
-            this.authenticationSource = data["authenticationSource"];
-            this.userName = data["userName"];
-            this.tenantId = data["tenantId"];
-            this.emailAddress = data["emailAddress"];
-            this.name = data["name"];
-            this.surname = data["surname"];
-            (<any>this).fullName = data["fullName"];
-            this.password = data["password"];
-            this.emailConfirmationCode = data["emailConfirmationCode"];
-            this.passwordResetCode = data["passwordResetCode"];
-            this.lockoutEndDateUtc = data["lockoutEndDateUtc"] ? moment(data["lockoutEndDateUtc"].toString()) : <any>undefined;
-            this.accessFailedCount = data["accessFailedCount"];
-            this.isLockoutEnabled = data["isLockoutEnabled"];
-            this.phoneNumber = data["phoneNumber"];
-            this.isPhoneNumberConfirmed = data["isPhoneNumberConfirmed"];
-            this.securityStamp = data["securityStamp"];
-            this.isTwoFactorEnabled = data["isTwoFactorEnabled"];
-            if (Array.isArray(data["logins"])) {
-                this.logins = [] as any;
-                for (let item of data["logins"])
-                    this.logins!.push(UserLogin.fromJS(item));
-            }
-            if (Array.isArray(data["roles"])) {
-                this.roles = [] as any;
-                for (let item of data["roles"])
-                    this.roles!.push(UserRole.fromJS(item));
-            }
-            if (Array.isArray(data["claims"])) {
-                this.claims = [] as any;
-                for (let item of data["claims"])
-                    this.claims!.push(UserClaim.fromJS(item));
-            }
-            if (Array.isArray(data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of data["permissions"])
-                    this.permissions!.push(UserPermissionSetting.fromJS(item));
-            }
-            if (Array.isArray(data["settings"])) {
-                this.settings = [] as any;
-                for (let item of data["settings"])
-                    this.settings!.push(Setting.fromJS(item));
-            }
-            this.isEmailConfirmed = data["isEmailConfirmed"];
-            this.isActive = data["isActive"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): User {
-        data = typeof data === 'object' ? data : {};
-        let result = new User();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["normalizedUserName"] = this.normalizedUserName;
-        data["normalizedEmailAddress"] = this.normalizedEmailAddress;
-        data["concurrencyStamp"] = this.concurrencyStamp;
-        if (Array.isArray(this.tokens)) {
-            data["tokens"] = [];
-            for (let item of this.tokens)
-                data["tokens"].push(item.toJSON());
-        }
-        data["deleterUser"] = this.deleterUser ? this.deleterUser.toJSON() : <any>undefined;
-        data["creatorUser"] = this.creatorUser ? this.creatorUser.toJSON() : <any>undefined;
-        data["lastModifierUser"] = this.lastModifierUser ? this.lastModifierUser.toJSON() : <any>undefined;
-        data["authenticationSource"] = this.authenticationSource;
-        data["userName"] = this.userName;
-        data["tenantId"] = this.tenantId;
-        data["emailAddress"] = this.emailAddress;
-        data["name"] = this.name;
-        data["surname"] = this.surname;
-        data["fullName"] = this.fullName;
-        data["password"] = this.password;
-        data["emailConfirmationCode"] = this.emailConfirmationCode;
-        data["passwordResetCode"] = this.passwordResetCode;
-        data["lockoutEndDateUtc"] = this.lockoutEndDateUtc ? this.lockoutEndDateUtc.toISOString() : <any>undefined;
-        data["accessFailedCount"] = this.accessFailedCount;
-        data["isLockoutEnabled"] = this.isLockoutEnabled;
-        data["phoneNumber"] = this.phoneNumber;
-        data["isPhoneNumberConfirmed"] = this.isPhoneNumberConfirmed;
-        data["securityStamp"] = this.securityStamp;
-        data["isTwoFactorEnabled"] = this.isTwoFactorEnabled;
-        if (Array.isArray(this.logins)) {
-            data["logins"] = [];
-            for (let item of this.logins)
-                data["logins"].push(item.toJSON());
-        }
-        if (Array.isArray(this.roles)) {
-            data["roles"] = [];
-            for (let item of this.roles)
-                data["roles"].push(item.toJSON());
-        }
-        if (Array.isArray(this.claims)) {
-            data["claims"] = [];
-            for (let item of this.claims)
-                data["claims"].push(item.toJSON());
-        }
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.settings)) {
-            data["settings"] = [];
-            for (let item of this.settings)
-                data["settings"].push(item.toJSON());
-        }
-        data["isEmailConfirmed"] = this.isEmailConfirmed;
-        data["isActive"] = this.isActive;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUser {
-    normalizedUserName: string;
-    normalizedEmailAddress: string;
-    concurrencyStamp?: string | undefined;
-    tokens?: UserToken[] | undefined;
-    deleterUser?: User | undefined;
-    creatorUser?: User | undefined;
-    lastModifierUser?: User | undefined;
-    authenticationSource?: string | undefined;
-    userName: string;
-    tenantId?: number | undefined;
-    emailAddress: string;
-    name: string;
-    surname: string;
-    fullName?: string | undefined;
-    password: string;
-    emailConfirmationCode?: string | undefined;
-    passwordResetCode?: string | undefined;
-    lockoutEndDateUtc?: moment.Moment | undefined;
-    accessFailedCount?: number | undefined;
-    isLockoutEnabled?: boolean | undefined;
-    phoneNumber?: string | undefined;
-    isPhoneNumberConfirmed?: boolean | undefined;
-    securityStamp?: string | undefined;
-    isTwoFactorEnabled?: boolean | undefined;
-    logins?: UserLogin[] | undefined;
-    roles?: UserRole[] | undefined;
-    claims?: UserClaim[] | undefined;
-    permissions?: UserPermissionSetting[] | undefined;
-    settings?: Setting[] | undefined;
-    isEmailConfirmed?: boolean | undefined;
-    isActive?: boolean | undefined;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Country implements ICountry {
-    code!: string;
-    name!: string;
-    nativeName!: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: ICountry) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.code = data["code"];
-            this.name = data["name"];
-            this.nativeName = data["nativeName"];
-            this.isDeleted = data["isDeleted"];
-            this.deleterUserId = data["deleterUserId"];
-            this.deletionTime = data["deletionTime"] ? moment(data["deletionTime"].toString()) : <any>undefined;
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Country {
-        data = typeof data === 'object' ? data : {};
-        let result = new Country();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["code"] = this.code;
-        data["name"] = this.name;
-        data["nativeName"] = this.nativeName;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface ICountry {
-    code: string;
-    name: string;
-    nativeName: string;
-    isDeleted?: boolean | undefined;
-    deleterUserId?: number | undefined;
-    deletionTime?: moment.Moment | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class UserToken implements IUserToken {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    loginProvider?: string | undefined;
-    name?: string | undefined;
-    value?: string | undefined;
-    expireDate?: moment.Moment | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IUserToken) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.tenantId = data["tenantId"];
-            this.userId = data["userId"];
-            this.loginProvider = data["loginProvider"];
-            this.name = data["name"];
-            this.value = data["value"];
-            this.expireDate = data["expireDate"] ? moment(data["expireDate"].toString()) : <any>undefined;
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): UserToken {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserToken();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["userId"] = this.userId;
-        data["loginProvider"] = this.loginProvider;
-        data["name"] = this.name;
-        data["value"] = this.value;
-        data["expireDate"] = this.expireDate ? this.expireDate.toISOString() : <any>undefined;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUserToken {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    loginProvider?: string | undefined;
-    name?: string | undefined;
-    value?: string | undefined;
-    expireDate?: moment.Moment | undefined;
-    id?: number | undefined;
-}
-
-export class UserLogin implements IUserLogin {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    loginProvider!: string;
-    providerKey!: string;
-    id?: number | undefined;
-
-    constructor(data?: IUserLogin) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.tenantId = data["tenantId"];
-            this.userId = data["userId"];
-            this.loginProvider = data["loginProvider"];
-            this.providerKey = data["providerKey"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): UserLogin {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserLogin();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["userId"] = this.userId;
-        data["loginProvider"] = this.loginProvider;
-        data["providerKey"] = this.providerKey;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUserLogin {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    loginProvider: string;
-    providerKey: string;
-    id?: number | undefined;
-}
-
-export class UserRole implements IUserRole {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    roleId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IUserRole) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.tenantId = data["tenantId"];
-            this.userId = data["userId"];
-            this.roleId = data["roleId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): UserRole {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserRole();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["userId"] = this.userId;
-        data["roleId"] = this.roleId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUserRole {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    roleId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class UserClaim implements IUserClaim {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    claimType?: string | undefined;
-    claimValue?: string | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IUserClaim) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.tenantId = data["tenantId"];
-            this.userId = data["userId"];
-            this.claimType = data["claimType"];
-            this.claimValue = data["claimValue"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): UserClaim {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserClaim();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["userId"] = this.userId;
-        data["claimType"] = this.claimType;
-        data["claimValue"] = this.claimValue;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUserClaim {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    claimType?: string | undefined;
-    claimValue?: string | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class UserPermissionSetting implements IUserPermissionSetting {
-    userId?: number | undefined;
-    tenantId?: number | undefined;
-    name!: string;
-    isGranted?: boolean | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: IUserPermissionSetting) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.userId = data["userId"];
-            this.tenantId = data["tenantId"];
-            this.name = data["name"];
-            this.isGranted = data["isGranted"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): UserPermissionSetting {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserPermissionSetting();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["tenantId"] = this.tenantId;
-        data["name"] = this.name;
-        data["isGranted"] = this.isGranted;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface IUserPermissionSetting {
-    userId?: number | undefined;
-    tenantId?: number | undefined;
-    name: string;
-    isGranted?: boolean | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-}
-
-export class Setting implements ISetting {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    name!: string;
-    value?: string | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
-
-    constructor(data?: ISetting) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.tenantId = data["tenantId"];
-            this.userId = data["userId"];
-            this.name = data["name"];
-            this.value = data["value"];
-            this.lastModificationTime = data["lastModificationTime"] ? moment(data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = data["lastModifierUserId"];
-            this.creationTime = data["creationTime"] ? moment(data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = data["creatorUserId"];
-            this.id = data["id"];
-        }
-    }
-
-    static fromJS(data: any): Setting {
-        data = typeof data === 'object' ? data : {};
-        let result = new Setting();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenantId"] = this.tenantId;
-        data["userId"] = this.userId;
-        data["name"] = this.name;
-        data["value"] = this.value;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["id"] = this.id;
-        return data; 
-    }
-}
-
-export interface ISetting {
-    tenantId?: number | undefined;
-    userId?: number | undefined;
-    name: string;
-    value?: string | undefined;
-    lastModificationTime?: moment.Moment | undefined;
-    lastModifierUserId?: number | undefined;
-    creationTime?: moment.Moment | undefined;
-    creatorUserId?: number | undefined;
-    id?: number | undefined;
 }
 
 export class CreateRoleDto implements ICreateRoleDto {
@@ -5786,50 +4496,6 @@ export interface ITenantLoginInfoDto {
     tenancyName?: string | undefined;
     name?: string | undefined;
     id?: number | undefined;
-}
-
-export class TagDto implements ITagDto {
-    id?: number | undefined;
-    name!: string;
-    description!: string;
-
-    constructor(data?: ITagDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(data?: any) {
-        if (data) {
-            this.id = data["id"];
-            this.name = data["name"];
-            this.description = data["description"];
-        }
-    }
-
-    static fromJS(data: any): TagDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TagDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        return data; 
-    }
-}
-
-export interface ITagDto {
-    id?: number | undefined;
-    name: string;
-    description: string;
 }
 
 export class CreateTenantDto implements ICreateTenantDto {
@@ -6570,7 +5236,7 @@ export enum IsTenantAvailableOutputState {
     _3 = 3,
 }
 
-export enum FeaturesDirection {
+export enum FeaturesDtoDirection {
     _1 = 1,
     _2 = 2,
     _3 = 3,
