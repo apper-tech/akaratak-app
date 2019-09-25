@@ -3,6 +3,7 @@ using Abp.Authorization;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using ApperTech.Akaratak.Authorization.Users;
+using ApperTech.Akaratak.Users.Dto;
 
 namespace ApperTech.Akaratak.Authorization.Accounts.Dto
 {
@@ -11,8 +12,8 @@ namespace ApperTech.Akaratak.Authorization.Accounts.Dto
     {
         public AbpLoginResultType Result { get; set; }
 
-        public MultiTenancy.Tenant Tenant { get; set; }
+       // public MultiTenancy.Tenant Tenant { get; set; }
 
-        public User User { get; set; }
+        public UserDto User { get; set; }
     }
 }

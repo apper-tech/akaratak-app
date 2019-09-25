@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Abp.IdentityServer4;
+using Microsoft.EntityFrameworkCore;
 using Abp.Zero.EntityFrameworkCore;
 using ApperTech.Akaratak.Authorization.Roles;
 using ApperTech.Akaratak.Authorization.Users;
@@ -7,11 +8,10 @@ using ApperTech.Akaratak.Realestate;
 
 namespace ApperTech.Akaratak.EntityFrameworkCore
 {
-    public class AkaratakDbContext : AbpZeroDbContext<Tenant, Role, User, AkaratakDbContext>
+    public class AkaratakDbContext : AbpZeroDbContext<Tenant, Role, User, AkaratakDbContext>, IAbpPersistedGrantDbContext
     {
         /* Identity Server Models*/
-
-
+        public DbSet<PersistedGrantEntity> PersistedGrants { get; set; }
 
         /* Real Estate Models*/
         public DbSet<Address> Addresses { get; set; }
@@ -71,6 +71,8 @@ namespace ApperTech.Akaratak.EntityFrameworkCore
                 .HasForeignKey(bc => bc.FeaturesId);
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ConfigurePersistedGrantEntity();
         }
     }
 }
