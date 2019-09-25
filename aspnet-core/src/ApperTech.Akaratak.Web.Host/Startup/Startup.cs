@@ -14,19 +14,17 @@ using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using ApperTech.Akaratak.Configuration;
 using ApperTech.Akaratak.Identity;
+
 using Abp.AspNetCore.SignalR.Hubs;
-using Abp.IdentityServer4;
-using ApperTech.Akaratak.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using ApperTech.Akaratak.Authorization.Users;
 using ApperTech.Akaratak.EntityFrameworkCore;
-using ApperTech.Akaratak.EntityFrameworkCore.Configuration;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ApperTech.Akaratak.Web.Host.Startup
 {
     public class Startup
     {
-        private const string DefaultCorsPolicyName = "localhost";
+        private const string _defaultCorsPolicyName = "localhost";
 
         private readonly IConfigurationRoot _appConfiguration;
 
@@ -39,7 +37,7 @@ namespace ApperTech.Akaratak.Web.Host.Startup
         {
             // MVC
             services.AddMvc(
-                options => options.Filters.Add(new CorsAuthorizationFilterFactory(DefaultCorsPolicyName))
+                options => options.Filters.Add(new CorsAuthorizationFilterFactory(_defaultCorsPolicyName))
             ).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             IdentityRegistrar.Register(services);
@@ -50,7 +48,7 @@ namespace ApperTech.Akaratak.Web.Host.Startup
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(
-                    DefaultCorsPolicyName,
+                    _defaultCorsPolicyName,
                     builder => builder
                         .WithOrigins(
                             // App:CorsOrigins in appsettings.json can contain more than one address separated by comma.
@@ -84,14 +82,8 @@ namespace ApperTech.Akaratak.Web.Host.Startup
             });
 
             //Add Identity Server 4 Integration
+           
 
-            services.AddIdentityServer()
-                .AddDeveloperSigningCredential()
-                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
-                .AddInMemoryApiResources(IdentityServerConfig.GetApiResources())
-                .AddInMemoryClients(IdentityServerConfig.GetClients())
-                .AddAbpPersistedGrants<AkaratakDbContext>()
-                .AddAbpIdentityServer<User>();
 
             // Configure Abp and Dependency Injection
             return services.AddAbp<AkaratakWebHostModule>(
@@ -106,15 +98,11 @@ namespace ApperTech.Akaratak.Web.Host.Startup
         {
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
-            app.UseCors(DefaultCorsPolicyName); // Enable CORS!
+            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
 
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
-            app.UseIdentityServer();
-
-          //  app.UseJwtTokenMiddleware();
 
             app.UseAbpRequestLocalization();
 
