@@ -9,6 +9,12 @@ namespace ApperTech.Akaratak.Authorization.Users
     {
         public const string DefaultPassword = "123qwe";
 
+        public string PhotoUrl { get; set; }
+
+        public string IdToken { get; set; }
+
+        public UserType UserType { get; set; }
+
         public static string CreateRandomPassword()
         {
             return Guid.NewGuid().ToString("N").Truncate(16);
@@ -30,5 +36,12 @@ namespace ApperTech.Akaratak.Authorization.Users
 
             return user;
         }
+    }
+
+    public enum UserType
+    {
+        Agent,
+        Agency,
+        Buyer,
     }
 }

@@ -4,7 +4,7 @@ using ApperTech.Akaratak.MultiTenancy.Dto;
 
 namespace ApperTech.Akaratak.MultiTenancy
 {
-    public interface ITenantAppService : IAsyncCrudAppService<TenantDto, int, PagedTenantResultRequestDto, CreateTenantDto, TenantDto>
+    interface ITenantAppService : IAsyncCrudAppService<TenantDto, int, PagedTenantResultRequestDto, CreateTenantDto, TenantDto>
     {
     }
 }

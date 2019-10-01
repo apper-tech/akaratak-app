@@ -8,7 +8,7 @@ namespace ApperTech.Akaratak.Web.Host.Startup
 {
     [DependsOn(
        typeof(AkaratakWebCoreModule))]
-    public class AkaratakWebHostModule: AbpModule
+    public class AkaratakWebHostModule : AbpModule
     {
         private readonly IHostingEnvironment _env;
         private readonly IConfigurationRoot _appConfiguration;

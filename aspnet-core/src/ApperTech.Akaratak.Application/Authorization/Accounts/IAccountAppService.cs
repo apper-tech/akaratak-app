@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Abp.Application.Services;
 using ApperTech.Akaratak.Authorization.Accounts.Dto;
+using ApperTech.Akaratak.Users.Dto;
 
 namespace ApperTech.Akaratak.Authorization.Accounts
 {
@@ -10,6 +11,6 @@ namespace ApperTech.Akaratak.Authorization.Accounts
 
         Task<RegisterOutput> Register(RegisterInput input);
 
-        Task<LogInOutput> LogIn(LogInInput input);
+        Task<UserDto> GetUserInfo(UserInfoInput input);
     }
 }

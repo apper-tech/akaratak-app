@@ -81,9 +81,16 @@ namespace ApperTech.Akaratak.Web.Host.Startup
                 options.OperationFilter<FormFileSwaggerFilter>();
             });
 
-            //Add Identity Server 4 Integration
-           
+            //External Auth Config
 
+            if (bool.Parse(_appConfiguration["Authentication:Google:IsEnabled"]))
+            {
+                services.AddAuthentication().AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = _appConfiguration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = _appConfiguration["Authentication:Google:ClientSecret"];
+                });
+            }
 
             // Configure Abp and Dependency Injection
             return services.AddAbp<AkaratakWebHostModule>(

@@ -1,19 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Abp.Authorization.Users;
+using ApperTech.Akaratak.Authorization.Accounts.Dto;
 
 namespace ApperTech.Akaratak.Models.TokenAuth
 {
-    public class ExternalAuthenticateModel
+    public class ExternalAuthenticateModel : RegisterInput
     {
         [Required]
-        [StringLength(UserLogin.MaxLoginProviderLength)]
-        public string AuthProvider { get; set; }
-
-        [Required]
-        [StringLength(UserLogin.MaxProviderKeyLength)]
-        public string ProviderKey { get; set; }
-
-        [Required]
-        public string ProviderAccessCode { get; set; }
+        [StringLength(2048)]
+        public string IdToken { get; set; }
     }
 }

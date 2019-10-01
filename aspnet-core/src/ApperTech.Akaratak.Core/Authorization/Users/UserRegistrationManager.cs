@@ -37,7 +37,7 @@ namespace ApperTech.Akaratak.Authorization.Users
             AbpSession = NullAbpSession.Instance;
         }
 
-        public async Task<User> RegisterAsync(string name, string surname, string emailAddress, string userName, string plainPassword, bool isEmailConfirmed)
+        public async Task<User> RegisterAsync(string name, string surname, string emailAddress, string userName, string plainPassword, bool isEmailConfirmed, UserType userType, string photoUrl, string idToken)
         {
             CheckForTenant();
 
@@ -52,11 +52,14 @@ namespace ApperTech.Akaratak.Authorization.Users
                 IsActive = true,
                 UserName = userName,
                 IsEmailConfirmed = isEmailConfirmed,
-                Roles = new List<UserRole>()
+                PhotoUrl = photoUrl,
+                UserType = userType,
+                Roles = new List<UserRole>(),
+                IdToken = idToken
             };
 
             user.SetNormalizedNames();
-           
+
             foreach (var defaultRole in await _roleManager.Roles.Where(r => r.IsDefault).ToListAsync())
             {
                 user.Roles.Add(new UserRole(tenant.Id, user.Id, defaultRole.Id));

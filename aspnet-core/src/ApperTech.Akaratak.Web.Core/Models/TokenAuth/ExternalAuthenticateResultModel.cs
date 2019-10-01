@@ -6,6 +6,8 @@
 
         public string EncryptedAccessToken { get; set; }
 
+        public string IdToken { get; set; }
+
         public int ExpireInSeconds { get; set; }
 
         public bool WaitingForActivation { get; set; }

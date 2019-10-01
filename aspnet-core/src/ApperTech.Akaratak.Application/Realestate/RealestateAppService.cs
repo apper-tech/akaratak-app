@@ -195,7 +195,7 @@ namespace ApperTech.Akaratak.Realestate
             _repository = repository;
             _objectMapper = objectMapper;
         }
-        [AbpAuthorize()]
+
         public async Task<List<TagDto>> GetAll()
         {
             return _objectMapper.Map<List<TagDto>>

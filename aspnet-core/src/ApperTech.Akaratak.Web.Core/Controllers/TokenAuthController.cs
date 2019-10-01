@@ -17,6 +17,7 @@ using ApperTech.Akaratak.Authorization;
 using ApperTech.Akaratak.Authorization.Users;
 using ApperTech.Akaratak.Models.TokenAuth;
 using ApperTech.Akaratak.MultiTenancy;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ApperTech.Akaratak.Controllers
 {
@@ -24,6 +25,7 @@ namespace ApperTech.Akaratak.Controllers
     public class TokenAuthController : AkaratakControllerBase
     {
         private readonly LogInManager _logInManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ITenantCache _tenantCache;
         private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
         private readonly TokenAuthConfiguration _configuration;
@@ -33,6 +35,7 @@ namespace ApperTech.Akaratak.Controllers
 
         public TokenAuthController(
             LogInManager logInManager,
+            SignInManager<User> signInManager,
             ITenantCache tenantCache,
             AbpLoginResultTypeHelper abpLoginResultTypeHelper,
             TokenAuthConfiguration configuration,
@@ -41,6 +44,7 @@ namespace ApperTech.Akaratak.Controllers
             UserRegistrationManager userRegistrationManager)
         {
             _logInManager = logInManager;
+            _signInManager = signInManager;
             _tenantCache = tenantCache;
             _abpLoginResultTypeHelper = abpLoginResultTypeHelper;
             _configuration = configuration;
@@ -70,17 +74,19 @@ namespace ApperTech.Akaratak.Controllers
         }
 
         [HttpGet]
-        public List<ExternalLoginProviderInfoModel> GetExternalAuthenticationProviders()
+        public async Task<List<AuthenticationScheme>> GetExternalAuthenticationProviders()
         {
-            return ObjectMapper.Map<List<ExternalLoginProviderInfoModel>>(_externalAuthConfiguration.Providers);
+            return (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         [HttpPost]
         public async Task<ExternalAuthenticateResultModel> ExternalAuthenticate([FromBody] ExternalAuthenticateModel model)
         {
-            var externalUser = await GetExternalUserInfo(model);
-
-            var loginResult = await _logInManager.LoginAsync(new UserLoginInfo(model.AuthProvider, model.ProviderKey, model.AuthProvider), GetTenancyNameOrNull());
+            var loginResult = await GetLoginResultAsync(
+                model.EmailAddress,
+                model.Password,
+                GetTenancyNameOrNull()
+            );
 
             switch (loginResult.Result)
             {
@@ -96,7 +102,7 @@ namespace ApperTech.Akaratak.Controllers
                     }
                 case AbpLoginResultType.UnknownExternalLogin:
                     {
-                        var newUser = await RegisterExternalUserAsync(externalUser);
+                        var newUser = await RegisterExternalUserAsync(loginResult.User);
                         if (!newUser.IsActive)
                         {
                             return new ExternalAuthenticateResultModel
@@ -106,12 +112,16 @@ namespace ApperTech.Akaratak.Controllers
                         }
 
                         // Try to login again with newly registered user!
-                        loginResult = await _logInManager.LoginAsync(new UserLoginInfo(model.AuthProvider, model.ProviderKey, model.AuthProvider), GetTenancyNameOrNull());
+                        loginResult = await GetLoginResultAsync(
+                            model.EmailAddress,
+                            model.Password,
+                            GetTenancyNameOrNull()
+                        );
                         if (loginResult.Result != AbpLoginResultType.Success)
                         {
                             throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(
                                 loginResult.Result,
-                                model.ProviderKey,
+                                model.EmailAddress,
                                 GetTenancyNameOrNull()
                             );
                         }
@@ -119,21 +129,22 @@ namespace ApperTech.Akaratak.Controllers
                         return new ExternalAuthenticateResultModel
                         {
                             AccessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity)),
-                            ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds
+                            ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
+                            IdToken = model.IdToken
                         };
                     }
                 default:
                     {
                         throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(
                             loginResult.Result,
-                            model.ProviderKey,
+                            model.EmailAddress,
                             GetTenancyNameOrNull()
                         );
                     }
             }
         }
 
-        private async Task<User> RegisterExternalUserAsync(ExternalAuthUserInfo externalUser)
+        private async Task<User> RegisterExternalUserAsync(User externalUser)
         {
             var user = await _userRegistrationManager.RegisterAsync(
                 externalUser.Name,
@@ -141,33 +152,15 @@ namespace ApperTech.Akaratak.Controllers
                 externalUser.EmailAddress,
                 externalUser.EmailAddress,
                 Authorization.Users.User.CreateRandomPassword(),
-                true
+                true,
+                externalUser.UserType,
+                externalUser.PhotoUrl,
+                externalUser.IdToken
             );
-
-            user.Logins = new List<UserLogin>
-            {
-                new UserLogin
-                {
-                    LoginProvider = externalUser.Provider,
-                    ProviderKey = externalUser.ProviderKey,
-                    TenantId = user.TenantId
-                }
-            };
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return user;
-        }
-
-        private async Task<ExternalAuthUserInfo> GetExternalUserInfo(ExternalAuthenticateModel model)
-        {
-            var userInfo = await _externalAuthManager.GetUserInfo(model.AuthProvider, model.ProviderAccessCode);
-            if (userInfo.ProviderKey != model.ProviderKey)
-            {
-                throw new UserFriendlyException(L("CouldNotValidateExternalUser"));
-            }
-
-            return userInfo;
         }
 
         private string GetTenancyNameOrNull()

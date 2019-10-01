@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using ApperTech.Akaratak.Authorization.Users;
 using ApperTech.Akaratak.Validation;
 
 namespace ApperTech.Akaratak.Authorization.Accounts.Dto
@@ -33,6 +34,10 @@ namespace ApperTech.Akaratak.Authorization.Accounts.Dto
 
         [DisableAuditing]
         public string CaptchaResponse { get; set; }
+        [Required]
+        public UserType UserType { get; set; }
+
+        public string PhotoUrl { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

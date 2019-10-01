@@ -36,5 +36,9 @@ namespace ApperTech.Akaratak.Users.Dto
         public DateTime CreationTime { get; set; }
 
         public string[] RoleNames { get; set; }
+
+        public string PhotoUrl { get; set; }
+
+        public UserType UserType { get; set; }
     }
 }
