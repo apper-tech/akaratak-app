@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  googleAuthClientId: '186312609377-ijc9ka46ii286se58motapa382v70q0b.apps.googleusercontent.com',
+  googleMapsApiKey: 'AIzaSyBpW6QIG6xYhHnfuxmwx47k2RAE8TXGNBQ'
 };
 
 /*

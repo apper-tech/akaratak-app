@@ -37,6 +37,7 @@ import { VerticalMenuComponent } from './theme/components/menu/vertical-menu/ver
 import { FooterComponent } from './theme/components/footer/footer.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
 import { TestModule } from './pages/test/test.module'
+import { environment } from '../environments/environment';
 
 
 @NgModule({
@@ -64,7 +65,7 @@ import { TestModule } from './pages/test/test.module'
     TestModule,
     HttpClientModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyBpW6QIG6xYhHnfuxmwx47k2RAE8TXGNBQ',
+      apiKey: environment.googleMapsApiKey,
       libraries: ["places"]
     }),
     EmbedVideo.forRoot(),

@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { AppService } from 'src/app/app.service';
+import { AuthService } from '../../../shared/services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-menu',
@@ -8,9 +10,18 @@ import { AppService } from 'src/app/app.service';
 })
 export class UserMenuComponent implements OnInit {
 
-  constructor(public appService:AppService) { }
+  constructor(public appService: AppService, public authService: AuthService) {
 
-  ngOnInit() {
   }
 
+  isLoggedIn: boolean;
+  ngOnInit() {
+    this.authService.isLoggedIn().subscribe(value => {
+      this.isLoggedIn = value;
+    })
+  }
+
+  logOut() {
+    this.authService.logOut();
+  }
 }

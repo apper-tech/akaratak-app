@@ -33,6 +33,7 @@ export const routes: Routes = [
 ];
 
 export const AppRouting: ModuleWithProviders = RouterModule.forRoot(routes, {
-    //  preloadingStrategy: PreloadAllModules,  // <- comment this line for activate lazy load
-    // useHash: true
+    //preloadingStrategy: PreloadAllModules,  // <- comment this line for activate lazy load
+    //useHash: true,
+    onSameUrlNavigation: 'reload'
 });

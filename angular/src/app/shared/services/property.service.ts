@@ -3,8 +3,7 @@ import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import * as Api from './service.base';
 import * as moment from 'moment';
-import { CreateOfferInput, CreateFeaturesInput, PhotoService } from './service.base';
-import { async } from '@angular/core/testing';
+import { CreateOfferInput, CreateFeaturesInput } from './service.base';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +13,13 @@ export class PropertyService {
 
 
   constructor(public http: HttpClient,
-    public propertyService: Api.PropertyService,
-    public currencyService: Api.CurrencyService,
-    public categoryService: Api.CategoryService,
-    public tagService: Api.TagService,
-    public countryService: Api.CountryService,
-    public cityService: Api.CityService,
-    public photoService: Api.PhotoService
+    public propertyService: Api.PropertyServiceProxy,
+    public currencyService: Api.CurrencyServiceProxy,
+    public categoryService: Api.CategoryServiceProxy,
+    public tagService: Api.TagServiceProxy,
+    public countryService: Api.CountryServiceProxy,
+    public cityService: Api.CityServiceProxy,
+    public photoService: Api.PhotoServiceProxy
   ) { }
 
   public getCurrencies(): Observable<Api.CurrencyDto[]> { return this.currencyService.getAll(); }
@@ -68,7 +67,8 @@ export class PropertyService {
         sale: 0,
         rent: 0,
         invest: 0,
-        swap: false
+        swap: false,
+        currency: 0
       }
     );
     basic['propertyStatus'].forEach(stat => {
@@ -166,7 +166,6 @@ export class PropertyService {
       }
     );
   }
-
   public async submitProperty(property): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
       var result = true;

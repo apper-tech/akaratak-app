@@ -1,17 +1,56 @@
 import { NgModule } from '@angular/core';
-import * as Api from './service.base'
+import { TokenService } from './token.service';
+import * as socialLogin from 'angularx-social-login';
+import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
+import { environment } from 'src/environments/environment';
+import { PropertyService } from './property.service';
+import {
+    CityServiceProxy,
+    CategoryServiceProxy,
+    TagServiceProxy,
+    PhotoServiceProxy,
+    ConfigurationServiceProxy,
+    RoleServiceProxy,
+    AccountServiceProxy,
+    CountryServiceProxy,
+    CurrencyServiceProxy,
+    PropertyServiceProxy,
+    TokenAuthServiceProxy,
+    TenantServiceProxy
+} from './service.base';
 
+let config = new AuthServiceConfig([
+    {
+        id: GoogleLoginProvider.PROVIDER_ID,
+        provider: new GoogleLoginProvider(environment.googleAuthClientId)
+    }/* ,
+    {
+      id: FacebookLoginProvider.PROVIDER_ID,
+      provider: new FacebookLoginProvider("Facebook-App-Id")
+    } */
+]);
+
+export function provideConfig() {
+    return config;
+}
 @NgModule({
     providers: [
-        Api.CityService,
-        Api.ConfigurationService,
-        Api.RoleService,
-        Api.AccountService,
-        Api.CountryService,
-        Api.CurrencyService,
-        Api.PropertyService,
-        Api.TokenAuthService,
-        Api.TenantService
+        CityServiceProxy,
+        CategoryServiceProxy,
+        TagServiceProxy,
+        PhotoServiceProxy,
+        ConfigurationServiceProxy,
+        RoleServiceProxy,
+        AccountServiceProxy,
+        CountryServiceProxy,
+        CurrencyServiceProxy,
+        PropertyServiceProxy,
+        TokenAuthServiceProxy,
+        TenantServiceProxy,
+        socialLogin.AuthService,
+        PropertyService,
+        TokenService,
+        { provide: AuthServiceConfig, useFactory: provideConfig }
     ]
 })
 export class ServiceBaseModule { }

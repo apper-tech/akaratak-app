@@ -3,8 +3,7 @@ import { AppService } from 'src/app/app.service';
 
 @Component({
   selector: 'app-dark-mode',
-  templateUrl: './dark-mode.component.html',
-  styleUrls: ['./dark-mode.component.css']
+  templateUrl: './dark-mode.component.html'
 })
 export class DarkModeComponent implements OnInit {
 
