@@ -5,3 +5,4 @@
 obj/
 bin/
 angular/node_modules
+angular/src/environments/
