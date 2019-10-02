@@ -1,6 +1,6 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable, of, throwError, Subject, BehaviorSubject } from 'rxjs';
-import { AuthenticateModel, TokenAuthServiceProxy, AuthenticateResultModel, AccountServiceProxy, RegisterInput, RegisterOutput, ExternalAuthenticateModel } from './service.base';
+import { AuthenticateModel, TokenAuthServiceProxy, AuthenticateResultModel, AccountServiceProxy, RegisterInput, RegisterOutput, ExternalAuthenticateModel, UserDto } from './service.base';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import * as social from "angularx-social-login";
@@ -18,6 +18,8 @@ export class AuthService {
     private _tokenService: TokenService,
     private _accountService: AccountServiceProxy,
     private _authService: social.AuthService) { }
+
+
   public async authenticate(authenticateModel: AuthenticateModel) {
     return new Promise((resolve, reject) => {
       this._tokenAuthService
@@ -84,6 +86,16 @@ export class AuthService {
       }
     })
   }
+  public async getUserInfo(): Promise<UserDto> {
+    return new Promise((resolve, reject) => {
+      this._authService.authState.subscribe(user => {
+        this._accountService.getUserInfo(user.idToken)
+          .subscribe((data: UserDto) => {
+            resolve(data);
+          }, (error) => reject(error))
+      }, (error) => reject(error))
+    })
+  }
 
   public isLoggedIn(): Observable<boolean> {
     return this.loggedIn.asObservable();
@@ -117,7 +129,6 @@ export class AuthService {
     this.loggedIn.next(this._tokenService.hasToken());
     this._router.navigate(['/']);
   }
-
 }
 export enum SocialLoginTypes {
   Google
