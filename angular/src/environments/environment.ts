@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  googleAuthClientId: '186312609377-ijc9ka46ii286se58motapa382v70q0b.apps.googleusercontent.com',
-  googleMapsApiKey: 'AIzaSyBpW6QIG6xYhHnfuxmwx47k2RAE8TXGNBQ'
+  googleAuthClientId: '<client-id>',
+  googleMapsApiKey: '<api-key>'
 };
 
 /*
