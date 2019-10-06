@@ -1,20 +1,14 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using Abp.Application.Services.Dto;
+﻿using System.ComponentModel.DataAnnotations;
+using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using ApperTech.Akaratak.Authorization.Users;
-using ApperTech.Akaratak.Realestate.Dto;
 
-namespace ApperTech.Akaratak.Users.Dto
+namespace ApperTech.Akaratak.Authorization.Accounts.Dto
 {
-    [AutoMapFrom(typeof(User))]
-    public class UserDto : EntityDto<long>
+    [AutoMapTo(typeof(User))]
+    public class UpdateUserInput
     {
-        [Required]
-        [StringLength(AbpUserBase.MaxUserNameLength)]
-        public string UserName { get; set; }
-
         [Required]
         [StringLength(AbpUserBase.MaxNameLength)]
         public string Name { get; set; }
@@ -24,38 +18,26 @@ namespace ApperTech.Akaratak.Users.Dto
         public string Surname { get; set; }
 
         [Required]
+        [Phone]
+        [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+        public string PhoneNumber { get; set; }
+
+        [Required]
         [EmailAddress]
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string EmailAddress { get; set; }
-
-        public bool IsActive { get; set; }
-
-        public string FullName { get; set; }
-
-        public DateTime? LastLoginTime { get; set; }
-
-        public DateTime CreationTime { get; set; }
-
-        public string[] RoleNames { get; set; }
-
-
-        public PhotoDto Photo { get; set; }
-
-        public string PhoneNumber { get; set; }
-
+        [StringLength(25)]
         public string Organization { get; set; }
-
+      
         public string FacebookUrl { get; set; }
-
+     
         public string TwitterUrl { get; set; }
-
+      
         public string InstagramUrl { get; set; }
-
+      
         public string WebsiteUrl { get; set; }
-
+      
         public string LinkedinUrl { get; set; }
 
-
-        public UserType UserType { get; set; }
     }
 }

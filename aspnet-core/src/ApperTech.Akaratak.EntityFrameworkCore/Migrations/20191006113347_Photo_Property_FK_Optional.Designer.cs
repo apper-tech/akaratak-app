@@ -4,14 +4,16 @@ using ApperTech.Akaratak.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.Migrations
 {
     [DbContext(typeof(AkaratakDbContext))]
-    partial class AkaratakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191006113347_Photo_Property_FK_Optional")]
+    partial class Photo_Property_FK_Optional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

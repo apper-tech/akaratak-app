@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using ApperTech.Akaratak.Realestate.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ApperTech.Akaratak.Realestate
 {
@@ -12,6 +13,7 @@ namespace ApperTech.Akaratak.Realestate
         Task<int> Create(CreatePropertyInput input);
         Task<PropertyDto> GetById(int propertyId);
         Task<List<PropertyDto>> GetAll(GetAllPropertyInput input);
+        Task<bool> AddPhotoForProperty(int propertyId, IFormFile file);
     }
     public interface ICurrencyAppService : IApplicationService
     {
@@ -36,12 +38,5 @@ namespace ApperTech.Akaratak.Realestate
         Task<List<TagDto>> GetAll();
         Task<TagDto> Create(CreateTagInput input);
 
-    }
-
-    public interface IPhotoAppService : IApplicationService
-    {
-        Task<List<PhotoDto>> GetPhotos(int propertyId);
-
-        Task<bool> AddPhotoForProperty(int propertyId, IFormFile file);
     }
 }

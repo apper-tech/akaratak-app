@@ -38,6 +38,10 @@ namespace ApperTech.Akaratak.Authorization.Accounts.Dto
         public UserType UserType { get; set; }
 
         public string PhotoUrl { get; set; }
+        [Required]
+        [Phone()]
+        [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+        public string PhoneNumber { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

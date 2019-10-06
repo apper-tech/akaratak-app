@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using ApperTech.Akaratak.Configuration;
+using ApperTech.Akaratak.Realestate;
 
 namespace ApperTech.Akaratak.Authorization.Users
 {
@@ -9,11 +11,23 @@ namespace ApperTech.Akaratak.Authorization.Users
     {
         public const string DefaultPassword = "123qwe";
 
-        public string PhotoUrl { get; set; }
+        public Photo Photo { get; set; }
 
         public string IdToken { get; set; }
 
         public UserType UserType { get; set; }
+
+        public string Organization { get; set; }
+
+        public string FacebookUrl { get; set; }
+
+        public string TwitterUrl { get; set; }
+
+        public string InstagramUrl { get; set; }
+
+        public string WebsiteUrl { get; set; }
+
+        public string LinkedinUrl { get; set; }
 
         public static string CreateRandomPassword()
         {
@@ -35,6 +49,11 @@ namespace ApperTech.Akaratak.Authorization.Users
             user.SetNormalizedNames();
 
             return user;
+        }
+
+        public User Update(User user)
+        {
+            return ((User)this.Copy(user));
         }
     }
 

@@ -31,6 +31,7 @@ namespace ApperTech.Akaratak.Realestate
         public Features Features { get; set; }
 
         [ForeignKey("Photo")]
+        
         public ICollection<Photo> Photos { get; set; }
 
 
@@ -45,5 +46,12 @@ namespace ApperTech.Akaratak.Realestate
 
         public int Views { get; set; }
         public string ExtraData { get; set; }
+
+        public Property AddPhotos(ICollection<Photo> photos)
+        {
+            foreach (var photo in photos)
+                this.Photos.Add(photo);
+            return this;
+        }
     }
 }

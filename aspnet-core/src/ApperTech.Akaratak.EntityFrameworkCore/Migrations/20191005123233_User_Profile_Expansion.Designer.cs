@@ -4,14 +4,16 @@ using ApperTech.Akaratak.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.Migrations
 {
     [DbContext(typeof(AkaratakDbContext))]
-    partial class AkaratakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191005123233_User_Profile_Expansion")]
+    partial class User_Profile_Expansion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1444,6 +1446,8 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<int?>("Photo");
 
+                    b.Property<int>("PropertyId");
+
                     b.Property<string>("PublicId")
                         .IsRequired()
                         .HasMaxLength(50);
@@ -1453,7 +1457,7 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Photo");
+                    b.HasIndex("PropertyId");
 
                     b.ToTable("AppPhoto");
                 });
@@ -1800,7 +1804,8 @@ namespace ApperTech.Akaratak.Migrations
                 {
                     b.HasOne("ApperTech.Akaratak.Realestate.Property", "Property")
                         .WithMany("Photos")
-                        .HasForeignKey("Photo");
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Property", b =>

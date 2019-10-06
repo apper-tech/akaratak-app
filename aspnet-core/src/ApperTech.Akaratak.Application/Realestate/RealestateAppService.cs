@@ -4,15 +4,13 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
-using Abp.Configuration;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.ObjectMapping;
 using Abp.Timing;
 using Abp.UI;
 using ApperTech.Akaratak.Realestate.Dto;
 using ApperTech.Akaratak.Realestate.Manager;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,14 +21,17 @@ namespace ApperTech.Akaratak.Realestate
     {
         private readonly IRepository<Property> _repository;
         private readonly ITagManager _tagManager;
+        private readonly IPhotoManager _photoManager;
         private readonly IObjectMapper _objectMapper;
 
         public PropertyAppService(IRepository<Property> repository,
             ITagManager tagManager,
+            IPhotoManager photoManager,
             IObjectMapper objectMapper)
         {
             _repository = repository;
             _tagManager = tagManager;
+            _photoManager = photoManager;
             _objectMapper = objectMapper;
         }
         [AbpAuthorize()]
@@ -76,9 +77,24 @@ namespace ApperTech.Akaratak.Realestate
                 .Take(input.MaxResultCount));
         }
 
+        [AbpAuthorize()]
+        public async Task<bool> AddPhotoForProperty(int propertyId, [FromForm]IFormFile file)
+        {
+            return !(await _repository.UpdateAsync(
+                    (await GetPropertyWithDependencies(propertyId))
+                    .AddPhotos(new List<Photo>
+                    {
+                        (await this._photoManager.UploadPhoto(file))
+                    }))
+                ).IsNullOrDeleted();
+        }
+
         private async Task<Property> GetPropertyWithDependencies(int propertyId)
         {
-            return (await _repository
+            if (propertyId <= 0)
+                throw new UserFriendlyException("Property Id Invalid");
+
+            var property = (await _repository
                 .GetAllIncluding(
                     x => x.Address.City.Country,
                     x => x.PropertyType,
@@ -90,6 +106,11 @@ namespace ApperTech.Akaratak.Realestate
                 .ThenInclude(x => x.Tag)
                 .Where(x => x.Id == propertyId)
                 .FirstOrDefaultAsync());
+
+            if (property != null)
+                return property;
+            else
+                throw new UserFriendlyException("Property Doesn't Exist!");
         }
     }
 
@@ -215,80 +236,6 @@ namespace ApperTech.Akaratak.Realestate
                            Name = input.Name
                        })));
             throw new UserFriendlyException("Tag Already Exists!");
-        }
-    }
-
-    public class PhotoAppService : ApplicationService, IPhotoAppService
-    {
-        private readonly IRepository<Photo> _repository;
-        private readonly IObjectMapper _objectMapper;
-        private readonly ISettingManager _settingManager;
-        private Cloudinary _cloudinary;
-
-        public PhotoAppService(IRepository<Photo> repository
-            , IObjectMapper objectMapper
-            , ISettingManager settingManager)
-        {
-            _repository = repository;
-            _objectMapper = objectMapper;
-            _settingManager = settingManager;
-
-            InitCloudinary();
-        }
-
-        private async void InitCloudinary()
-        {
-            _cloudinary = new Cloudinary(
-                new Account(
-                    await _settingManager.GetSettingValueAsync("CloudinaryCloudName"),
-                    await _settingManager.GetSettingValueAsync("CloudinaryApiKey"),
-                    await _settingManager.GetSettingValueAsync("CloudinaryApiSecret")
-                )
-            );
-        }
-
-        public async Task<List<PhotoDto>> GetPhotos(int propertyId)
-        {
-            return _objectMapper.Map<List<PhotoDto>>
-            (await _repository
-                .GetAllListAsync());
-        }
-        [AbpAuthorize()]
-        public async Task<bool> AddPhotoForProperty(int propertyId, [FromForm]IFormFile file)
-        {
-
-            if (propertyId <= 0)
-                throw new UserFriendlyException("Property Doesn't Exist");
-
-            ImageUploadResult uploadResult;
-
-            if (file.Length <= 0)
-                throw new UserFriendlyException("No Image");
-
-            using (var stream = file.OpenReadStream())
-            {
-                var uploadParams = new ImageUploadParams()
-                {
-                    File = new FileDescription(file.Name, stream),
-                    Transformation = new Transformation().Width(1200).Height(1000).Crop("fill")
-                };
-                uploadResult = _cloudinary.Upload(uploadParams);
-            }
-
-            var photo = new Photo
-            {
-                Url = uploadResult.Uri.ToString(),
-                PublicId = uploadResult.PublicId,
-                PropertyId = propertyId
-            };
-
-            if (!(await _repository.GetAllListAsync())
-                .Where(x => x.PropertyId == propertyId)
-                .Any(m => m.IsMain))
-                photo.IsMain = true;
-
-            var id = await _repository.InsertAndGetIdAsync(photo);
-            return id > 0;
         }
     }
 }

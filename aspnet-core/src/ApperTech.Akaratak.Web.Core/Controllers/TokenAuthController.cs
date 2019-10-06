@@ -10,7 +10,6 @@ using Abp.Authorization;
 using Abp.Authorization.Users;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
-using Abp.UI;
 using ApperTech.Akaratak.Authentication.External;
 using ApperTech.Akaratak.Authentication.JwtBearer;
 using ApperTech.Akaratak.Authorization;
@@ -29,8 +28,8 @@ namespace ApperTech.Akaratak.Controllers
         private readonly ITenantCache _tenantCache;
         private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
         private readonly TokenAuthConfiguration _configuration;
-        private readonly IExternalAuthConfiguration _externalAuthConfiguration;
-        private readonly IExternalAuthManager _externalAuthManager;
+        public IExternalAuthConfiguration AuthConfiguration { get; }
+        public IExternalAuthManager AuthManager { get; }
         private readonly UserRegistrationManager _userRegistrationManager;
 
         public TokenAuthController(
@@ -48,8 +47,8 @@ namespace ApperTech.Akaratak.Controllers
             _tenantCache = tenantCache;
             _abpLoginResultTypeHelper = abpLoginResultTypeHelper;
             _configuration = configuration;
-            _externalAuthConfiguration = externalAuthConfiguration;
-            _externalAuthManager = externalAuthManager;
+            AuthConfiguration = externalAuthConfiguration;
+            AuthManager = externalAuthManager;
             _userRegistrationManager = userRegistrationManager;
         }
 
@@ -152,9 +151,10 @@ namespace ApperTech.Akaratak.Controllers
                 externalUser.EmailAddress,
                 externalUser.EmailAddress,
                 Authorization.Users.User.CreateRandomPassword(),
+                externalUser.PhoneNumber,
                 true,
                 externalUser.UserType,
-                externalUser.PhotoUrl,
+                externalUser.Photo.Url,
                 externalUser.IdToken
             );
 

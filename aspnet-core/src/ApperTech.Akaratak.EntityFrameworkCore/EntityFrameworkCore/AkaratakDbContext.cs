@@ -60,10 +60,10 @@ namespace ApperTech.Akaratak.EntityFrameworkCore
                 .WithMany(b => b.FeaturesTags)
                 .HasForeignKey(bc => bc.TagId);
 
-            modelBuilder.Entity<Property>()
-                .HasMany(x => x.Photos)
-                .WithOne(x => x.Property)
-                .HasForeignKey(x => x.PropertyId);
+            modelBuilder.Entity<Photo>()
+                .HasOne(s => s.Property)
+                .WithMany(s => s.Photos)
+                .IsRequired(false);
 
             modelBuilder.Entity<FeaturesTag>()
                 .HasOne(bc => bc.Features)

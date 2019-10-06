@@ -9,8 +9,6 @@ namespace ApperTech.Akaratak.Realestate
     [Table("AppPhoto")]
     public class Photo : FullAuditedEntity<int>
     {
-        [ForeignKey("PropertyFK")]
-        public int PropertyId { get; set; }
         public Property Property { get; set; }
 
         [Required, MinLength(20)]

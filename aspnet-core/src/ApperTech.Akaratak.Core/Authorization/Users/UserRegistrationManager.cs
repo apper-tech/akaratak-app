@@ -11,6 +11,7 @@ using Abp.Runtime.Session;
 using Abp.UI;
 using ApperTech.Akaratak.Authorization.Roles;
 using ApperTech.Akaratak.MultiTenancy;
+using ApperTech.Akaratak.Realestate;
 
 namespace ApperTech.Akaratak.Authorization.Users
 {
@@ -37,7 +38,7 @@ namespace ApperTech.Akaratak.Authorization.Users
             AbpSession = NullAbpSession.Instance;
         }
 
-        public async Task<User> RegisterAsync(string name, string surname, string emailAddress, string userName, string plainPassword, bool isEmailConfirmed, UserType userType, string photoUrl, string idToken)
+        public async Task<User> RegisterAsync(string name, string surname, string emailAddress, string userName, string plainPassword, string phoneNumber, bool isEmailConfirmed, UserType userType, string photoUrl, string idToken)
         {
             CheckForTenant();
 
@@ -52,8 +53,9 @@ namespace ApperTech.Akaratak.Authorization.Users
                 IsActive = true,
                 UserName = userName,
                 IsEmailConfirmed = isEmailConfirmed,
-                PhotoUrl = photoUrl,
+                Photo = new Photo { Url = photoUrl },
                 UserType = userType,
+                PhoneNumber = phoneNumber,
                 Roles = new List<UserRole>(),
                 IdToken = idToken
             };
