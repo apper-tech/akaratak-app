@@ -5,9 +5,6 @@
 
       <mat-horizontal-stepper #horizontalStepper linear="true" class="submit-property"
         (selectionChange)="onSelectionChange($event)">
-
-
-
         <mat-step [stepControl]="submitForm.get('basic')" label="Basic">
           <div class="step-content">
             <form formGroupName="basic" fxLayout="row wrap">
@@ -117,7 +114,7 @@
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-3">
                 <mat-form-field appearance="outline" class="w-100" *ngIf="propertyStatusTypes.sale">
                   <mat-label>Sale Price</mat-label>
-                  <input matInput placeholder="Sale" min="0" type="number" formControlName="salePrice" required
+                  <input matInput placeholder="Sale" min="0" onlyNumber formControlName="salePrice" required
                     autocomplete="off" value="0">
                   <span matSuffix>{{getCurrentSign()}}</span>
                   <mat-error *ngIf="submitForm.get('basic')['controls'].salePrice.errors?.required">Sale Price is
@@ -129,7 +126,7 @@
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-3">
                 <mat-form-field appearance="outline" class="w-100" *ngIf="propertyStatusTypes.rent">
                   <mat-label>Rent Price</mat-label>
-                  <input matInput placeholder="Rent" min="0" type="number" formControlName="rentPrice" required
+                  <input matInput placeholder="Rent" min="0" onlyNumber formControlName="rentPrice" required
                     autocomplete="off" value="0">
                   <span matSuffix>{{getCurrentSign()}}</span>
                   <mat-error *ngIf="submitForm.get('basic')['controls'].rentPrice.errors?.required">Rent Price is
@@ -141,7 +138,7 @@
               <div fxFlex="100" fxFlex.gt-xs="50" class="px-3">
                 <mat-form-field appearance="outline" class="w-100" *ngIf="propertyStatusTypes.invest">
                   <mat-label>Invest Price</mat-label>
-                  <input matInput placeholder="Invest" min="0" type="number" formControlName="investPrice" required
+                  <input matInput placeholder="Invest" min="0" onlyNumber formControlName="investPrice" required
                     autocomplete="off" value="0">
                   <span matSuffix>{{getCurrentSign()}}</span>
                   <mat-error *ngIf="submitForm.get('basic')['controls'].investPrice.errors?.required">Invest Price is

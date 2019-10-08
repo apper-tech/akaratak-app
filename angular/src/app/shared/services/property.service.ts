@@ -18,8 +18,7 @@ export class PropertyService {
     public categoryService: Api.CategoryServiceProxy,
     public tagService: Api.TagServiceProxy,
     public countryService: Api.CountryServiceProxy,
-    public cityService: Api.CityServiceProxy,
-    public photoService: Api.PhotoServiceProxy
+    public cityService: Api.CityServiceProxy
   ) { }
 
   public getCurrencies(): Observable<Api.CurrencyDto[]> { return this.currencyService.getAll(); }
@@ -59,7 +58,7 @@ export class PropertyService {
       { id: 4, name: 'Swap?' }
     ]
   }
-
+  public getProperty(id): Observable<Api.PropertyDto> { return this.propertyService.getById(id); }
 
   private ToOfferDto(basic) {
     let offerResult = new CreateOfferInput(
@@ -174,7 +173,7 @@ export class PropertyService {
           var photos = property['basic']['gallery'];
           if (photos)
             photos.forEach(photo => {
-              this.photoService.addPhotoForProperty(id,
+              this.propertyService.addPhotoForProperty(id,
                 ({ fileName: photo.file.name, data: photo.file } as Api.FileParameter))
                 .subscribe(added => {
                   result = added;

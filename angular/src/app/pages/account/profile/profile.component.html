@@ -1,12 +1,20 @@
 <div fxLayout="row wrap">
     <div fxFlex="100" fxFlex.gt-sm="50" class="p-3">
         <h2 class="text-muted text-center fw-600 mb-3">Account details</h2>
-        <form [formGroup]="infoForm" (ngSubmit)="onInfoFormSubmit(infoForm.value)"> 
+        <form [formGroup]="infoForm" (ngSubmit)="onInfoFormSubmit(infoForm.value)">
             <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Name</mat-label>
-                <input matInput placeholder="Name" formControlName="name" required autocomplete="off">
-                <mat-error *ngIf="infoForm.controls.name.errors?.required">Name is required</mat-error>
-                <mat-error *ngIf="infoForm.controls.name.hasError('minlength')">Name isn't long enough, minimum of 3 characters</mat-error>
+                <mat-label>First Name</mat-label>
+                <input matInput placeholder="First Name" formControlName="firstname" required autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.firstname.errors?.required">First Name is required</mat-error>
+                <mat-error *ngIf="infoForm.controls.firstname.hasError('minlength')">First Name isn't long enough,
+                    minimum of 3 characters</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Sur Name</mat-label>
+                <input matInput placeholder="Sur Name" formControlName="surname" required autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.surname.errors?.required">Sur Name is required</mat-error>
+                <mat-error *ngIf="infoForm.controls.surname.hasError('minlength')">Sur Name isn't long enough, minimum
+                    of 3 characters</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Email</mat-label>
@@ -16,69 +24,94 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Phone</mat-label>
-                <input matInput placeholder="Phone" formControlName="phone" required onlyNumber autocomplete="off">
+                <input matInput placeholder="Phone" formControlName="phone" required autocomplete="off">
                 <mat-error *ngIf="infoForm.controls.phone.errors?.required">Phone is required</mat-error>
+                <mat-error *ngIf="infoForm.controls.phone.hasError('invalidPhoneNumber')">Invalid Phone Number
+                </mat-error>
             </mat-form-field>
 
             <div class="mb-3">
-                <input-file placeholder="Image (or link to image)" formControlName="image" fileLimit="1" fileAccept="image/*" [linkEnabled]="true"></input-file>  
+                <input-file placeholder="Image (or link to image)" formControlName="image" fileLimit="1"
+                    fileAccept="image/*" [linkEnabled]="true"></input-file>
             </div>
-    
+
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Organization</mat-label>
-                <input matInput placeholder="organization" formControlName="organization" autocomplete="off"> 
+                <input matInput placeholder="organization" formControlName="organization" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.organization.hasError('maxLength')">Organization Can't be more than
+                    25
+                </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Facebook</mat-label>
-                <input matInput placeholder="facebook" formControlName="facebook" autocomplete="off"> 
+                <input matInput placeholder="facebook" formControlName="facebook" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.facebook.hasError('invalidUrl')">Invalid Facebook Url
+                </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Twitter</mat-label>
-                <input matInput placeholder="twitter" formControlName="twitter" autocomplete="off"> 
+                <input matInput placeholder="twitter" formControlName="twitter" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.facebook.hasError('invalidUrl')">Invalid Twitter Url
+                </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Linkedin</mat-label>
-                <input matInput placeholder="linkedin" formControlName="linkedin" autocomplete="off"> 
+                <input matInput placeholder="linkedin" formControlName="linkedin" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.facebook.hasError('invalidUrl')">Invalid Linkedin Url
+                </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Instagram</mat-label>
-                <input matInput placeholder="instagram" formControlName="instagram" autocomplete="off"> 
+                <input matInput placeholder="instagram" formControlName="instagram" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.facebook.hasError('invalidUrl')">Invalid Instagram Url
+                </mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Website</mat-label>
-                <input matInput placeholder="website" formControlName="website" autocomplete="off"> 
+                <input matInput placeholder="website" formControlName="website" autocomplete="off">
+                <mat-error *ngIf="infoForm.controls.facebook.hasError('invalidUrl')">Invalid Website Url
+                </mat-error>
             </mat-form-field>
 
             <div class="text-center mt-2">
                 <button mat-raised-button color="primary" type="submit" class="uppercase">Update profile</button>
-            </div> 
+            </div>
         </form>
     </div>
-    
+
     <div fxFlex="100" fxFlex.gt-sm="50" class="p-3" ngClass.sm="mt-2" ngClass.xs="mt-2">
         <h2 class="text-muted text-center fw-600 mb-3">Password change</h2>
-        <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">            
+        <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Current Password</mat-label>
-                <input matInput placeholder="Current Password" formControlName="currentPassword" type="password" minlength="6" required autocomplete="off">
-                <mat-error *ngIf="passwordForm.controls.currentPassword.errors?.required">Current Password is required</mat-error>
-                <mat-error *ngIf="passwordForm.controls.currentPassword.hasError('minlength')">Current Password isn't long enough, minimum of 6 characters</mat-error>
+                <input matInput placeholder="Current Password" formControlName="currentPassword" type="password"
+                    minlength="6" required autocomplete="off">
+                <mat-error *ngIf="passwordForm.controls.currentPassword.errors?.required">Current Password is required
+                </mat-error>
+                <mat-error *ngIf="passwordForm.controls.currentPassword.hasError('minlength')">Current Password isn't
+                    long enough, minimum of 6 characters</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
                 <mat-label>New Password</mat-label>
-                <input matInput placeholder="New Password" formControlName="newPassword" type="password" minlength="6" required autocomplete="off">
-                <mat-error *ngIf="passwordForm.controls.newPassword.errors?.required">New Password is required</mat-error>
-                <mat-error *ngIf="passwordForm.controls.newPassword.hasError('minlength')">New Password isn't long enough, minimum of 6 characters</mat-error>
-            </mat-form-field> 
+                <input matInput placeholder="New Password" formControlName="newPassword" type="password" minlength="6"
+                    required autocomplete="off">
+                <mat-error *ngIf="passwordForm.controls.newPassword.errors?.required">New Password is required
+                </mat-error>
+                <mat-error *ngIf="passwordForm.controls.newPassword.hasError('minlength')">New Password isn't long
+                    enough, minimum of 6 characters</mat-error>
+            </mat-form-field>
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Confirm New Password</mat-label>
-              <input matInput placeholder="Confirm New Password" formControlName="confirmNewPassword" type="password" required autocomplete="off">
-              <mat-error *ngIf="passwordForm.controls.confirmNewPassword.errors?.required">Confirm New Password is required</mat-error>
-              <mat-error *ngIf="passwordForm.controls.confirmNewPassword.hasError('mismatchedPasswords')">Passwords do not match</mat-error>
+                <mat-label>Confirm New Password</mat-label>
+                <input matInput placeholder="Confirm New Password" formControlName="confirmNewPassword" type="password"
+                    required autocomplete="off">
+                <mat-error *ngIf="passwordForm.controls.confirmNewPassword.errors?.required">Confirm New Password is
+                    required</mat-error>
+                <mat-error *ngIf="passwordForm.controls.confirmNewPassword.hasError('mismatchedPasswords')">Passwords do
+                    not match</mat-error>
             </mat-form-field>
             <div class="text-center mt-2">
                 <button mat-raised-button color="primary" type="submit" class="uppercase">Change password</button>
             </div>
         </form>
     </div>
-</div> 
+</div>
