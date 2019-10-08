@@ -37,6 +37,7 @@ import { VerticalMenuComponent } from './theme/components/menu/vertical-menu/ver
 import { FooterComponent } from './theme/components/footer/footer.component';
 import { LockScreenComponent } from './pages/lock-screen/lock-screen.component';
 import { TestModule } from './pages/test/test.module'
+import { AuthGuardService } from './theme/utils/auth.guard'
 import { environment } from '../environments/environment';
 
 
@@ -77,6 +78,7 @@ import { environment } from '../environments/environment';
   ],
   providers: [
     AppSettings,
+    AuthGuardService,
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
     { provide: HTTP_INTERCEPTORS, useClass: AppInterceptor, multi: true }
   ],

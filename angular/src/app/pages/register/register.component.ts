@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
-import { matchingPasswords, emailValidator } from 'src/app/theme/utils/app-validators';
+import { matchingPasswords, emailValidator, phoneNumberValidator } from 'src/app/theme/utils/app-validators';
 import { AuthService } from '../../shared/services/auth.service';
 import { RegisterInput } from '../../shared/services/service.base';
 
@@ -28,8 +28,8 @@ export class RegisterComponent implements OnInit {
       userType: ['', Validators.required],
       firstname: ['', Validators.compose([Validators.required, Validators.minLength(3)])],
       surname: ['', Validators.compose([Validators.required, Validators.minLength(3)])],
-      username: ['', Validators.compose([Validators.required, Validators.minLength(6)])],
       email: ['', Validators.compose([Validators.required, emailValidator])],
+      phoneNumber: ['', Validators.compose([Validators.required, phoneNumberValidator])],
       password: ['', Validators.required],
       confirmPassword: ['', Validators.required],
       receiveNewsletter: false
@@ -39,12 +39,13 @@ export class RegisterComponent implements OnInit {
   public onRegisterFormSubmit(values: Object): void {
     if (this.registerForm.valid) {
       this.authService.register({
-        userName: values['username'],
+        userName: (values['firstname'] + '_' + values['surname']).toLocaleLowerCase(),
         emailAddress: values['email'],
         password: values['password'],
         userType: values['userType'].id,
         name: values['firstname'],
-        surname: values['surname']
+        surname: values['surname'],
+        phoneNumber: values['phoneNumber']
       } as RegisterInput).then(result => {
         if (result)
           this.snackBar.open('You registered successfully!', '×',

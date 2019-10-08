@@ -1,21 +1,22 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { Observable, of, throwError, Subject, BehaviorSubject } from 'rxjs';
-import { AuthenticateModel, TokenAuthServiceProxy, AuthenticateResultModel, AccountServiceProxy, RegisterInput, RegisterOutput, ExternalAuthenticateModel, UserDto } from './service.base';
+import { AuthenticateModel, TokenAuthServiceProxy, AuthenticateResultModel, AccountServiceProxy, RegisterInput, RegisterOutput, ExternalAuthenticateModel, UserDto, ExternalAuthenticateResultModel, UpdateUserInput, FileParameter, UserServiceProxy, ChangePasswordDto } from './service.base';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import * as social from "angularx-social-login";
 import {/*  FacebookLoginProvider, */ GoogleLoginProvider } from "angularx-social-login";
-import { ExternalAuthenticateResultModel } from 'src/src/app/shared/services/service.base';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedIn: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private loggedIn: BehaviorSubject<AuthModel> = new BehaviorSubject(undefined);
 
   constructor(private _tokenAuthService: TokenAuthServiceProxy,
     private _router: Router,
     private _tokenService: TokenService,
+    private _userService: UserServiceProxy,
     private _accountService: AccountServiceProxy,
     private _authService: social.AuthService) { }
 
@@ -86,27 +87,68 @@ export class AuthService {
       }
     })
   }
-  public async getUserInfo(): Promise<UserDto> {
+  public emitUserInfo(refresh): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this._authService.authState.subscribe(user => {
-        this._accountService.getUserInfo(user.idToken)
-          .subscribe((data: UserDto) => {
-            resolve(data);
-          }, (error) => reject(error))
-      }, (error) => reject(error))
+      if (!refresh) {
+        if (this._tokenService.hasToken())
+          this.loggedIn.next({ isLoggedIn: true, userInfo: this._tokenService.getUser() });
+        else
+          this.loggedIn.next({ isLoggedIn: false } as AuthModel);
+        resolve(true);
+      }
+      else {
+        this._accountService.getUserInfo()
+          .subscribe(user => {
+            this._tokenService.setUser(user);
+            this.loggedIn.next({ isLoggedIn: true, userInfo: user });
+            resolve(true);
+          });
+      }
+    })
+
+  }
+  public async updateUser(user: UpdateUserInput): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this._accountService.updateUser(user).subscribe(result => {
+        resolve(result);
+      }, error => reject(error))
     })
   }
-
-  public isLoggedIn(): Observable<boolean> {
+  public async updateUserPhoto(photoUrl: string, photo: any): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      var file = photo ? ({ fileName: photo.name, data: photo } as FileParameter) : undefined;
+      this._accountService.updatePhotoForUser(photoUrl, file)
+        .subscribe(result => {
+          resolve(result);
+        }, error => reject(error));
+    })
+  }
+  public async updatePassword(currentPassowrd: string, newPassword: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this._userService.changePassword(
+        {
+          currentPassword: currentPassowrd,
+          newPassword: newPassword
+        } as ChangePasswordDto).subscribe(result => {
+          if (result) {
+            resolve(result);
+          }
+          else
+            reject(false);
+        })
+    })
+  }
+  public isLoggedIn(): Observable<AuthModel> {
     return this.loggedIn.asObservable();
   }
   public logOut() {
     this._tokenService.clearToken();
-    this.loggedIn.next(this._tokenService.hasToken());
-    this._router.navigate(['/'])
+    this.emitUserInfo(false).then(result => {
+      this._router.navigate(['/']);
+    });
   }
 
-  private processAuthenticateResult(authenticateResult: AuthenticateResultModel, rememberMe: boolean): boolean {
+  private processAuthenticateResult(authenticateResult: AuthenticateResultModel, rememberMe: boolean): Observable<boolean> {
     if (authenticateResult.accessToken) {
       // Successfully logged in
       this.login(
@@ -114,22 +156,28 @@ export class AuthService {
         authenticateResult.encryptedAccessToken,
         authenticateResult.expireInSeconds,
         rememberMe);
-      return true;
+      return of(true);
     } else {
-      return false;
+      return of(false);
     }
   }
   private login(accessToken: string, encryptedAccessToken: string, expireInSeconds: number, rememberMe?: boolean): void {
-
     const tokenExpireDate = rememberMe ? (new Date(new Date().getTime() + 1000 * expireInSeconds)) : undefined;
     this._tokenService.setToken(
       accessToken,
       tokenExpireDate
     );
-    this.loggedIn.next(this._tokenService.hasToken());
-    this._router.navigate(['/']);
+    this.emitUserInfo(true).then(result => {
+      if (result)
+        this._router.navigate(['/']);
+    })
+
   }
 }
 export enum SocialLoginTypes {
   Google
+}
+export class AuthModel {
+  public isLoggedIn: boolean;
+  public userInfo: UserDto;
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as  moment from 'moment'
+import { UserDto } from './service.base';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +14,18 @@ export class TokenService {
     localStorage.setItem('access_token_date', expireDate ? expireDate.toString()
       : moment().add(1, 'd').toDate().toString());
   }
-
   public getToken(): string {
     return localStorage.getItem('access_token');
   }
+
+  public setUser(user: UserDto) {
+    localStorage.setItem('user_data', JSON.stringify(user));
+  }
+  public getUser(): UserDto {
+    return JSON.parse(localStorage.getItem('user_data'));
+  }
+
+
 
   public hasToken(): boolean {
     return new Date(localStorage.getItem('access_token_date')) ?
@@ -26,5 +35,6 @@ export class TokenService {
   public clearToken() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('access_token_date');
+    localStorage.removeItem('user_data');
   }
 }

@@ -8,7 +8,6 @@ import {
     CityServiceProxy,
     CategoryServiceProxy,
     TagServiceProxy,
-    PhotoServiceProxy,
     ConfigurationServiceProxy,
     RoleServiceProxy,
     AccountServiceProxy,
@@ -16,7 +15,8 @@ import {
     CurrencyServiceProxy,
     PropertyServiceProxy,
     TokenAuthServiceProxy,
-    TenantServiceProxy
+    TenantServiceProxy,
+    UserServiceProxy
 } from './service.base';
 
 let config = new AuthServiceConfig([
@@ -38,7 +38,6 @@ export function provideConfig() {
         CityServiceProxy,
         CategoryServiceProxy,
         TagServiceProxy,
-        PhotoServiceProxy,
         ConfigurationServiceProxy,
         RoleServiceProxy,
         AccountServiceProxy,
@@ -46,6 +45,7 @@ export function provideConfig() {
         CurrencyServiceProxy,
         PropertyServiceProxy,
         TokenAuthServiceProxy,
+        UserServiceProxy,
         TenantServiceProxy,
         socialLogin.AuthService,
         PropertyService,

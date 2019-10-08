@@ -37,21 +37,22 @@
                         <mat-error *ngIf="registerForm.controls.surname.hasError('minlength')">Sur Name isn't long
                             enough, minimum of 3 characters</mat-error>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" class="w-100 mt-2">
-                        <mat-icon matPrefix class="mr-1 text-muted">person</mat-icon>
-                        <mat-label>Username</mat-label>
-                        <input matInput placeholder="Username" formControlName="username" required>
-                        <mat-error *ngIf="registerForm.controls.username.errors?.required">Username is required
-                        </mat-error>
-                        <mat-error *ngIf="registerForm.controls.username.hasError('minlength')">Username isn't long
-                            enough, minimum of 6 characters</mat-error>
-                    </mat-form-field>
                     <mat-form-field appearance="outline" class="w-100 mt-1">
                         <mat-icon matPrefix class="mr-1 text-muted">email</mat-icon>
                         <mat-label>Email</mat-label>
                         <input matInput placeholder="Email" formControlName="email" required>
                         <mat-error *ngIf="registerForm.controls.email.errors?.required">Email is required</mat-error>
                         <mat-error *ngIf="registerForm.controls.email.hasError('invalidEmail')">Invalid email address
+                        </mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="w-100 mt-1">
+                        <mat-icon matPrefix class="mr-1 text-muted">phone</mat-icon>
+                        <mat-label>Phone Number</mat-label>
+                        <input matInput placeholder="Phone Number" formControlName="phoneNumber" required>
+                        <mat-error *ngIf="registerForm.controls.email.errors?.required">Phone Number is required
+                        </mat-error>
+                        <mat-error *ngIf="registerForm.controls.phoneNumber.hasError('invalidPhoneNumber')">
+                            Invalid Phone Number
                         </mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="w-100 mt-1">
