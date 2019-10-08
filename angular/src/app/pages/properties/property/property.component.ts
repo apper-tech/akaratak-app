@@ -34,6 +34,13 @@ export class PropertyComponent implements OnInit {
   public mortgageForm: FormGroup;
   public monthlyPayment:any;
   public contactForm: FormGroup;
+  //div vars
+  public services_div:boolean=false;   
+  public agents_div:boolean=false;
+  public comments_div:boolean=false;
+  public clients_div:boolean=false;
+
+  
   constructor(public appSettings:AppSettings, 
               public appService:AppService, 
               private activatedRoute: ActivatedRoute, 
