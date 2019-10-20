@@ -5,7 +5,9 @@
 export const environment = {
   production: false,
   googleAuthClientId: '<client-id>',
-  googleMapsApiKey: '<api-key>'
+  googleMapsApiKey: '<api-key>',
+  defaultUserImagePath: 'assets/images/others/user.jpg',
+  defaultPropertyImagePath: 'assets/images/others/property.jpg'
 };
 
 /*
