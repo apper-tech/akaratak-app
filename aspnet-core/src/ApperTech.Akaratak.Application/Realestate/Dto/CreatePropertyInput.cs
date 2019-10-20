@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using Abp.Timing;
+using JetBrains.Annotations;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
@@ -14,15 +14,13 @@ namespace ApperTech.Akaratak.Realestate.Dto
         [Required] public CreateFeaturesInput Features { get; set; }
 
         [Required, DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true)]
+        [UsedImplicitly]
         private DateTime ListingDate { get; set; } = Clock.Now;
 
         [Required] public int PropertyType { get; set; }
 
         [Required, DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true)]
         public DateTime ExpireDate { get; set; }
-    }
-    public class GetAllPropertyInput : PagedAndSortedResultRequestDto
-    {
-        public int? Bedrooms { get; set; }
+
     }
 }

@@ -61,4 +61,22 @@ namespace ApperTech.Akaratak.Realestate.Dto
         [Required]
         public new ICollection<int> Direction { get; set; }
     }
+
+    public class FeaturesSearchParameters
+    {
+
+        public bool Cladding { get; set; }
+
+        public bool Empty { get; set; }
+
+        public bool Heating { get; set; }
+
+        public bool GasLine { get; set; }
+
+        public bool Internet { get; set; }
+
+        public bool Elevator { get; set; }
+
+        public bool Parking { get; set; }
+    }
 }

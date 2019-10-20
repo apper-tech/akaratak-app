@@ -61,20 +61,86 @@ namespace ApperTech.Akaratak.Realestate
 
         public async Task<PropertyDto> GetById(int propertyId)
         {
-            return _objectMapper.Map<PropertyDto>(await GetPropertyWithDependencies(propertyId));
+            return _objectMapper.Map<PropertyDto>(
+                (await _repository
+                .UpdateAsync(
+                    (await GetPropertyWithDependencies(propertyId))
+                    .AddView())));
+        }
+        [AbpAuthorize()]
+        public async Task<List<PropertyDto>> GetByUser()
+        {
+            if (AbpSession.UserId == null)
+                throw new UserFriendlyException("User Didn't Log in");
+            List<Property> list = new List<Property>();
+
+            foreach (Property property in
+                (await _repository.GetAllListAsync()).Where(x => x.CreatorUserId == AbpSession.UserId))
+                list.Add(await GetPropertyWithDependencies(property.Id));
+
+            if (list.Count == 0)
+                throw new UserFriendlyException("User Has No Properties!");
+            return _objectMapper.Map<List<PropertyDto>>(list);
         }
 
-        public async Task<List<PropertyDto>> GetAll(GetAllPropertyInput input)
+        public async Task<List<PropertyDto>> Filter(FilterPropertyInput input)
         {
-            return _objectMapper.Map<List<PropertyDto>>(
-                (await _repository.GetAllListAsync())
-                .Select(async x => (await GetPropertyWithDependencies(x.Id)))
-                .Select(t => t.Result)
-                .WhereIf(input.Bedrooms.HasValue,
-                    p => p.Features.Bedrooms > input.Bedrooms)
-                .ToList()
-                .Skip(input.SkipCount)
-                .Take(input.MaxResultCount));
+            List<Property> list = new List<Property>();
+
+            foreach (Property property in (await _repository.GetAllListAsync()))
+                list.Add(await GetPropertyWithDependencies(property.Id));
+
+            var param = input.PropertySearchParameters;
+            if (param != null)
+                list = list
+                    // Bedrooms
+                    .WhereIf(param.BedroomsRange.IsValid(),
+                        p => param.BedroomsRange.ContainsValue(p.Features.Bedrooms))
+                    // Bathrooms
+                    .WhereIf(param.BathroomsRange.IsValid(),
+                        p => param.BathroomsRange.ContainsValue(p.Features.Bathrooms))
+                    // AreaRange
+                    .WhereIf(param.AreaRange.IsValid(),
+                        p => param.AreaRange.ContainsValue(p.Features.Area))
+                    // PropertyAge
+                    .WhereIf(param.PropertyAgeRange.IsValid(),
+                        p => param.PropertyAgeRange.ContainsValue(p.Features.PropertyAge))
+                    // City
+                    .WhereIf(param.City > 0,
+                        p => p.Address.CityId == param.City)
+                    // Property Type
+                    .WhereIf(param.PropertyType > 0,
+                        f => f.PropertyTypeId == param.PropertyType)
+                    // Zip Code
+                    .WhereIf(!string.IsNullOrEmpty(param.ZipCode),
+                        p => p.Address.ZipCode.Contains(param.ZipCode))
+                    // Offer
+                    .WhereIf(param.Offers != null,
+                        p =>
+                            (p.Offer.Sale > 0 && param.Offers.Sale &&
+                             (param.PriceRange.IsValid() && param.PriceRange.ContainsValue(p.Offer.Sale)))
+                            || (p.Offer.Rent > 0 && param.Offers.Rent &&
+                                (param.PriceRange.IsValid() && param.PriceRange.ContainsValue(p.Offer.Rent)))
+                            || (p.Offer.Invest > 0 && param.Offers.Invest &&
+                                (param.PriceRange.IsValid() && param.PriceRange.ContainsValue(p.Offer.Invest)))
+                            || (param.Offers.Swap && p.Offer.Swap))
+                    // Features
+                    .WhereIf(param.Features != null,
+                        p =>
+                            (param.Features.Cladding && p.Features.Cladding)
+                            || (param.Features.Elevator && p.Features.Elevator)
+                            || (param.Features.Empty && p.Features.Empty)
+                            || (param.Features.GasLine && p.Features.GasLine)
+                            || (param.Features.Heating && p.Features.Heating)
+                            || (param.Features.Internet && p.Features.Internet)
+                            || (param.Features.Parking && p.Features.Parking))
+                    // Paging
+                    .Skip(input.GetSkipCount())
+                    .Take(input.ItemsPerPage)
+                    .ToList();
+
+
+            return _objectMapper.Map<List<PropertyDto>>(list);
         }
 
         [AbpAuthorize()]

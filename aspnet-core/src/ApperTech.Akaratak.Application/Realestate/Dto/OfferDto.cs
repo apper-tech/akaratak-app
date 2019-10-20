@@ -10,7 +10,7 @@ namespace ApperTech.Akaratak.Realestate.Dto
     {
         public virtual int Id { get; set; }
         [Required]
-        public CurrencyDto Currency { get; set; }
+        public virtual CurrencyDto Currency { get; set; }
         [Required, Range(0, int.MaxValue)]
         public float Sale { get; set; }
         [Required, Range(0, int.MaxValue)]
@@ -27,5 +27,16 @@ namespace ApperTech.Akaratak.Realestate.Dto
         public override int Id { get; set; }
 
         public new int Currency { get; set; }
+    }
+    public class OfferPagedResultInput
+    {
+
+        public bool Sale { get; set; }
+
+        public bool Rent { get; set; }
+
+        public bool Invest { get; set; }
+
+        public bool Swap { get; set; }
     }
 }

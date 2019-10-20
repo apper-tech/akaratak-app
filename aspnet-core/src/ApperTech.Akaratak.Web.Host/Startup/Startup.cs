@@ -137,6 +137,7 @@ namespace ApperTech.Akaratak.Web.Host.Startup
                 options.SwaggerEndpoint(_appConfiguration["App:ServerRootAddress"].EnsureEndsWith('/') + "swagger/v1/swagger.json", "Akaratak API V1");
                 options.IndexStream = () => Assembly.GetExecutingAssembly()
                     .GetManifestResourceStream("ApperTech.Akaratak.Web.Host.wwwroot.swagger.ui.index.html");
+                options.InjectStylesheet("/swagger/ui/theme-flattop.css");
             }); // URL: /swagger
         }
     }
