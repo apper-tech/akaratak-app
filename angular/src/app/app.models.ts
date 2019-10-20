@@ -1,6 +1,20 @@
+import { PropertyDto } from "./shared/services/service.base";
+
 export class Describer {
     static describe(instance): Array<string> {
         return Object.getOwnPropertyNames(instance);
+    }
+}
+export class DataWithPaging {
+    data: PropertyDto[];
+    pagination: {
+        page: any;
+        perPage: any;
+        prePage: number;
+        nextPage: any;
+        total: number;
+        totalPages: number;
+
     }
 }
 export interface MapAddressDto {

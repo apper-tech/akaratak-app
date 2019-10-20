@@ -4,6 +4,8 @@ import { Observable, of } from 'rxjs';
 import * as Api from './service.base';
 import * as moment from 'moment';
 import { CreateOfferInput, CreateFeaturesInput } from './service.base';
+import { AppService } from 'src/app/app.service';
+import { DataWithPaging } from 'src/app/app.models';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +62,131 @@ export class PropertyService {
   }
   public getProperty(id): Observable<Api.PropertyDto> { return this.propertyService.getById(id); }
 
+  public getPropertiesForUser(): Promise<Api.PropertyDto[]> {
+    return new Promise((resolve, reject) => {
+      this.propertyService.getByUser().subscribe(data => {
+        resolve(data);
+      }, error => reject(error));
+    });
+  }
+  public getProperties(params: any, sort?, page?, perPage?): Promise<DataWithPaging> {
+    return new Promise((resolve, reject) => {
+      this.propertyService.filter(
+        params ? this.ToFilterInputDto(params, perPage, page) : {} as Api.FilterPropertyInput
+      ).subscribe(data => {
+        if (data) {
+          resolve(this.paginator(data, sort, page, perPage));
+        } else {
+          reject();
+        }
+      });
+    });
+  }
+
+  public paginator(items: Api.PropertyDto[], sort, page?, perPage?): DataWithPaging {
+
+    var page = page || 1,
+      perPage = perPage || 4,
+      offset = (page - 1) * perPage,
+      paginatedItems = items.slice(offset).slice(0, perPage),
+      totalPages = Math.ceil(items.length / perPage);
+    return {
+      data: this.sortFilterProperty(sort, paginatedItems),
+      pagination: {
+        page: page,
+        perPage: perPage,
+        prePage: page - 1 ? page - 1 : null,
+        nextPage: (totalPages > page) ? page + 1 : null,
+        total: items.length,
+        totalPages: totalPages,
+      }
+    };
+  }
+  public FromStatusDto(status): Api.OfferPagedResultInput {
+    var result = new Api.OfferPagedResultInput();
+
+    status.forEach(stat => {
+      switch (stat.id) {
+        case 1:
+          result.sale = true;
+          break;
+        case 2:
+          result.rent = true;
+          break;
+        case 3:
+          result.invest = true;
+          break;
+        case 4:
+          result.swap = true;
+          break;
+      }
+    });
+    return result;
+  }
+  public FromFeatureDto(features, search: boolean): Api.FeaturesSearchParameters | any[] {
+    var result = new Api.FeaturesSearchParameters();
+    var list = this.getFeatures().filter((feat) => {
+      if (features.cladding && feat.id == 1) { result.cladding = true; return feat };
+      if (features.empty && feat.id == 2) { result.empty = true; return feat };
+      if (features.heating && feat.id == 3) { result.heating = true; return feat };
+      if (features.internet && feat.id == 4) { result.internet = true; return feat };
+      if (features.elevator && feat.id == 5) { result.elevator = true; return feat };
+      if (features.parking && feat.id == 6) { result.parking = true; return feat };
+      if (features.gasLine && feat.id == 7) { result.gasLine = true; return feat };
+    })
+    if (search)
+      return result;
+    else
+      return list;
+  }
+  private sortFilterProperty(sort, data: Api.PropertyDto[]) {
+    if (sort) {
+      switch (sort) {
+        case 'Newest':
+          data = data.sort((a, b) => { return <any>new Date(b.listingDate.toString()) - <any>new Date(a.listingDate.toString()) });
+          break;
+        case 'Oldest':
+          data = data.sort((a, b) => { return <any>new Date(a.listingDate.toString()) - <any>new Date(b.listingDate.toString()) });
+          break;
+        case 'Popular':
+          data = data.sort((a, b) => {
+            if (a.views > b.views) {
+              return 1;
+            }
+            if (a.views < b.views) {
+              return -1;
+            }
+            return 0;
+          });
+          break;
+        case 'Price (Low to High)':
+          data = data.sort((a, b) => {
+            if ((a.offer.sale || a.offer.rent || a.offer.invest) > (b.offer.sale || b.offer.rent || b.offer.invest)) {
+              return 1;
+            }
+            if ((a.offer.sale || a.offer.rent || a.offer.invest) < (b.offer.sale || b.offer.rent || b.offer.invest)) {
+              return -1;
+            }
+            return 0;
+          })
+          break;
+        case 'Price (High to Low)':
+          data = data.sort((a, b) => {
+            if ((a.offer.sale || a.offer.rent || a.offer.invest) < (b.offer.sale || b.offer.rent || b.offer.invest)) {
+              return 1;
+            }
+            if ((a.offer.sale || a.offer.rent || a.offer.invest) > (b.offer.sale || b.offer.rent || b.offer.invest)) {
+              return -1;
+            }
+            return 0;
+          })
+          break;
+        default:
+          break;
+      }
+    }
+    return data;
+  }
   private ToOfferDto(basic) {
     let offerResult = new CreateOfferInput(
       {
@@ -139,6 +266,44 @@ export class PropertyService {
     featureResult.description = basic['desc'];
     return featureResult;
   }
+  private ToFilterInputDto(params, perPage, page): Api.FilterPropertyInput {
+    console.log(params);
+    var filter = {
+      propertySearchParameters:
+      {
+        areaRange: this.validateRange(params.area),
+        bathroomsRange: this.validateRange(params.bathrooms),
+        bedroomsRange: this.validateRange(params.bedrooms),
+        priceRange: this.validateRange(params.price),
+        propertyAgeRange: this.validateRange(params.propertyAge),
+        features: params.features ? this.FromFeatureDto(params.features, true) : undefined,
+        offers: params.propertyStatus ? this.FromStatusDto(params.propertyStatus) : undefined,
+        propertyType: params.propertyType ? params.propertyType.id : undefined,
+        city: params.city ? params.city.id : 0,
+        zipCode: params.zipCode ? params.zipCode : undefined,
+      },
+      itemsPerPage: perPage,
+      pageNumber: page
+    } as Api.FilterPropertyInput;
+    console.log(filter);
+    return filter;
+  }
+  private validateRange(range) {
+    if (range) {
+      let from: number = range.from ? range.from : 0;
+      let to: number = range.to ? range.to : 0;
+      if (to <= from)
+        to = from + 1;
+      return {
+        minimum: from,
+        maximum: to
+      };
+    }
+    return {
+      minimum: 0,
+      maximum: 0
+    };
+  }
   private ToAddressDto(address) {
     var addressResult = new Api.CreateAddressInput({
       city: address['city'],
@@ -151,9 +316,9 @@ export class PropertyService {
     return addressResult;
   }
   private ToPropertyDto(property) {
-    let basicParam = property['basic'];
-    let addressParam = property['address'];
-    let additionalParam = property['additional'];
+    const basicParam = property.basic;
+    const addressParam = property.address;
+    const additionalParam = property.additional;
 
     return new Api.CreatePropertyInput(
       {

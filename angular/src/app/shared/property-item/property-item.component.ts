@@ -5,6 +5,8 @@ import { Settings, AppSettings } from '../../app.settings';
 import { AppService } from '../../app.service';
 import { CompareOverviewComponent } from '../compare-overview/compare-overview.component';
 import { Property } from 'src/app/app.models';
+import { PropertyDto } from '../services/service.base';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-property-item',
@@ -12,11 +14,12 @@ import { Property } from 'src/app/app.models';
   styleUrls: ['./property-item.component.scss']
 })
 export class PropertyItemComponent implements OnInit {
-  @Input() property: Property;
+  @Input() property: PropertyDto;
   @Input() viewType: string = "grid";
   @Input() viewColChanged: boolean = false;
   @Input() fullWidthPage: boolean = true;
   public column: number = 4;
+  public defaultImagePath: string = environment.defaultPropertyImagePath;
   // public address:string; 
   @ViewChild(SwiperDirective, { static: false }) directiveRef: SwiperDirective;
   public config: SwiperConfigInterface = {};
@@ -43,7 +46,7 @@ export class PropertyItemComponent implements OnInit {
     if (changes.viewColChanged) {
       this.getColumnCount(changes.viewColChanged.currentValue);
       if (!changes.viewColChanged.isFirstChange()) {
-        if (this.property.gallery.length > 1) {
+        if (this.property.photos.length > 1) {
           this.directiveRef.update();
         }
       }
@@ -119,7 +122,7 @@ export class PropertyItemComponent implements OnInit {
 
 
   public addToCompare() {
-    this.appService.addToCompare(this.property, CompareOverviewComponent, (this.settings.rtl) ? 'rtl' : 'ltr');
+    // this.appService.addToCompare(this.property, CompareOverviewComponent, (this.settings.rtl) ? 'rtl' : 'ltr');
   }
 
   public onCompare() {
@@ -127,7 +130,7 @@ export class PropertyItemComponent implements OnInit {
   }
 
   public addToFavorites() {
-    this.appService.addToFavorites(this.property, (this.settings.rtl) ? 'rtl' : 'ltr');
+    // this.appService.addToFavorites(this.property, (this.settings.rtl) ? 'rtl' : 'ltr');
   }
 
   public onFavorites() {

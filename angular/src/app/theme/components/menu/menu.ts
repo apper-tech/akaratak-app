@@ -15,7 +15,7 @@ export const horizontalMenuItems = [
     new Menu (50, '404 Page', '/404', null, null, false, 40),   */
     new Menu (60, 'Contact', '/contact', null, null, false, 0),  
     new Menu (70, 'About Us', '/about', null, null, false, 0),   
-    new Menu (80, 'Test', '/test', null, null, false, 0),   
+   /*  new Menu (80, 'Test', '/test', null, null, false, 0),   */ 
     new Menu (140, 'Others', null, null, null, true, 40),
     new Menu (141, 'External Link', null, 'http://themeseason.com', '_blank', false, 140), 
     new Menu (142, 'Menu item', null, 'http://themeseason.com', '_blank', false, 140),

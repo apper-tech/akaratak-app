@@ -9,8 +9,9 @@ import { AppSettings, Settings } from 'src/app/app.settings';
 import { CompareOverviewComponent } from 'src/app/shared/compare-overview/compare-overview.component';
 import { EmbedVideoService } from 'ngx-embed-video';
 import { emailValidator } from 'src/app/theme/utils/app-validators';
-import { PropertyDto } from 'src/app/shared/services/service.base';
+import { PropertyDto, PhotoDto } from 'src/app/shared/services/service.base';
 import { PropertyService } from 'src/app/shared/services/property.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-property',
@@ -29,6 +30,7 @@ export class PropertyComponent implements OnInit {
   private sub: any;
   //public property: Property;
   public propertyStatus: any[];
+  public propertyFeatures: any[];
   public propertyDto: PropertyDto;
   public settings: Settings;
   public embedVideo: any;
@@ -88,6 +90,11 @@ export class PropertyComponent implements OnInit {
       if (result) {
         console.log(result);
         this.propertyDto = result;
+        if (this.propertyDto.photos.length == 0) {
+          environment
+          this.propertyDto.photos.push({ url: environment.defaultPropertyImagePath } as PhotoDto);
+        }
+        this.propertyFeatures = (this.propertyService.FromFeatureDto(result.features, false) as any[]);
         setTimeout(() => {
           this.config.observer = true;
           this.config2.observer = true;
@@ -197,11 +204,11 @@ export class PropertyComponent implements OnInit {
   }
 
   public onCompare() {
-  //  return this.appService.Data.compareList.filter(item => item.id == this.property.id)[0];
+    //  return this.appService.Data.compareList.filter(item => item.id == this.property.id)[0];
   }
 
   public addToFavorites() {
-   // this.appService.addToFavorites(this.property, (this.settings.rtl) ? 'rtl' : 'ltr');
+    // this.appService.addToFavorites(this.property, (this.settings.rtl) ? 'rtl' : 'ltr');
   }
 
   public onFavorites() {

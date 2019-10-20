@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Category } from '../../app.models'
 import { AppService } from '../../app.service';
 import { PropertyService } from '../services/property.service';
-import { CategoryDto } from '../services/service.base';
+import { CategoryDto, CountryDto } from '../services/service.base';
 
 @Component({
   selector: 'app-properties-search',
@@ -21,11 +21,13 @@ export class PropertiesSearchComponent implements OnInit {
   public form: FormGroup;
   public propertyTypes: CategoryDto[];
   public propertyStatuses = [];
+  public countries = [];
   public cities = [];
-  public neighborhoods = [];
   public streets = [];
   public features = [];
-
+  public filteredTypes;
+  public filteredCities;
+  public filteredCountries;
   constructor(public appService: AppService,
     public propertyService: PropertyService,
     public fb: FormBuilder) { }
@@ -34,13 +36,16 @@ export class PropertiesSearchComponent implements OnInit {
     if (this.vertical) {
       this.showMore = true;
     };
+
     this.propertyService.getPropertyTypes().subscribe((data) => {
       this.propertyTypes = data;
-    })
+      this.filteredTypes = data.slice();
+    });
+    this.propertyService.GetCountries().subscribe((data) => {
+      this.countries = data;
+      this.filteredCountries = data.slice();
+    });
     this.propertyStatuses = this.appService.getPropertyStatuses();
-    this.cities = this.appService.getCities();
-    this.neighborhoods = this.appService.getNeighborhoods();
-    this.streets = this.appService.getStreets();
     this.features = this.propertyService.getFeatures();
     this.form = this.fb.group({
       propertyType: null,
@@ -49,9 +54,9 @@ export class PropertiesSearchComponent implements OnInit {
         from: null,
         to: null
       }),
+      country: null,
       city: null,
       zipCode: null,
-      neighborhood: null,
       street: null,
       bedrooms: this.fb.group({
         from: null,
@@ -69,7 +74,7 @@ export class PropertiesSearchComponent implements OnInit {
         from: null,
         to: null
       }),
-      yearBuilt: this.fb.group({
+      propertyAge: this.fb.group({
         from: null,
         to: null
       }),
@@ -93,6 +98,8 @@ export class PropertiesSearchComponent implements OnInit {
 
   ngOnChanges() {
     if (this.removedSearchField) {
+      console.log(this.removedSearchField);
+
       if (this.removedSearchField.indexOf(".") > -1) {
         let arr = this.removedSearchField.split(".");
         this.form.controls[arr[0]]['controls'][arr[1]].reset();
@@ -115,9 +122,9 @@ export class PropertiesSearchComponent implements OnInit {
         from: null,
         to: null
       },
+      country: null,
       city: null,
       zipCode: null,
-      neighborhood: null,
       street: null,
       bedrooms: {
         from: null,
@@ -135,7 +142,7 @@ export class PropertiesSearchComponent implements OnInit {
         from: null,
         to: null
       },
-      yearBuilt: {
+      propertyAge: {
         from: null,
         to: null
       },
@@ -146,15 +153,17 @@ export class PropertiesSearchComponent implements OnInit {
   public search() {
     this.onSearchClick.emit();
   }
-
+  public onSelectCountry() {
+    var country: CountryDto = this.form.controls['country'].value;
+    if (country) {
+      this.propertyService.getPropertyCities(country.id).subscribe((data) => {
+        this.cities = data;
+        this.filteredCities = data.slice();
+      });
+    }
+  }
   public onSelectCity() {
-    this.form.controls['neighborhood'].setValue(null, { emitEvent: false });
-    this.form.controls['street'].setValue(null, { emitEvent: false });
   }
-  public onSelectNeighborhood() {
-    this.form.controls['street'].setValue(null, { emitEvent: false });
-  }
-
   public getAppearance() {
     return (this.variant != 3) ? 'outline' : '';
   }

@@ -1,4 +1,5 @@
 import { FormGroup, FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
+import { map } from 'rxjs/operators';
 
 export function emailValidator(control: FormControl): { [key: string]: any } {
     var emailRegexp = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/;

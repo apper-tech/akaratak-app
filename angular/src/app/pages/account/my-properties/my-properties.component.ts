@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AppService } from 'src/app/app.service';
 import { Property } from 'src/app/app.models';
 import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
+import { PropertyService } from 'src/app/shared/services/property.service';
+import { PropertyDto } from 'src/app/shared/services/service.base';
 
 @Component({
   selector: 'app-my-properties',
@@ -9,29 +10,29 @@ import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
   styleUrls: ['./my-properties.component.scss']
 })
 export class MyPropertiesComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'image', 'title', 'published', 'views', 'actions' ];
-  dataSource: MatTableDataSource<Property>;
-  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
-  @ViewChild(MatSort, {static: true}) sort: MatSort;
-  
-  constructor(public appService:AppService) { }
+  displayedColumns: string[] = ['id', 'image', 'title', 'published', 'views', 'actions'];
+  dataSource: MatTableDataSource<PropertyDto>;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+
+  constructor(public propertyService: PropertyService) { }
 
   ngOnInit() {
-    this.appService.getProperties().subscribe(res => {
+    this.propertyService.getPropertiesForUser().then(res => {
       this.dataSource = new MatTableDataSource(res);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-    });    
+    });
   }
-  
-  public remove(property:Property) {
-    const index: number = this.dataSource.data.indexOf(property);    
+
+  public remove(property: PropertyDto) {
+    const index: number = this.dataSource.data.indexOf(property);
     if (index !== -1) {
-      this.dataSource.data.splice(index,1);
-      this.dataSource = new MatTableDataSource<Property>(this.dataSource.data);
+      this.dataSource.data.splice(index, 1);
+      this.dataSource = new MatTableDataSource<PropertyDto>(this.dataSource.data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-    } 
+    }
   }
 
   public applyFilter(filterValue: string) {

@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { AppService } from 'src/app/app.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { MapsAPILoader } from '@agm/core';
 import { Category } from '../../../app.models';
 import { Property } from 'src/app/app.models';
 import { MatSnackBar } from '@angular/material';
 import { PropertyService } from 'src/app/shared/services/property.service';
+import { PropertyDto } from 'src/app/shared/services/service.base';
 
 @Component({
   selector: 'app-edit-property',
@@ -16,7 +17,7 @@ import { PropertyService } from 'src/app/shared/services/property.service';
 export class EditPropertyComponent implements OnInit {
   @ViewChild('addressAutocomplete', { static: false }) addressAutocomplete: ElementRef;
   private sub: any;
-  public property: Property;
+  public property: PropertyDto;
   public submitForm: FormGroup;
   public features = [];
   public propertyTypes = [];
@@ -24,13 +25,14 @@ export class EditPropertyComponent implements OnInit {
   public cities = [];
   public neighborhoods = [];
   public streets = [];
-  public lat: number = 40.678178;
-  public lng: number = -73.944158;
-  public zoom: number = 12;
+  public lat = 40.678178;
+  public lng = -73.944158;
+  public zoom = 12;
   constructor(public appService: AppService,
     public propertyService: PropertyService,
     private activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
+    private router: Router,
     private mapsAPILoader: MapsAPILoader,
     private ngZone: NgZone,
     private snackBar: MatSnackBar) { }
@@ -81,102 +83,105 @@ export class EditPropertyComponent implements OnInit {
     this.placesAutocomplete();
 
     this.sub = this.activatedRoute.params.subscribe(params => {
-      this.getPropertyById(params['id']);
+      this.getPropertyById(params.id);
     });
 
   }
+  // tslint:disable-next-line: use-lifecycle-interface
   ngOnDestroy() {
     this.sub.unsubscribe();
   }
 
   public getPropertyById(id) {
-    this.appService.getPropertyById(id).subscribe(data => {
-      console.log(data)
-      this.property = data;
+    this.propertyService.getProperty(id).subscribe(data => {
+      if (data) {
+        this.property = data;
 
-      this.submitForm.controls.basic.get('title').setValue(this.property.title);
-      this.submitForm.controls.basic.get('desc').setValue(this.property.desc);
-      this.submitForm.controls.basic.get('priceDollar').setValue((this.property.priceDollar.sale) ? this.property.priceDollar.sale : this.property.priceDollar.rent);
-      this.submitForm.controls.basic.get('priceEuro').setValue((this.property.priceEuro.sale) ? this.property.priceEuro.sale : this.property.priceEuro.rent);
-      this.submitForm.controls.basic.get('propertyType').setValue(this.propertyTypes.filter(p => p.name == this.property.propertyType)[0]);
+        this.submitForm.controls.basic.get('title').setValue(this.property.features.title);
+        this.submitForm.controls.basic.get('desc').setValue(this.property.features.description);
+        this.submitForm.controls.basic.get('priceDollar')
+          .setValue((this.property.priceDollar.sale) ? this.property.priceDollar.sale : this.property.priceDollar.rent);
+        this.submitForm.controls.basic.get('propertyType').setValue(this.propertyTypes.filter(p => p.name == this.property.propertyType)[0]);
 
-      const statusList: any[] = [];
-      this.propertyStatuses.forEach(status => {
-        this.property.propertyStatus.forEach(name => {
-          if (status.name == name) {
-            statusList.push(status);
-          }
+        const statusList: any[] = [];
+        this.propertyStatuses.forEach(status => {
+          this.property.propertyStatus.forEach(name => {
+            if (status.name == name) {
+              statusList.push(status);
+            }
+          })
         })
-      })
-      this.submitForm.controls.basic.get('propertyStatus').setValue(statusList);
+        this.submitForm.controls.basic.get('propertyStatus').setValue(statusList);
 
-      const images: any[] = [];
-      this.property.gallery.forEach(item => {
-        let image = {
-          link: item.medium,
-          preview: item.medium
-        }
-        images.push(image);
-      })
-      this.submitForm.controls.basic.get('gallery').setValue(images);
-
-      this.submitForm.controls.address.get('location').setValue(this.property.formattedAddress);
-      this.lat = this.property.location.lat;
-      this.lng = this.property.location.lng;
-      this.getAddress();
-
-      this.submitForm.controls.additional.get('bedrooms').setValue(this.property.bedrooms);
-      this.submitForm.controls.additional.get('bathrooms').setValue(this.property.bathrooms);
-      this.submitForm.controls.additional.get('garages').setValue(this.property.garages);
-      this.submitForm.controls.additional.get('area').setValue(this.property.area.value);
-      this.submitForm.controls.additional.get('yearBuilt').setValue(this.property.yearBuilt);
-      this.features.forEach(feature => {
-        this.property.features.forEach(name => {
-          if (feature.name == name) {
-            feature.selected = true;
+        const images: any[] = [];
+        this.property.gallery.forEach(item => {
+          const image = {
+            link: item.medium,
+            preview: item.medium
           }
+          images.push(image);
         })
-      })
-      this.submitForm.controls.additional.get('features').setValue(this.features);
+        this.submitForm.controls.basic.get('gallery').setValue(images);
 
+        this.submitForm.controls.address.get('location').setValue(this.property.formattedAddress);
+        this.lat = this.property.location.lat;
+        this.lng = this.property.location.lng;
+        this.getAddress();
 
-      const videos = this.submitForm.controls.media.get('videos') as FormArray;
-      while (videos.length) {
-        videos.removeAt(0);
-      }
-      this.property.videos.forEach(video => videos.push(this.fb.group(video)));
+        this.submitForm.controls.additional.get('bedrooms').setValue(this.property.bedrooms);
+        this.submitForm.controls.additional.get('bathrooms').setValue(this.property.bathrooms);
+        this.submitForm.controls.additional.get('garages').setValue(this.property.garages);
+        this.submitForm.controls.additional.get('area').setValue(this.property.area.value);
+        this.submitForm.controls.additional.get('yearBuilt').setValue(this.property.yearBuilt);
+        this.features.forEach(feature => {
+          this.property.features.forEach(name => {
+            if (feature.name == name) {
+              feature.selected = true;
+            }
+          })
+        })
+        this.submitForm.controls.additional.get('features').setValue(this.features);
 
-      const plans = this.submitForm.controls.media.get('plans') as FormArray;
-      while (plans.length) {
-        plans.removeAt(0);
-      }
-      this.property.plans.forEach(plan => {
-        let p = {
-          id: plan.id,
-          name: plan.name,
-          desc: plan.desc,
-          area: plan.area.value,
-          rooms: plan.rooms,
-          baths: plan.baths,
-          image: null
+        /* 
+              const videos = this.submitForm.controls.media.get('videos') as FormArray;
+              while (videos.length) {
+                videos.removeAt(0);
+              }
+              this.property.videos.forEach(video => videos.push(this.fb.group(video)));
+        
+              const plans = this.submitForm.controls.media.get('plans') as FormArray;
+              while (plans.length) {
+                plans.removeAt(0);
+              }
+              this.property.plans.forEach(plan => {
+                let p = {
+                  id: plan.id,
+                  name: plan.name,
+                  desc: plan.desc,
+                  area: plan.area.value,
+                  rooms: plan.rooms,
+                  baths: plan.baths,
+                  image: null
+                }
+                plans.push(this.fb.group(p))
+              });
+              this.property.plans.forEach((plan, index) => {
+                let image = {
+                  link: plan.image,
+                  preview: plan.image
+                }
+                this.submitForm.controls.media.get('plans')['controls'][index].controls.image.setValue([image]);
+              })
+         */
+        const additionalFeatures = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
+        while (additionalFeatures.length) {
+          additionalFeatures.removeAt(0);
         }
-        plans.push(this.fb.group(p))
-      });
-      this.property.plans.forEach((plan, index) => {
-        let image = {
-          link: plan.image,
-          preview: plan.image
-        }
-        this.submitForm.controls.media.get('plans')['controls'][index].controls.image.setValue([image]);
-      })
-
-      const additionalFeatures = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
-      while (additionalFeatures.length) {
-        additionalFeatures.removeAt(0);
+        this.property.additionalFeatures.forEach(feature => additionalFeatures.push(this.fb.group(feature)));
+      } else {
+        this.router.navigate(['not-found']);
       }
-      this.property.additionalFeatures.forEach(feature => additionalFeatures.push(this.fb.group(feature)));
-
-      this.submitForm.controls.media.get('featured').setValue(this.property.featured);
+      // this.submitForm.controls.media.get('featured').setValue(this.property.featured);
 
     });
   }
