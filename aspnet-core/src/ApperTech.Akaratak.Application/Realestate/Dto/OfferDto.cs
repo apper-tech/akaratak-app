@@ -28,6 +28,14 @@ namespace ApperTech.Akaratak.Realestate.Dto
 
         public new int Currency { get; set; }
     }
+    [AutoMapTo(typeof(Offer))]
+    public class UpdateOfferInput : OfferDto
+    {
+        [JsonIgnore]
+        public override int Id { get; set; }
+
+        public new int Currency { get; set; }
+    }
     public class OfferPagedResultInput
     {
 

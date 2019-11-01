@@ -15,7 +15,7 @@ namespace ApperTech.Akaratak.Realestate
         public int CityId { get; set; }
         public City City { get; set; }
 
-        [Required, MinLength(10), MaxLength(40)]
+        [Required, MinLength(10), MaxLength(80)]
         public string Location { get; set; }
         [MaxLength(6)]
         public string ZipCode { get; set; }

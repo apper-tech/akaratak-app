@@ -1,13 +1,15 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Abp.Domain.Entities.Auditing;
 
 namespace ApperTech.Akaratak.Realestate
 {
-    [Flags]
-    public enum Direction
+    [Table("AppDirection")]
+    public class Direction : FullAuditedEntity<int>
     {
-        West = 1,
-        East = 2,
-        North = 3,
-        South = 4
+        public bool West { get; set; }
+        public bool East { get; set; }
+        public bool North { get; set; }
+        public bool South { get; set; }
     }
 }

@@ -4,14 +4,16 @@ using ApperTech.Akaratak.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.Migrations
 {
     [DbContext(typeof(AkaratakDbContext))]
-    partial class AkaratakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191022161304_Update_Direction_Type")]
+    partial class Update_Direction_Type
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1130,7 +1132,7 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasMaxLength(80);
+                        .HasMaxLength(40);
 
                     b.Property<float>("Longitude");
 
@@ -1334,7 +1336,7 @@ namespace ApperTech.Akaratak.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppDirection");
+                    b.ToTable("Direction");
                 });
 
             modelBuilder.Entity("ApperTech.Akaratak.Realestate.Features", b =>

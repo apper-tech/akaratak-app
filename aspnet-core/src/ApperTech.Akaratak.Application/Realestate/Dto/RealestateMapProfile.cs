@@ -16,23 +16,41 @@ namespace ApperTech.Akaratak.Realestate.Dto
                 .ForMember(d => d.City,
                     opt => opt.Ignore());
 
+            CreateMap<UpdateAddressInput, Address>()
+                .ForMember(d => d.CityId,
+                    opt => opt.MapFrom(s => s.City))
+                .ForMember(d => d.City,
+                    opt => opt.Ignore());
+
             CreateMap<CreateOfferInput, Offer>()
                 .ForMember(d => d.CurrencyId,
                     opt => opt.MapFrom(s => s.Currency))
                 .ForMember(d => d.Currency,
                     opt => opt.Ignore());
 
-            CreateMap<Property, PropertyDto>();
+            CreateMap<UpdateOfferInput, Offer>()
+                .ForMember(d => d.CurrencyId,
+                    opt => opt.MapFrom(s => s.Currency))
+                .ForMember(d => d.Currency,
+                    opt => opt.Ignore());
 
             CreateMap<CreateFeaturesInput, Features>()
-                .ForMember(s => s.FeaturesTags, opt => opt.Ignore())
-                .ForMember(s => s.Direction, opt => opt.Ignore())
-                .AfterMap((input, features, context) =>
-                {
-                    features.FeaturesTags = new List<FeaturesTag>();
-                    foreach (var dir in input.Direction)
-                        features.Direction += dir;
-                });
+                .AfterMap((input, features) => features.FeaturesTags = new List<FeaturesTag>());
+
+            CreateMap<UpdateFeaturesInput, Features>()
+                .AfterMap((input, features) => features.FeaturesTags = new List<FeaturesTag>());
+
+            CreateMap<CreatePropertyInput, Property>()
+                .ForMember(d => d.PropertyTypeId,
+                    opt => opt.MapFrom(s => s.PropertyType))
+                .ForMember(d => d.PropertyType,
+                    opt => opt.Ignore());
+
+            CreateMap<UpdatePropertyInput, Property>()
+                .ForMember(d => d.PropertyTypeId,
+                    opt => opt.MapFrom(s => s.PropertyType))
+                .ForMember(d => d.PropertyType,
+                    opt => opt.Ignore());
 
             CreateMap<Features, FeaturesDto>()
                 .ForMember(d => d.Tags,
@@ -42,6 +60,10 @@ namespace ApperTech.Akaratak.Realestate.Dto
             CreateMap<City, CityDto>()
                 .ForMember(d => d.CountryId,
                     opt => opt.MapFrom(s => s.Country.Id));
+
+            CreateMap<Property, PropertyDto>()
+                .ForMember(d => d.Lister,
+                    opt => opt.MapFrom(s => s.CreatorUser));
         }
     }
 

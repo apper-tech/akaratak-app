@@ -5,6 +5,7 @@ using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using ApperTech.Akaratak.Authorization.Users;
 using ApperTech.Akaratak.Realestate.Dto;
+using Newtonsoft.Json;
 
 namespace ApperTech.Akaratak.Users.Dto
 {
@@ -28,15 +29,15 @@ namespace ApperTech.Akaratak.Users.Dto
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string EmailAddress { get; set; }
 
-        public bool IsActive { get; set; }
+        public virtual bool IsActive { get; set; }
 
         public string FullName { get; set; }
 
-        public DateTime? LastLoginTime { get; set; }
+        public virtual DateTime? LastLoginTime { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public virtual DateTime CreationTime { get; set; }
 
-        public string[] RoleNames { get; set; }
+        public virtual string[] RoleNames { get; set; }
 
 
         public PhotoDto Photo { get; set; }
@@ -56,6 +57,22 @@ namespace ApperTech.Akaratak.Users.Dto
         public string LinkedinUrl { get; set; }
 
 
-        public UserType UserType { get; set; }
+        public virtual UserType UserType { get; set; }
+    }
+    [AutoMapFrom(typeof(User))]
+    public class ViewUserDto : UserDto
+    {
+        [JsonIgnore]
+        public new long Id { get; set; }
+        [JsonIgnore]
+        public override bool IsActive { get; set; }
+        [JsonIgnore]
+        public override DateTime? LastLoginTime { get; set; }
+        [JsonIgnore]
+        public override DateTime CreationTime { get; set; }
+        [JsonIgnore]
+        public override string[] RoleNames { get; set; }
+        [JsonIgnore]
+        public override UserType UserType { get; set; }
     }
 }

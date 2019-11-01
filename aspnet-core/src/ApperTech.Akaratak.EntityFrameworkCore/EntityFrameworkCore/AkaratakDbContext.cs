@@ -4,6 +4,7 @@ using ApperTech.Akaratak.Authorization.Roles;
 using ApperTech.Akaratak.Authorization.Users;
 using ApperTech.Akaratak.MultiTenancy;
 using ApperTech.Akaratak.Realestate;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ApperTech.Akaratak.EntityFrameworkCore
 {

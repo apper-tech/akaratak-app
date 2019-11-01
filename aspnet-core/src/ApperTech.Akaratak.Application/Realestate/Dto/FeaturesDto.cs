@@ -19,8 +19,7 @@ namespace ApperTech.Akaratak.Realestate.Dto
 
         public ICollection<TagDto> Tags { get; set; }
 
-        [Required]
-        public Direction Direction { get; set; } = Direction.East | Direction.North;
+        [Required] public DirectionDto Direction { get; set; }
 
         [Required]
         public bool Cladding { get; set; }
@@ -59,9 +58,15 @@ namespace ApperTech.Akaratak.Realestate.Dto
         public override int Id { get; set; }
         public new ICollection<int> Tags { get; set; }
         [Required]
-        public new ICollection<int> Direction { get; set; }
+        public new CreateDirectionDto Direction { get; set; }
     }
-
+    [AutoMapTo(typeof(Features))]
+    public class UpdateFeaturesInput : FeaturesDto
+    {
+        [JsonIgnore]
+        public override int Id { get; set; }
+        public new UpdateDirectionDto Direction { get; set; }
+    }
     public class FeaturesSearchParameters
     {
 

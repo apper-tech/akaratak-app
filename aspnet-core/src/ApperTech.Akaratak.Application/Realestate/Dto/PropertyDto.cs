@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using Abp.Timing;
+using ApperTech.Akaratak.Users.Dto;
 
 namespace ApperTech.Akaratak.Realestate.Dto
 {
@@ -21,6 +22,8 @@ namespace ApperTech.Akaratak.Realestate.Dto
         public FeaturesDto Features { get; set; }
         [Required]
         public ICollection<PhotoDto> Photos { get; set; }
+
+        public ViewUserDto Lister { get; set; }
 
         [Required, DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true)]
         public DateTime ListingDate { get; set; } = Clock.Now;

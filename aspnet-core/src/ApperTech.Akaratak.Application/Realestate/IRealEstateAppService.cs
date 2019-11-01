@@ -11,9 +11,11 @@ namespace ApperTech.Akaratak.Realestate
     public interface IPropertyAppService : IApplicationService
     {
         Task<int> Create(CreatePropertyInput input);
+        Task<bool> Update(UpdatePropertyInput input);
         Task<PropertyDto> GetById(int propertyId);
         Task<List<PropertyDto>> GetByUser();
         Task<List<PropertyDto>> Filter(FilterPropertyInput input);
+        Task<bool> Remove(int propertyId);
         Task<bool> AddPhotoForProperty(int propertyId, IFormFile file);
     }
     public interface ICurrencyAppService : IApplicationService

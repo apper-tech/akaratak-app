@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services;
@@ -6,9 +7,11 @@ using Abp.Authorization;
 using Abp.Collections.Extensions;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Logging;
 using Abp.ObjectMapping;
 using Abp.Timing;
 using Abp.UI;
+using ApperTech.Akaratak.Configuration;
 using ApperTech.Akaratak.Realestate.Dto;
 using ApperTech.Akaratak.Realestate.Manager;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +60,22 @@ namespace ApperTech.Akaratak.Realestate
                 return id;
             else
                 throw new UserFriendlyException("Error While Inserting Property");
+        }
+
+        public async Task<bool> Update(UpdatePropertyInput input)
+        {
+            var property = await _repository.GetAsync(input.Id);
+
+            if (property == null)
+                throw new UserFriendlyException("Property Not Found!");
+
+            property = await GetPropertyWithDependencies(property.Id);
+            var newProperty = _objectMapper.Map<Property>(input);
+
+            property = property.Copy(newProperty) as Property;
+
+
+            return (await _repository.UpdateAsync(property)).Id > 0;
         }
 
         public async Task<PropertyDto> GetById(int propertyId)
@@ -142,6 +161,20 @@ namespace ApperTech.Akaratak.Realestate
 
             return _objectMapper.Map<List<PropertyDto>>(list);
         }
+        [AbpAuthorize()]
+        public async Task<bool> Remove(int propertyId)
+        {
+            try
+            {
+                await _repository.DeleteAsync(x => x.Id == propertyId);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogSeverity.Debug, e.Message);
+                throw new UserFriendlyException("Error While Deleting the Property");
+            }
+        }
 
         [AbpAuthorize()]
         public async Task<bool> AddPhotoForProperty(int propertyId, [FromForm]IFormFile file)
@@ -168,6 +201,9 @@ namespace ApperTech.Akaratak.Realestate
                     x => x.Offer.Currency
                 )
                 .Include(x => x.Photos)
+                .Include(x => x.CreatorUser)
+                .ThenInclude(u => u.Photo)
+                .Include(x => x.Features.Direction)
                 .Include(x => x.Features.FeaturesTags)
                 .ThenInclude(x => x.Tag)
                 .Where(x => x.Id == propertyId)

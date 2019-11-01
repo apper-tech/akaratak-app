@@ -45,6 +45,8 @@
     <Compile Remove="Migrations\20190917094342_Photo_FK_Update.Designer.cs" />
     <Compile Remove="Migrations\20190917105515_Photo_Remove_Date_Added.cs" />
     <Compile Remove="Migrations\20190917105515_Photo_Remove_Date_Added.Designer.cs" />
+    <Compile Remove="Migrations\20191022160756_Update_Direction_Type.cs" />
+    <Compile Remove="Migrations\20191022160756_Update_Direction_Type.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Abp.EntityFramework" Version="4.9.0" />

@@ -14,8 +14,7 @@ namespace ApperTech.Akaratak.Realestate
         [JsonIgnore]
         public Property Property { get; set; }
 
-        [Required]
-        public Direction Direction { get; set; } = Direction.East | Direction.North;
+        public Direction Direction { get; set; }
 
         [Required]
         public bool Cladding { get; set; }
