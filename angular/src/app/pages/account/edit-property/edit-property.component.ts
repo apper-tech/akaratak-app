@@ -3,11 +3,11 @@ import { AppService } from 'src/app/app.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { MapsAPILoader } from '@agm/core';
-import { Category } from '../../../app.models';
+import { Category, MapResult } from '../../../app.models';
 import { Property } from 'src/app/app.models';
 import { MatSnackBar } from '@angular/material';
 import { PropertyService } from 'src/app/shared/services/property.service';
-import { PropertyDto } from 'src/app/shared/services/service.base';
+import { PropertyDto, CountryDto, CityDto } from 'src/app/shared/services/service.base';
 
 @Component({
   selector: 'app-edit-property',
@@ -20,10 +20,13 @@ export class EditPropertyComponent implements OnInit {
   public property: PropertyDto;
   public submitForm: FormGroup;
   public features = [];
+  public directions = [];
+  public countries: CountryDto[];
+  public cities: CityDto[];
   public propertyTypes = [];
-  public propertyStatuses = [];
-  public cities = [];
-  public neighborhoods = [];
+  public filteredTypes;
+  public filteredCountries;
+  public filteredCities;
   public streets = [];
   public lat = 40.678178;
   public lng = -73.944158;
@@ -39,44 +42,45 @@ export class EditPropertyComponent implements OnInit {
 
   ngOnInit() {
     this.features = this.propertyService.getFeatures();
+    this.directions = this.propertyService.getDirections();
+
     this.propertyService.getPropertyTypes().subscribe((data) => {
       this.propertyTypes = data;
-    })
-    this.propertyStatuses = this.appService.getPropertyStatuses();
-    this.cities = this.appService.getCities();
-    this.neighborhoods = this.appService.getNeighborhoods();
-    this.streets = this.appService.getStreets();
+      this.filteredTypes = data.slice();
+    });
+    this.propertyService.GetCountries().subscribe((data) => {
+      this.countries = data;
+      this.filteredCountries = data.slice();
+    });
 
     this.submitForm = this.fb.group({
       basic: this.fb.group({
         title: [null, Validators.required],
         desc: null,
-        priceDollar: null,
-        priceEuro: null,
+        salePrice: null,
+        rentPrice: null,
+        investPrice: null,
+        swap: null,
         propertyType: [null, Validators.required],
-        propertyStatus: null,
         gallery: null
       }),
       address: this.fb.group({
         location: ['', Validators.required],
+        country: ['', Validators.required],
         city: ['', Validators.required],
         zipCode: '',
-        neighborhood: '',
         street: ''
       }),
       additional: this.fb.group({
         bedrooms: '',
         bathrooms: '',
-        garages: '',
+        balconies: '',
+        rooms: '',
         area: '',
+        owners: '',
         yearBuilt: '',
-        features: this.buildFeatures()
-      }),
-      media: this.fb.group({
-        videos: this.fb.array([this.createVideo()]),
-        plans: this.fb.array([this.createPlan()]),
-        additionalFeatures: this.fb.array([this.createFeature()]),
-        featured: false
+        features: this.buildFeatures(),
+        directions: this.buildDirections()
       })
     });
 
@@ -91,7 +95,16 @@ export class EditPropertyComponent implements OnInit {
   ngOnDestroy() {
     this.sub.unsubscribe();
   }
-
+  public onSelectCountry() {
+    const id = this.submitForm.controls.address.get('country').value;
+    if (id) {
+      this.propertyService.getPropertyCities(id).subscribe((data) => {
+        this.cities = data;
+        this.filteredCities = data.slice();
+        return data;
+      });
+    }
+  }
   public getPropertyById(id) {
     this.propertyService.getProperty(id).subscribe(data => {
       if (data) {
@@ -99,90 +112,70 @@ export class EditPropertyComponent implements OnInit {
 
         this.submitForm.controls.basic.get('title').setValue(this.property.features.title);
         this.submitForm.controls.basic.get('desc').setValue(this.property.features.description);
-        this.submitForm.controls.basic.get('priceDollar')
-          .setValue((this.property.priceDollar.sale) ? this.property.priceDollar.sale : this.property.priceDollar.rent);
-        this.submitForm.controls.basic.get('propertyType').setValue(this.propertyTypes.filter(p => p.name == this.property.propertyType)[0]);
+        this.submitForm.controls.basic.get('salePrice').setValue(this.property.offer.sale > 0 ? this.property.offer.sale : 0);
+        this.submitForm.controls.basic.get('rentPrice').setValue(this.property.offer.rent > 0 ? this.property.offer.rent : 0);
+        this.submitForm.controls.basic.get('investPrice').setValue(this.property.offer.invest > 0 ? this.property.offer.invest : 0);
+        this.submitForm.controls.basic.get('swap').setValue(this.property.offer.swap);
 
-        const statusList: any[] = [];
-        this.propertyStatuses.forEach(status => {
-          this.property.propertyStatus.forEach(name => {
-            if (status.name == name) {
-              statusList.push(status);
-            }
-          })
-        })
-        this.submitForm.controls.basic.get('propertyStatus').setValue(statusList);
+
+        this.submitForm.controls.basic.get('propertyType').setValue(this.property.propertyType.id);
 
         const images: any[] = [];
-        this.property.gallery.forEach(item => {
+        this.property.photos.forEach(item => {
           const image = {
-            link: item.medium,
-            preview: item.medium
+            link: item.url,
+            preview: item.url
           }
           images.push(image);
-        })
+        });
+
         this.submitForm.controls.basic.get('gallery').setValue(images);
 
-        this.submitForm.controls.address.get('location').setValue(this.property.formattedAddress);
-        this.lat = this.property.location.lat;
-        this.lng = this.property.location.lng;
-        this.getAddress();
+        this.submitForm.controls.address.get('location').setValue(this.property.address.location);
+        this.submitForm.controls.address.get('zipCode').setValue(this.property.address.zipCode);
+        this.submitForm.controls.address.get('street').setValue(this.property.address.street);
 
-        this.submitForm.controls.additional.get('bedrooms').setValue(this.property.bedrooms);
-        this.submitForm.controls.additional.get('bathrooms').setValue(this.property.bathrooms);
-        this.submitForm.controls.additional.get('garages').setValue(this.property.garages);
-        this.submitForm.controls.additional.get('area').setValue(this.property.area.value);
-        this.submitForm.controls.additional.get('yearBuilt').setValue(this.property.yearBuilt);
+        this.lat = this.property.address.latitude;
+        this.lng = this.property.address.longitude;
+
+        this.propertyService.getPropertyCities(this.property.address.city.countryId).
+          subscribe(cdata => {
+            this.cities = cdata;
+            this.filteredCities = cdata.slice();
+            this.submitForm.controls.address.get('country').setValue(this.property.address.city.countryId);
+            this.submitForm.controls.address.get('city').setValue(this.property.address.city.id);
+          });
+
+        this.submitForm.controls.additional.get('bedrooms').setValue(this.property.features.bedrooms);
+        this.submitForm.controls.additional.get('bathrooms').setValue(this.property.features.bathrooms);
+        this.submitForm.controls.additional.get('area').setValue(this.property.features.area);
+        this.submitForm.controls.additional.get('owners').setValue(this.property.features.owners);
+        this.submitForm.controls.additional.get('balconies').setValue(this.property.features.balconies);
+        this.submitForm.controls.additional.get('rooms').setValue(this.property.features.rooms);
+        this.submitForm.controls.additional.get('yearBuilt').setValue(this.property.features.propertyAge);
+
         this.features.forEach(feature => {
-          this.property.features.forEach(name => {
-            if (feature.name == name) {
-              feature.selected = true;
-            }
-          })
-        })
+          (this.propertyService.FromFeatureDto(this.property.features, false) as any[])
+            .forEach(feat => {
+              if (feature.name == feat.name) {
+                feature.selected = true;
+              }
+            });
+        });
+        this.directions.forEach(direction => {
+          const direct = this.property.features.direction;
+          switch (direction.name.toLowerCase()) {
+            case 'south': direction.selected = direct.south; break;
+            case 'east': direction.selected = direct.east; break;
+            case 'west': direction.selected = direct.west; break;
+            case 'north': direction.selected = direct.north; break;
+          }
+        });
         this.submitForm.controls.additional.get('features').setValue(this.features);
-
-        /* 
-              const videos = this.submitForm.controls.media.get('videos') as FormArray;
-              while (videos.length) {
-                videos.removeAt(0);
-              }
-              this.property.videos.forEach(video => videos.push(this.fb.group(video)));
-        
-              const plans = this.submitForm.controls.media.get('plans') as FormArray;
-              while (plans.length) {
-                plans.removeAt(0);
-              }
-              this.property.plans.forEach(plan => {
-                let p = {
-                  id: plan.id,
-                  name: plan.name,
-                  desc: plan.desc,
-                  area: plan.area.value,
-                  rooms: plan.rooms,
-                  baths: plan.baths,
-                  image: null
-                }
-                plans.push(this.fb.group(p))
-              });
-              this.property.plans.forEach((plan, index) => {
-                let image = {
-                  link: plan.image,
-                  preview: plan.image
-                }
-                this.submitForm.controls.media.get('plans')['controls'][index].controls.image.setValue([image]);
-              })
-         */
-        const additionalFeatures = this.submitForm.controls.media.get('additionalFeatures') as FormArray;
-        while (additionalFeatures.length) {
-          additionalFeatures.removeAt(0);
-        }
-        this.property.additionalFeatures.forEach(feature => additionalFeatures.push(this.fb.group(feature)));
+        this.submitForm.controls.additional.get('directions').setValue(this.directions);
       } else {
         this.router.navigate(['not-found']);
       }
-      // this.submitForm.controls.media.get('featured').setValue(this.property.featured);
-
     });
   }
 
@@ -190,16 +183,13 @@ export class EditPropertyComponent implements OnInit {
 
 
   // -------------------- Address ---------------------------  
-  public onSelectCity() {
-    this.submitForm.controls.address.get('neighborhood').setValue(null, { emitEvent: false });
-    this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false });
-  }
-  public onSelectNeighborhood() {
-    this.submitForm.controls.address.get('street').setValue(null, { emitEvent: false });
+
+  public getCurrentSign() {
+    return this.property ? this.property.offer.currency.sign : '$';
   }
 
   private setCurrentPosition() {
-    if ("geolocation" in navigator) {
+    if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         this.lat = position.coords.latitude;
         this.lng = position.coords.longitude;
@@ -208,12 +198,12 @@ export class EditPropertyComponent implements OnInit {
   }
   private placesAutocomplete() {
     this.mapsAPILoader.load().then(() => {
-      let autocomplete = new google.maps.places.Autocomplete(this.addressAutocomplete.nativeElement, {
-        types: ["address"]
+      const autocomplete = new google.maps.places.Autocomplete(this.addressAutocomplete.nativeElement, {
+        types: ['address']
       });
-      autocomplete.addListener("place_changed", () => {
+      autocomplete.addListener('place_changed', () => {
         this.ngZone.run(() => {
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+          const place: google.maps.places.PlaceResult = autocomplete.getPlace();
           if (place.geometry === undefined || place.geometry === null) {
             return;
           };
@@ -224,108 +214,35 @@ export class EditPropertyComponent implements OnInit {
       });
     });
   }
-
-
   public getAddress() {
     this.appService.getAddress(this.lat, this.lng).subscribe(response => {
-      let address = response['results'][0].formatted_address;
+      const address = response.results[0].formatted_address;
       this.submitForm.controls.address.get('location').setValue(address);
-      this.setAddresses(response['results'][0]);
+      this.setAddresses(response.results);
     })
   }
+
+  public setAddresses(result) {
+    const countryCode = (<MapResult>result[0])
+      .address_components
+      .filter(x => x.types.includes('country'))[0].short_name;
+    if (countryCode) {
+      const countries = (<CountryDto[]>this.filteredCountries)
+        .filter(x => x.code === countryCode);
+      this.submitForm.controls.address.get('country')
+        .setValue(countries.length > 0 ? countries[0].id : -1);
+    }
+  }
+
   public onMapClick(e: any) {
     this.lat = e.coords.lat;
     this.lng = e.coords.lng;
     this.getAddress();
   }
   public onMarkerClick(e: any) {
-    console.log(e);
-  }
-
-  public setAddresses(result) {
-    this.submitForm.controls.address.get('city').setValue(null);
-    this.submitForm.controls.address.get('zipCode').setValue(null);
-    this.submitForm.controls.address.get('street').setValue(null);
-
-    var newCity, newStreet, newNeighborhood;
-
-    result.address_components.forEach(item => {
-      if (item.types.indexOf('locality') > -1) {
-        if (this.cities.filter(city => city.name == item.long_name)[0]) {
-          newCity = this.cities.filter(city => city.name == item.long_name)[0];
-        }
-        else {
-          newCity = { id: this.cities.length + 1, name: item.long_name };
-          this.cities.push(newCity);
-        }
-        this.submitForm.controls.address.get('city').setValue(newCity);
-      }
-      if (item.types.indexOf('postal_code') > -1) {
-        this.submitForm.controls.address.get('zipCode').setValue(item.long_name);
-      }
-    });
-
-    if (!newCity) {
-      result.address_components.forEach(item => {
-        if (item.types.indexOf('administrative_area_level_1') > -1) {
-          if (this.cities.filter(city => city.name == item.long_name)[0]) {
-            newCity = this.cities.filter(city => city.name == item.long_name)[0];
-          }
-          else {
-            newCity = {
-              id: this.cities.length + 1,
-              name: item.long_name
-            };
-            this.cities.push(newCity);
-          }
-          this.submitForm.controls.address.get('city').setValue(newCity);
-        }
-      });
-    }
-
-    if (newCity) {
-      result.address_components.forEach(item => {
-        if (item.types.indexOf('neighborhood') > -1) {
-          let neighborhood = this.neighborhoods.filter(n => n.name == item.long_name && n.cityId == newCity.id)[0];
-          if (neighborhood) {
-            newNeighborhood = neighborhood;
-          }
-          else {
-            newNeighborhood = {
-              id: this.neighborhoods.length + 1,
-              name: item.long_name,
-              cityId: newCity.id
-            };
-            this.neighborhoods.push(newNeighborhood);
-          }
-          this.neighborhoods = [...this.neighborhoods];
-          this.submitForm.controls.address.get('neighborhood').setValue([newNeighborhood]);
-        }
-      })
-    }
-
-    if (newCity) {
-      result.address_components.forEach(item => {
-        if (item.types.indexOf('route') > -1) {
-          if (this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0]) {
-            newStreet = this.streets.filter(street => street.name == item.long_name && street.cityId == newCity.id)[0];
-          }
-          else {
-            newStreet = {
-              id: this.streets.length + 1,
-              name: item.long_name,
-              cityId: newCity.id,
-              neighborhoodId: (newNeighborhood) ? newNeighborhood.id : null
-            };
-            this.streets.push(newStreet);
-          }
-          this.streets = [...this.streets];
-          this.submitForm.controls.address.get('street').setValue([newStreet]);
-        }
-      })
-    }
 
   }
+
 
 
   // -------------------- Additional ---------------------------  
@@ -336,10 +253,19 @@ export class EditPropertyComponent implements OnInit {
         name: feature.name,
         selected: feature.selected
       });
-    })
+    });
     return this.fb.array(arr);
   }
-
+  public buildDirections() {
+    const arr = this.directions.map(direction => {
+      return this.fb.group({
+        id: direction.id,
+        name: direction.name,
+        selected: direction.selected
+      });
+    });
+    return this.fb.array(arr);
+  }
 
 
   // -------------------- Media --------------------------- 
@@ -405,11 +331,20 @@ export class EditPropertyComponent implements OnInit {
   onSubmitForm(form) {
     if (this.submitForm.get(form).valid) {
       this.nextStep();
-      if (form == "media") {
-        this.snackBar.open('The property "' + this.property.title + '" has been updated.', '×', {
-          verticalPosition: 'top',
-          duration: 5000
-        });
+      if (form == 'additional') {
+        this.submitForm.value.id = this.property.id;
+        this.submitForm.value.address.lat = this.lat;
+        this.submitForm.value.address.lng = this.lng;
+        this.submitForm.value.basic.propertyCurrency = this.property.offer.currency.id;
+        this.propertyService.updateProperty(this.submitForm.value)
+          .then(result => {
+            if (result) {
+              this.snackBar.open('The property "' + this.property.features.title + '" has been updated.', '×', {
+                verticalPosition: 'top',
+                duration: 5000
+              });
+            }
+          });
       }
     }
   }

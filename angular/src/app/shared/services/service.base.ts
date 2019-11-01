@@ -765,6 +765,62 @@ export class PropertyServiceProxy {
     }
 
     /**
+     * @param input (optional) 
+     * @return Success
+     */
+    update(input: UpdatePropertyInput | null | undefined): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/services/app/Property/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(input);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver).result;
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+
+    /**
      * @param propertyId (optional) 
      * @return Success
      */
@@ -931,6 +987,60 @@ export class PropertyServiceProxy {
             }));
         }
         return _observableOf<PropertyDto[]>(<any>null);
+    }
+
+    /**
+     * @param propertyId (optional) 
+     * @return Success
+     */
+    remove(propertyId: number | null | undefined): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/services/app/Property/Remove?";
+        if (propertyId !== undefined)
+            url_ += "propertyId=" + encodeURIComponent("" + propertyId) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemove(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemove(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processRemove(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver).result;
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
     }
 
     /**
@@ -3606,7 +3716,7 @@ export interface ICreateOfferInput {
 
 export class CreateFeaturesInput implements ICreateFeaturesInput {
     tags: number[] | undefined;
-    direction: number[];
+    direction: CreateDirectionDto;
     title: string;
     description: string;
     cladding: boolean;
@@ -3632,7 +3742,7 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
             }
         }
         if (!data) {
-            this.direction = [];
+            this.direction = new CreateDirectionDto();
         }
     }
 
@@ -3643,11 +3753,7 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
                 for (let item of _data["tags"])
                     this.tags.push(item);
             }
-            if (Array.isArray(_data["direction"])) {
-                this.direction = [] as any;
-                for (let item of _data["direction"])
-                    this.direction.push(item);
-            }
+            this.direction = _data["direction"] ? CreateDirectionDto.fromJS(_data["direction"]) : new CreateDirectionDto();
             this.title = _data["title"];
             this.description = _data["description"];
             this.cladding = _data["cladding"];
@@ -3681,11 +3787,7 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
             for (let item of this.tags)
                 data["tags"].push(item);
         }
-        if (Array.isArray(this.direction)) {
-            data["direction"] = [];
-            for (let item of this.direction)
-                data["direction"].push(item);
-        }
+        data["direction"] = this.direction ? this.direction.toJSON() : <any>undefined;
         data["title"] = this.title;
         data["description"] = this.description;
         data["cladding"] = this.cladding;
@@ -3715,7 +3817,7 @@ export class CreateFeaturesInput implements ICreateFeaturesInput {
 
 export interface ICreateFeaturesInput {
     tags: number[] | undefined;
-    direction: number[];
+    direction: CreateDirectionDto;
     title: string;
     description: string;
     cladding: boolean;
@@ -3734,6 +3836,476 @@ export interface ICreateFeaturesInput {
     propertyAge: number;
 }
 
+export class CreateDirectionDto implements ICreateDirectionDto {
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
+
+    constructor(data?: ICreateDirectionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.west = _data["west"];
+            this.east = _data["east"];
+            this.north = _data["north"];
+            this.south = _data["south"];
+        }
+    }
+
+    static fromJS(data: any): CreateDirectionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDirectionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["west"] = this.west;
+        data["east"] = this.east;
+        data["north"] = this.north;
+        data["south"] = this.south;
+        return data; 
+    }
+
+    clone(): CreateDirectionDto {
+        const json = this.toJSON();
+        let result = new CreateDirectionDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateDirectionDto {
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
+}
+
+export class UpdatePropertyInput implements IUpdatePropertyInput {
+    id: number | undefined;
+    address: UpdateAddressInput;
+    offer: UpdateOfferInput;
+    features: UpdateFeaturesInput;
+    propertyType: number;
+    expireDate: moment.Moment;
+
+    constructor(data?: IUpdatePropertyInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.address = new UpdateAddressInput();
+            this.offer = new UpdateOfferInput();
+            this.features = new UpdateFeaturesInput();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.address = _data["address"] ? UpdateAddressInput.fromJS(_data["address"]) : new UpdateAddressInput();
+            this.offer = _data["offer"] ? UpdateOfferInput.fromJS(_data["offer"]) : new UpdateOfferInput();
+            this.features = _data["features"] ? UpdateFeaturesInput.fromJS(_data["features"]) : new UpdateFeaturesInput();
+            this.propertyType = _data["propertyType"];
+            this.expireDate = _data["expireDate"] ? moment(_data["expireDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdatePropertyInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePropertyInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["address"] = this.address ? this.address.toJSON() : <any>undefined;
+        data["offer"] = this.offer ? this.offer.toJSON() : <any>undefined;
+        data["features"] = this.features ? this.features.toJSON() : <any>undefined;
+        data["propertyType"] = this.propertyType;
+        data["expireDate"] = this.expireDate ? this.expireDate.format('YYYY-MM-DD') : <any>undefined;
+        return data; 
+    }
+
+    clone(): UpdatePropertyInput {
+        const json = this.toJSON();
+        let result = new UpdatePropertyInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdatePropertyInput {
+    id: number | undefined;
+    address: UpdateAddressInput;
+    offer: UpdateOfferInput;
+    features: UpdateFeaturesInput;
+    propertyType: number;
+    expireDate: moment.Moment;
+}
+
+export class UpdateAddressInput implements IUpdateAddressInput {
+    city: number | undefined;
+    location: string;
+    zipCode: string | undefined;
+    street: string;
+    latitude: number;
+    longitude: number;
+
+    constructor(data?: IUpdateAddressInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.city = _data["city"];
+            this.location = _data["location"];
+            this.zipCode = _data["zipCode"];
+            this.street = _data["street"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+        }
+    }
+
+    static fromJS(data: any): UpdateAddressInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateAddressInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["city"] = this.city;
+        data["location"] = this.location;
+        data["zipCode"] = this.zipCode;
+        data["street"] = this.street;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        return data; 
+    }
+
+    clone(): UpdateAddressInput {
+        const json = this.toJSON();
+        let result = new UpdateAddressInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateAddressInput {
+    city: number | undefined;
+    location: string;
+    zipCode: string | undefined;
+    street: string;
+    latitude: number;
+    longitude: number;
+}
+
+export class UpdateOfferInput implements IUpdateOfferInput {
+    currency: number | undefined;
+    sale: number;
+    rent: number;
+    invest: number;
+    swap: boolean;
+
+    constructor(data?: IUpdateOfferInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.currency = _data["currency"];
+            this.sale = _data["sale"];
+            this.rent = _data["rent"];
+            this.invest = _data["invest"];
+            this.swap = _data["swap"];
+        }
+    }
+
+    static fromJS(data: any): UpdateOfferInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateOfferInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["currency"] = this.currency;
+        data["sale"] = this.sale;
+        data["rent"] = this.rent;
+        data["invest"] = this.invest;
+        data["swap"] = this.swap;
+        return data; 
+    }
+
+    clone(): UpdateOfferInput {
+        const json = this.toJSON();
+        let result = new UpdateOfferInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateOfferInput {
+    currency: number | undefined;
+    sale: number;
+    rent: number;
+    invest: number;
+    swap: boolean;
+}
+
+export class UpdateFeaturesInput implements IUpdateFeaturesInput {
+    direction: UpdateDirectionDto | undefined;
+    title: string;
+    description: string;
+    tags: TagDto[] | undefined;
+    cladding: boolean;
+    empty: boolean;
+    heating: boolean;
+    gasLine: boolean;
+    internet: boolean;
+    elevator: boolean;
+    parking: boolean;
+    area: number;
+    owners: number;
+    rooms: number;
+    bathrooms: number;
+    bedrooms: number;
+    balconies: number;
+    propertyAge: number;
+
+    constructor(data?: IUpdateFeaturesInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.direction = _data["direction"] ? UpdateDirectionDto.fromJS(_data["direction"]) : <any>undefined;
+            this.title = _data["title"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags.push(TagDto.fromJS(item));
+            }
+            this.cladding = _data["cladding"];
+            this.empty = _data["empty"];
+            this.heating = _data["heating"];
+            this.gasLine = _data["gasLine"];
+            this.internet = _data["internet"];
+            this.elevator = _data["elevator"];
+            this.parking = _data["parking"];
+            this.area = _data["area"];
+            this.owners = _data["owners"];
+            this.rooms = _data["rooms"];
+            this.bathrooms = _data["bathrooms"];
+            this.bedrooms = _data["bedrooms"];
+            this.balconies = _data["balconies"];
+            this.propertyAge = _data["propertyAge"];
+        }
+    }
+
+    static fromJS(data: any): UpdateFeaturesInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateFeaturesInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["direction"] = this.direction ? this.direction.toJSON() : <any>undefined;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item.toJSON());
+        }
+        data["cladding"] = this.cladding;
+        data["empty"] = this.empty;
+        data["heating"] = this.heating;
+        data["gasLine"] = this.gasLine;
+        data["internet"] = this.internet;
+        data["elevator"] = this.elevator;
+        data["parking"] = this.parking;
+        data["area"] = this.area;
+        data["owners"] = this.owners;
+        data["rooms"] = this.rooms;
+        data["bathrooms"] = this.bathrooms;
+        data["bedrooms"] = this.bedrooms;
+        data["balconies"] = this.balconies;
+        data["propertyAge"] = this.propertyAge;
+        return data; 
+    }
+
+    clone(): UpdateFeaturesInput {
+        const json = this.toJSON();
+        let result = new UpdateFeaturesInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateFeaturesInput {
+    direction: UpdateDirectionDto | undefined;
+    title: string;
+    description: string;
+    tags: TagDto[] | undefined;
+    cladding: boolean;
+    empty: boolean;
+    heating: boolean;
+    gasLine: boolean;
+    internet: boolean;
+    elevator: boolean;
+    parking: boolean;
+    area: number;
+    owners: number;
+    rooms: number;
+    bathrooms: number;
+    bedrooms: number;
+    balconies: number;
+    propertyAge: number;
+}
+
+export class UpdateDirectionDto implements IUpdateDirectionDto {
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
+
+    constructor(data?: IUpdateDirectionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.west = _data["west"];
+            this.east = _data["east"];
+            this.north = _data["north"];
+            this.south = _data["south"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDirectionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDirectionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["west"] = this.west;
+        data["east"] = this.east;
+        data["north"] = this.north;
+        data["south"] = this.south;
+        return data; 
+    }
+
+    clone(): UpdateDirectionDto {
+        const json = this.toJSON();
+        let result = new UpdateDirectionDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateDirectionDto {
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
+}
+
+export class TagDto implements ITagDto {
+    id: number | undefined;
+    name: string;
+    description: string;
+
+    constructor(data?: ITagDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): TagDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TagDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        return data; 
+    }
+
+    clone(): TagDto {
+        const json = this.toJSON();
+        let result = new TagDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ITagDto {
+    id: number | undefined;
+    name: string;
+    description: string;
+}
+
 export class PropertyDto implements IPropertyDto {
     id: number | undefined;
     address: AddressDto;
@@ -3741,6 +4313,7 @@ export class PropertyDto implements IPropertyDto {
     offer: OfferDto;
     features: FeaturesDto;
     photos: PhotoDto[];
+    lister: ViewUserDto | undefined;
     listingDate: moment.Moment;
     expireDate: moment.Moment;
     publishDate: moment.Moment;
@@ -3775,6 +4348,7 @@ export class PropertyDto implements IPropertyDto {
                 for (let item of _data["photos"])
                     this.photos.push(PhotoDto.fromJS(item));
             }
+            this.lister = _data["lister"] ? ViewUserDto.fromJS(_data["lister"]) : <any>undefined;
             this.listingDate = _data["listingDate"] ? moment(_data["listingDate"].toString()) : <any>undefined;
             this.expireDate = _data["expireDate"] ? moment(_data["expireDate"].toString()) : <any>undefined;
             this.publishDate = _data["publishDate"] ? moment(_data["publishDate"].toString()) : <any>undefined;
@@ -3802,6 +4376,7 @@ export class PropertyDto implements IPropertyDto {
             for (let item of this.photos)
                 data["photos"].push(item.toJSON());
         }
+        data["lister"] = this.lister ? this.lister.toJSON() : <any>undefined;
         data["listingDate"] = this.listingDate ? this.listingDate.format('YYYY-MM-DD') : <any>undefined;
         data["expireDate"] = this.expireDate ? this.expireDate.format('YYYY-MM-DD') : <any>undefined;
         data["publishDate"] = this.publishDate ? this.publishDate.format('YYYY-MM-DD') : <any>undefined;
@@ -3825,6 +4400,7 @@ export interface IPropertyDto {
     offer: OfferDto;
     features: FeaturesDto;
     photos: PhotoDto[];
+    lister: ViewUserDto | undefined;
     listingDate: moment.Moment;
     expireDate: moment.Moment;
     publishDate: moment.Moment;
@@ -3970,7 +4546,7 @@ export class FeaturesDto implements IFeaturesDto {
     title: string;
     description: string;
     tags: TagDto[] | undefined;
-    direction: FeaturesDtoDirection;
+    direction: DirectionDto;
     cladding: boolean;
     empty: boolean;
     heating: boolean;
@@ -3993,6 +4569,9 @@ export class FeaturesDto implements IFeaturesDto {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.direction = new DirectionDto();
+        }
     }
 
     init(_data?: any) {
@@ -4005,7 +4584,7 @@ export class FeaturesDto implements IFeaturesDto {
                 for (let item of _data["tags"])
                     this.tags.push(TagDto.fromJS(item));
             }
-            this.direction = _data["direction"];
+            this.direction = _data["direction"] ? DirectionDto.fromJS(_data["direction"]) : new DirectionDto();
             this.cladding = _data["cladding"];
             this.empty = _data["empty"];
             this.heating = _data["heating"];
@@ -4040,7 +4619,7 @@ export class FeaturesDto implements IFeaturesDto {
             for (let item of this.tags)
                 data["tags"].push(item.toJSON());
         }
-        data["direction"] = this.direction;
+        data["direction"] = this.direction ? this.direction.toJSON() : <any>undefined;
         data["cladding"] = this.cladding;
         data["empty"] = this.empty;
         data["heating"] = this.heating;
@@ -4071,7 +4650,7 @@ export interface IFeaturesDto {
     title: string;
     description: string;
     tags: TagDto[] | undefined;
-    direction: FeaturesDtoDirection;
+    direction: DirectionDto;
     cladding: boolean;
     empty: boolean;
     heating: boolean;
@@ -4088,12 +4667,105 @@ export interface IFeaturesDto {
     propertyAge: number;
 }
 
-export class TagDto implements ITagDto {
-    id: number | undefined;
+export class ViewUserDto implements IViewUserDto {
+    userName: string;
     name: string;
-    description: string;
+    surname: string;
+    emailAddress: string;
+    fullName: string | undefined;
+    photo: PhotoDto | undefined;
+    phoneNumber: string | undefined;
+    organization: string | undefined;
+    facebookUrl: string | undefined;
+    twitterUrl: string | undefined;
+    instagramUrl: string | undefined;
+    websiteUrl: string | undefined;
+    linkedinUrl: string | undefined;
 
-    constructor(data?: ITagDto) {
+    constructor(data?: IViewUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.emailAddress = _data["emailAddress"];
+            this.fullName = _data["fullName"];
+            this.photo = _data["photo"] ? PhotoDto.fromJS(_data["photo"]) : <any>undefined;
+            this.phoneNumber = _data["phoneNumber"];
+            this.organization = _data["organization"];
+            this.facebookUrl = _data["facebookUrl"];
+            this.twitterUrl = _data["twitterUrl"];
+            this.instagramUrl = _data["instagramUrl"];
+            this.websiteUrl = _data["websiteUrl"];
+            this.linkedinUrl = _data["linkedinUrl"];
+        }
+    }
+
+    static fromJS(data: any): ViewUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ViewUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["emailAddress"] = this.emailAddress;
+        data["fullName"] = this.fullName;
+        data["photo"] = this.photo ? this.photo.toJSON() : <any>undefined;
+        data["phoneNumber"] = this.phoneNumber;
+        data["organization"] = this.organization;
+        data["facebookUrl"] = this.facebookUrl;
+        data["twitterUrl"] = this.twitterUrl;
+        data["instagramUrl"] = this.instagramUrl;
+        data["websiteUrl"] = this.websiteUrl;
+        data["linkedinUrl"] = this.linkedinUrl;
+        return data; 
+    }
+
+    clone(): ViewUserDto {
+        const json = this.toJSON();
+        let result = new ViewUserDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IViewUserDto {
+    userName: string;
+    name: string;
+    surname: string;
+    emailAddress: string;
+    fullName: string | undefined;
+    photo: PhotoDto | undefined;
+    phoneNumber: string | undefined;
+    organization: string | undefined;
+    facebookUrl: string | undefined;
+    twitterUrl: string | undefined;
+    instagramUrl: string | undefined;
+    websiteUrl: string | undefined;
+    linkedinUrl: string | undefined;
+}
+
+export class DirectionDto implements IDirectionDto {
+    id: number | undefined;
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
+
+    constructor(data?: IDirectionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4105,14 +4777,16 @@ export class TagDto implements ITagDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.name = _data["name"];
-            this.description = _data["description"];
+            this.west = _data["west"];
+            this.east = _data["east"];
+            this.north = _data["north"];
+            this.south = _data["south"];
         }
     }
 
-    static fromJS(data: any): TagDto {
+    static fromJS(data: any): DirectionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new TagDto();
+        let result = new DirectionDto();
         result.init(data);
         return result;
     }
@@ -4120,23 +4794,27 @@ export class TagDto implements ITagDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["name"] = this.name;
-        data["description"] = this.description;
+        data["west"] = this.west;
+        data["east"] = this.east;
+        data["north"] = this.north;
+        data["south"] = this.south;
         return data; 
     }
 
-    clone(): TagDto {
+    clone(): DirectionDto {
         const json = this.toJSON();
-        let result = new TagDto();
+        let result = new DirectionDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ITagDto {
+export interface IDirectionDto {
     id: number | undefined;
-    name: string;
-    description: string;
+    west: boolean;
+    east: boolean;
+    north: boolean;
+    south: boolean;
 }
 
 export class FilterPropertyInput implements IFilterPropertyInput {
@@ -6144,13 +6822,6 @@ export enum UserDtoUserType {
     _0 = 0,
     _1 = 1,
     _2 = 2,
-}
-
-export enum FeaturesDtoDirection {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
 }
 
 export enum ExternalAuthenticateModelUserType {

@@ -27,7 +27,7 @@
         <app-horizontal-menu [menuParentId]="0"></app-horizontal-menu>
     </div>     
     <div>
-      <a routerLink="/account/favorites" mat-icon-button matTooltip="Favorites" fxShow="false" fxShow.gt-md>
+      <!-- <a routerLink="/account/favorites" mat-icon-button matTooltip="Favorites" fxShow="false" fxShow.gt-md>
         <mat-icon [matBadge]="appService.Data.favorites.length" 
                   [matBadgeHidden]="appService.Data.favorites.length == 0" 
                   matBadgeSize="small" 
@@ -38,7 +38,7 @@
                   [matBadgeHidden]="appService.Data.compareList.length == 0" 
                   matBadgeSize="small" 
                   matBadgeColor="warn">compare_arrows</mat-icon>
-      </a>
+      </a> -->
       <a routerLink="/submit-property" mat-mini-fab color="accent" fxHide="false" fxHide.gt-xs><mat-icon>add</mat-icon></a>
       <a routerLink="/submit-property" mat-raised-button color="accent" fxShow="false" fxShow.gt-xs class="uppercase">submit property</a>
     </div>  

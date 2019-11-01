@@ -115,15 +115,17 @@ export class SubmitPropertyComponent implements OnInit {
   public onSelectionChange(e: any) {
     if (e.selectedIndex == 4) {
       this.horizontalStepper._steps.forEach(step => step.editable = false);
-      console.log(this.submitForm.value);
+     // console.log(this.submitForm.value);
     }
   }
   public log() {
-    console.log(this.submitForm);
+  //  console.log(this.submitForm);
   }
   public submit() {
     this.submitForm.value['address']['lat'] = this.lat;
     this.submitForm.value['address']['lng'] = this.lng;
+    console.log(this.submitForm.value);
+    
     this.propertyService.submitProperty(this.submitForm.value).then(value => {
       this.submited = value;
       console.log(value);

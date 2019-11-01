@@ -57,42 +57,50 @@ export class ProfileComponent implements OnInit {
           this.authService.updateUserPhoto(image.link, image.file).then(result2 => {
             this.proccessUpdateResult(result2);
           })
-        }
-        else
+        } else {
           this.proccessUpdateResult(result);
+        }
       })
     }
   }
   private proccessUpdateResult(done) {
     if (done) {
       this.authService.emitUserInfo(true);
-      this.snackBar.open('Your account information updated successfully!', '×', { panelClass: 'success', verticalPosition: 'top', duration: 3000 });
+      this.snackBar.open('Your account information updated successfully!', '×',
+        { panelClass: 'success', verticalPosition: 'top', duration: 3000 });
+    } else {
+      this.snackBar.open('An error Occurred while updating your profile!', '×',
+        { panelClass: 'error', verticalPosition: 'top', duration: 3000 });
     }
-    else
-      this.snackBar.open('An error Occurred while updating your profile!', '×', { panelClass: 'error', verticalPosition: 'top', duration: 3000 });
   }
   public onPasswordFormSubmit(values: Object): void {
     if (this.passwordForm.valid) {
       this.authService.updatePassword(values['currentPassword'],
         values['newPassword']).then(result => {
           this.proccessUpdateResult(result);
-          if (result)
-            setTimeout(() => { this.authService.logOut() }, 3000);
+          if (result) {
+            setTimeout(() => { this.authService.logOut(); }, 3000);
+          }
         })
     }
   }
   getUserInfo() {
     this.authService.isLoggedIn().subscribe((value: AuthModel) => {
-      console.log('event');
-
       if (value.isLoggedIn) {
-        var info = value.userInfo;
+        const info = value.userInfo;
+        console.log(info);
+
         this.infoForm.controls['firstname'].setValue(info.name);
         this.infoForm.controls['surname'].setValue(info.surname);
         this.infoForm.controls['email'].setValue(info.emailAddress);
         this.infoForm.controls['phone'].setValue(info.phoneNumber);
+        this.infoForm.controls['organization'].setValue(info.organization);
+        this.infoForm.controls['facebook'].setValue(info.facebookUrl);
+        this.infoForm.controls['twitter'].setValue(info.twitterUrl);
+        this.infoForm.controls['instagram'].setValue(info.instagramUrl);
+        this.infoForm.controls['website'].setValue(info.websiteUrl);
       }
-    })
+    });
   }
 
 }

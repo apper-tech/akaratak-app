@@ -9,7 +9,7 @@ import { Property } from 'src/app/app.models';
 })
 export class PropertiesCarouselComponent implements OnInit {
   @Input('properties') properties: Array<Property> = [];
-  public config: SwiperConfigInterface = {}; 
+  public config: SwiperConfigInterface = {};
 
   constructor() { }
 
@@ -20,14 +20,14 @@ export class PropertiesCarouselComponent implements OnInit {
     this.config = {
       observer: true,
       slidesPerView: 4,
-      spaceBetween: 16,       
+      spaceBetween: 16,
       keyboard: true,
       navigation: { nextEl: '.prop-next', prevEl: '.prop-prev'},
       pagination: true,
-      grabCursor: true,        
+      grabCursor: true,
       loop: false,
       preloadImages: true,
-      lazy: false,    
+      lazy: false,
       breakpoints: {
         600: {
           slidesPerView: 1

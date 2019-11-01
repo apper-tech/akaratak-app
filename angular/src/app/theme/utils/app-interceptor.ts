@@ -9,12 +9,15 @@ export class AppInterceptor implements HttpInterceptor {
   constructor(private tokenService: TokenService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.startsWith('/api/'))
+    if (req.url.startsWith('/api/')) {
       req = req.clone({
         setHeaders: {
           Authorization: this.appendAuthToken()
         }
-      })
+      });
+    }
+    console.log(req);
+
     return next.handle(req).pipe(map((event: HttpEvent<any>) => {
       if (event instanceof HttpResponse) {
         // console.log(`Request for ${req.urlWithParams} completed...`);

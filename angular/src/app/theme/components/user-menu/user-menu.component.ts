@@ -18,6 +18,8 @@ export class UserMenuComponent implements OnInit {
   isLoggedIn: boolean;
   userInfo: UserDto;
   userPhoto = environment.defaultUserImagePath;
+  futureFeatures = false;
+
 
   ngOnInit() {
     this.authService.isLoggedIn().subscribe(value => {

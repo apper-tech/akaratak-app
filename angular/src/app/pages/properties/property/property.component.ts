@@ -9,7 +9,7 @@ import { AppSettings, Settings } from 'src/app/app.settings';
 import { CompareOverviewComponent } from 'src/app/shared/compare-overview/compare-overview.component';
 import { EmbedVideoService } from 'ngx-embed-video';
 import { emailValidator } from 'src/app/theme/utils/app-validators';
-import { PropertyDto, PhotoDto } from 'src/app/shared/services/service.base';
+import { PropertyDto, PhotoDto, ViewUserDto } from 'src/app/shared/services/service.base';
 import { PropertyService } from 'src/app/shared/services/property.service';
 import { environment } from 'src/environments/environment';
 
@@ -36,7 +36,7 @@ export class PropertyComponent implements OnInit {
   public embedVideo: any;
   public relatedProperties: Property[];
   public featuredProperties: Property[];
-  public agent: any;
+  public agent: ViewUserDto;
   public futureDev: boolean = false;
   public mortgageForm: FormGroup;
   public monthlyPayment: any;
@@ -57,7 +57,6 @@ export class PropertyComponent implements OnInit {
     });
     this.getRelatedProperties();
     this.getFeaturedProperties();
-    this.getAgent(1);
     if (window.innerWidth < 960) {
       this.sidenavOpen = false;
       this.sidenav.close();
@@ -90,6 +89,7 @@ export class PropertyComponent implements OnInit {
       if (result) {
         console.log(result);
         this.propertyDto = result;
+        this.agent = result.lister;
         if (this.propertyDto.photos.length == 0) {
           environment
           this.propertyDto.photos.push({ url: environment.defaultPropertyImagePath } as PhotoDto);
@@ -227,10 +227,8 @@ export class PropertyComponent implements OnInit {
     })
   }
 
-  public getAgent(agentId: number = 1) {
-    var ids = [1, 2, 3, 4, 5]; //agent ids 
-    agentId = ids[Math.floor(Math.random() * ids.length)]; //random agent id
-    this.agent = this.appService.getAgents().filter(agent => agent.id == agentId)[0];
+  public getAgent() {
+    return this.propertyDto.lister;
   }
   public getPropertyStatus() {
     this.propertyStatus = this.propertyService.getPropertyStatuses();

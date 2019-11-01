@@ -3,7 +3,6 @@ import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import * as Api from './service.base';
 import * as moment from 'moment';
-import { CreateOfferInput, CreateFeaturesInput } from './service.base';
 import { AppService } from 'src/app/app.service';
 import { DataWithPaging } from 'src/app/app.models';
 
@@ -11,7 +10,7 @@ import { DataWithPaging } from 'src/app/app.models';
   providedIn: 'root'
 })
 export class PropertyService {
-  public apiUrl = "api/";
+  public apiUrl = 'api/';
 
 
   constructor(public http: HttpClient,
@@ -42,7 +41,7 @@ export class PropertyService {
       { id: 5, name: 'Elevator', selected: false },
       { id: 6, name: 'Parking', selected: false },
       { id: 7, name: 'Gasline', selected: false }
-    ]
+    ];
   }
   public getDirections() {
     return [
@@ -50,7 +49,7 @@ export class PropertyService {
       { id: 2, name: 'East', selected: false },
       { id: 3, name: 'North', selected: false },
       { id: 4, name: 'South', selected: false },
-    ]
+    ];
   }
   public getPropertyStatuses() {
     return [
@@ -58,7 +57,7 @@ export class PropertyService {
       { id: 2, name: 'For Rent' },
       { id: 3, name: 'For Invest' },
       { id: 4, name: 'Swap?' }
-    ]
+    ];
   }
   public getProperty(id): Observable<Api.PropertyDto> { return this.propertyService.getById(id); }
 
@@ -85,25 +84,26 @@ export class PropertyService {
 
   public paginator(items: Api.PropertyDto[], sort, page?, perPage?): DataWithPaging {
 
-    var page = page || 1,
-      perPage = perPage || 4,
-      offset = (page - 1) * perPage,
-      paginatedItems = items.slice(offset).slice(0, perPage),
-      totalPages = Math.ceil(items.length / perPage);
+    // tslint:disable-next-line: one-variable-per-declaration
+    page = page || 1;
+    perPage = perPage || 4;
+    const offset = (page - 1) * perPage;
+    const paginatedItems = items.slice(offset).slice(0, perPage);
+    const totalPages = Math.ceil(items.length / perPage);
     return {
       data: this.sortFilterProperty(sort, paginatedItems),
       pagination: {
-        page: page,
-        perPage: perPage,
+        page,
+        perPage,
         prePage: page - 1 ? page - 1 : null,
         nextPage: (totalPages > page) ? page + 1 : null,
         total: items.length,
-        totalPages: totalPages,
+        totalPages,
       }
     };
   }
   public FromStatusDto(status): Api.OfferPagedResultInput {
-    var result = new Api.OfferPagedResultInput();
+    const result = new Api.OfferPagedResultInput();
 
     status.forEach(stat => {
       switch (stat.id) {
@@ -124,29 +124,30 @@ export class PropertyService {
     return result;
   }
   public FromFeatureDto(features, search: boolean): Api.FeaturesSearchParameters | any[] {
-    var result = new Api.FeaturesSearchParameters();
-    var list = this.getFeatures().filter((feat) => {
-      if (features.cladding && feat.id == 1) { result.cladding = true; return feat };
-      if (features.empty && feat.id == 2) { result.empty = true; return feat };
-      if (features.heating && feat.id == 3) { result.heating = true; return feat };
-      if (features.internet && feat.id == 4) { result.internet = true; return feat };
-      if (features.elevator && feat.id == 5) { result.elevator = true; return feat };
-      if (features.parking && feat.id == 6) { result.parking = true; return feat };
-      if (features.gasLine && feat.id == 7) { result.gasLine = true; return feat };
-    })
-    if (search)
+    const result = new Api.FeaturesSearchParameters();
+    const list = this.getFeatures().filter((feat) => {
+      if (features.cladding && feat.id === 1) { result.cladding = true; return feat; }
+      if (features.empty && feat.id === 2) { result.empty = true; return feat; }
+      if (features.heating && feat.id === 3) { result.heating = true; return feat; }
+      if (features.internet && feat.id === 4) { result.internet = true; return feat; }
+      if (features.elevator && feat.id === 5) { result.elevator = true; return feat; }
+      if (features.parking && feat.id === 6) { result.parking = true; return feat; }
+      if (features.gasLine && feat.id === 7) { result.gasLine = true; return feat; }
+    });
+    if (search) {
       return result;
-    else
+    } else {
       return list;
+    }
   }
   private sortFilterProperty(sort, data: Api.PropertyDto[]) {
     if (sort) {
       switch (sort) {
         case 'Newest':
-          data = data.sort((a, b) => { return <any>new Date(b.listingDate.toString()) - <any>new Date(a.listingDate.toString()) });
+          data = data.sort((a, b) => new Date(b.listingDate.toString()).getTime() - new Date(a.listingDate.toString()).getTime());
           break;
         case 'Oldest':
-          data = data.sort((a, b) => { return <any>new Date(a.listingDate.toString()) - <any>new Date(b.listingDate.toString()) });
+          data = data.sort((a, b) => new Date(a.listingDate.toString()).getTime() - new Date(b.listingDate.toString()).getTime());
           break;
         case 'Popular':
           data = data.sort((a, b) => {
@@ -168,7 +169,7 @@ export class PropertyService {
               return -1;
             }
             return 0;
-          })
+          });
           break;
         case 'Price (High to Low)':
           data = data.sort((a, b) => {
@@ -179,7 +180,7 @@ export class PropertyService {
               return -1;
             }
             return 0;
-          })
+          });
           break;
         default:
           break;
@@ -187,54 +188,97 @@ export class PropertyService {
     }
     return data;
   }
-  private ToOfferDto(basic) {
-    let offerResult = new CreateOfferInput(
-      {
-        sale: 0,
-        rent: 0,
-        invest: 0,
-        swap: false,
-        currency: 0
-      }
-    );
-    basic['propertyStatus'].forEach(stat => {
-      switch (stat.id) {
-        case 1: offerResult.sale = basic.salePrice; break;
-        case 2: offerResult.rent = basic.rentPrice; break;
-        case 3: offerResult.invest = basic.investPrice; break;
-        case 4: offerResult.swap = true; break;
-      }
-    });
-    offerResult.currency = basic['propertyCurrency'];
+  private ToOfferDto(basic, update: boolean) {
+    let offerResult = null;
+    if (!update) {
+      offerResult = new Api.CreateOfferInput(
+        {
+          sale: 0,
+          rent: 0,
+          invest: 0,
+          swap: false,
+          currency: 0
+        }
+      );
+    } else {
+      offerResult = new Api.UpdateOfferInput(
+        {
+          sale: 0,
+          rent: 0,
+          invest: 0,
+          swap: false,
+          currency: 0
+        }
+      );
+    }
+    if (!update) {
+      basic.propertyStatus.forEach(stat => {
+        switch (stat.id) {
+          case 1: offerResult.sale = basic.salePrice; break;
+          case 2: offerResult.rent = basic.rentPrice; break;
+          case 3: offerResult.invest = basic.investPrice; break;
+          case 4: offerResult.swap = true; break;
+        }
+      });
+    } else {
+      offerResult.sale = basic.salePrice;
+      offerResult.rent = basic.rentPrice;
+      offerResult.invest = basic.investPrice;
+      offerResult.swap = basic.swap;
+    }
+    offerResult.currency = basic.propertyCurrency;
     return offerResult;
   }
-  private ToFeaturesDto(basic, additional) {
-    let features = additional['features'];
-    var featureResult = new CreateFeaturesInput({
-      title: "",
-      description: "",
-      tags: [
-      ],
-      direction: [
-      ],
-      cladding: false,
-      empty: false,
-      heating: false,
-      gasLine: false,
-      internet: false,
-      elevator: false,
-      parking: false,
-      area: 0,
-      owners: 0,
-      rooms: 0,
-      bathrooms: 0,
-      bedrooms: 0,
-      balconies: 0,
-      propertyAge: 0
-    });
-
+  private ToFeaturesDto(basic, additional, update: boolean) {
+    const features = additional.features;
+    let featureResult = null;
+    if (!update) {
+      featureResult = new Api.CreateFeaturesInput({
+        title: '',
+        description: '',
+        tags: [
+        ],
+        direction: {} as Api.CreateDirectionDto,
+        cladding: false,
+        empty: false,
+        heating: false,
+        gasLine: false,
+        internet: false,
+        elevator: false,
+        parking: false,
+        area: 0,
+        owners: 0,
+        rooms: 0,
+        bathrooms: 0,
+        bedrooms: 0,
+        balconies: 0,
+        propertyAge: 0
+      });
+    } else {
+      featureResult = new Api.UpdateFeaturesInput({
+        title: '',
+        description: '',
+        tags: [
+        ],
+        direction: {} as Api.UpdateDirectionDto,
+        cladding: false,
+        empty: false,
+        heating: false,
+        gasLine: false,
+        internet: false,
+        elevator: false,
+        parking: false,
+        area: 0,
+        owners: 0,
+        rooms: 0,
+        bathrooms: 0,
+        bedrooms: 0,
+        balconies: 0,
+        propertyAge: 0
+      });
+    }
     features.forEach(feat => {
-      var selected = feat.selected;
+      const selected = feat.selected;
       switch (feat.id) {
         case 1: featureResult.cladding = selected; break;
         case 2: featureResult.empty = selected; break;
@@ -247,28 +291,40 @@ export class PropertyService {
     });
     Object.keys(additional).forEach(key => {
       Object.keys(featureResult).forEach(fkey => {
-        if (key == fkey)
-          featureResult[key] = additional[key]
-      })
+        if (key == fkey) {
+          featureResult[key] = additional[key];
+        }
+      });
     });
 
-    featureResult.direction = (function () {
-      var directions = [];
-      additional['directions'].forEach(item => {
-        if (item.selected)
-          directions.push(item.id);
-      });
-      return directions;
-    })();
-    featureResult.propertyAge = additional['yearBuilt'];
-    featureResult.tags = basic['propertyTags'];
-    featureResult.title = basic['title'];
-    featureResult.description = basic['desc'];
+    if (!update) {
+      featureResult.direction = new Api.CreateDirectionDto();
+    } else {
+      featureResult.direction = new Api.UpdateDirectionDto();
+    }
+    additional.directions.forEach(item => {
+      if (item.selected) {
+        switch (item.name.toLowerCase()) {
+          case 'east': featureResult.direction.east = true; break;
+          case 'west': featureResult.direction.west = true; break;
+          case 'north': featureResult.direction.north = true; break;
+          case 'south': featureResult.direction.south = true; break;
+        }
+      }
+    });
+    featureResult.propertyAge = additional.yearBuilt;
+
+    featureResult.tags = basic.propertyTags;
+
+    featureResult.title = basic.title;
+
+    featureResult.description = basic.desc;
+
     return featureResult;
   }
   private ToFilterInputDto(params, perPage, page): Api.FilterPropertyInput {
     console.log(params);
-    var filter = {
+    const filter = {
       propertySearchParameters:
       {
         areaRange: this.validateRange(params.area),
@@ -290,10 +346,11 @@ export class PropertyService {
   }
   private validateRange(range) {
     if (range) {
-      let from: number = range.from ? range.from : 0;
+      const from: number = range.from ? range.from : 0;
       let to: number = range.to ? range.to : 0;
-      if (to <= from)
+      if (to <= from) {
         to = from + 1;
+      }
       return {
         minimum: from,
         maximum: to
@@ -304,39 +361,61 @@ export class PropertyService {
       maximum: 0
     };
   }
-  private ToAddressDto(address) {
-    var addressResult = new Api.CreateAddressInput({
-      city: address['city'],
-      location: address['location'],
-      zipCode: address['zipCode'],
-      street: address['street'],
-      latitude: address['lat'],
-      longitude: address['lng']
-    });
-    return addressResult;
+  private ToAddressDto(address, update: boolean): Api.CreateAddressInput | Api.UpdateAddressInput {
+    if (!update) {
+      return new Api.CreateAddressInput({
+        city: address.city,
+        location: address.location,
+        zipCode: address.zipCode,
+        street: address.street,
+        latitude: address.lat,
+        longitude: address.lng
+      });
+    } else {
+      return new Api.UpdateAddressInput({
+        city: address.city,
+        location: address.location,
+        zipCode: address.zipCode,
+        street: address.street,
+        latitude: address.lat,
+        longitude: address.lng
+      });
+    }
   }
-  private ToPropertyDto(property) {
+  private ToPropertyDto(property, update: boolean): Api.CreatePropertyInput | Api.UpdatePropertyInput {
     const basicParam = property.basic;
     const addressParam = property.address;
     const additionalParam = property.additional;
-
-    return new Api.CreatePropertyInput(
-      {
-        address: this.ToAddressDto(addressParam),
-        offer: this.ToOfferDto(basicParam),
-        features: this.ToFeaturesDto(basicParam, additionalParam),
-        propertyType: basicParam['propertyType'],
-        expireDate: moment().add(3, 'M')
-      }
-    );
+    if (!update) {
+      return new Api.CreatePropertyInput(
+        {
+          address: this.ToAddressDto(addressParam, update),
+          offer: this.ToOfferDto(basicParam, update),
+          features: this.ToFeaturesDto(basicParam, additionalParam, update),
+          propertyType: basicParam.propertyType,
+          expireDate: moment().add(3, 'M')
+        }
+      );
+    } else {
+      return new Api.UpdatePropertyInput(
+        {
+          id: property.id,
+          address: this.ToAddressDto(addressParam, update),
+          offer: this.ToOfferDto(basicParam, update),
+          features: this.ToFeaturesDto(basicParam, additionalParam, update),
+          propertyType: basicParam.propertyType,
+          expireDate: moment().add(3, 'M')
+        }
+      );
+    }
   }
   public async submitProperty(property): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
-      var result = true;
-      this.propertyService.create(this.ToPropertyDto(property)).subscribe(id => {
+      let result = true;
+      this.propertyService.create(this.ToPropertyDto(property, false) as Api.CreatePropertyInput).subscribe(id => {
         if (id) {
-          var photos = property['basic']['gallery'];
-          if (photos)
+          const photos = property.basic.gallery;
+          if (photos) {
             photos.forEach(photo => {
               this.propertyService.addPhotoForProperty(id,
                 ({ fileName: photo.file.name, data: photo.file } as Api.FileParameter))
@@ -344,12 +423,30 @@ export class PropertyService {
                   result = added;
                 });
             });
+          }
         }
-        if (result)
+        if (result) {
           resolve('success');
-        else
+        } else {
           reject('Error While Adding');
-      })
-    })
+        }
+      });
+    });
+  }
+  public async updateProperty(property): Promise<boolean> {
+    console.log(this.ToPropertyDto(property, true) as Api.UpdatePropertyInput);
+
+    return new Promise<boolean>((resolve, reject) => {
+      this.propertyService.update(this.ToPropertyDto(property, true) as Api.UpdatePropertyInput).subscribe(result => {
+        resolve(result);
+      });
+    });
+  }
+  public async deleteProperty(propertyId: number): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.propertyService.remove(propertyId).subscribe(result => {
+        resolve(result);
+      }, error => reject(error));
+    });
   }
 }

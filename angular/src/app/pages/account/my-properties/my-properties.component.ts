@@ -22,16 +22,21 @@ export class MyPropertiesComponent implements OnInit {
       this.dataSource = new MatTableDataSource(res);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+    }).catch(error => {
+      this.dataSource = new MatTableDataSource([]);
     });
+
   }
 
   public remove(property: PropertyDto) {
     const index: number = this.dataSource.data.indexOf(property);
     if (index !== -1) {
-      this.dataSource.data.splice(index, 1);
-      this.dataSource = new MatTableDataSource<PropertyDto>(this.dataSource.data);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.propertyService.deleteProperty(property.id).then(result => {
+        this.dataSource.data.splice(index, 1);
+        this.dataSource = new MatTableDataSource<PropertyDto>(this.dataSource.data);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
     }
   }
 
