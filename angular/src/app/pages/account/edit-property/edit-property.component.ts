@@ -216,9 +216,9 @@ export class EditPropertyComponent implements OnInit {
   }
   public getAddress() {
     this.appService.getAddress(this.lat, this.lng).subscribe(response => {
-      const address = response.results[0].formatted_address;
+      const address = response['results'][0].formatted_address;
       this.submitForm.controls.address.get('location').setValue(address);
-      this.setAddresses(response.results);
+      this.setAddresses(response['results']);
     })
   }
 
