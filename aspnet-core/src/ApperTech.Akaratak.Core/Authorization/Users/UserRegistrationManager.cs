@@ -53,7 +53,7 @@ namespace ApperTech.Akaratak.Authorization.Users
                 IsActive = true,
                 UserName = userName,
                 IsEmailConfirmed = isEmailConfirmed,
-                Photo = new Photo { Url = photoUrl },
+                Photo = photoUrl != null ? new Photo { Url = photoUrl } : null,
                 UserType = userType,
                 PhoneNumber = phoneNumber,
                 Roles = new List<UserRole>(),
