@@ -6,12 +6,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace akaratak_app.Models
 {
-    [Table("Property")]
+    [Table("Features")]
     public class Features
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Property_ID { get; set; }
+        public int PropertyID { get; set; }
         public Property Property { get; set; }
         [Required]
         public Directon Directon { get; set; }

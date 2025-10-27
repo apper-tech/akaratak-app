@@ -10,12 +10,15 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Currency_ID { get; set; }
+        public int ID { get; set; }
         [Required]
-        [MinLength(5),MaxLength(20)]
-        public string CurrencyName { get; set; }
-         [Required]
-        [MinLength(5),MaxLength(20)]
-        public string CurrencySign { get; set; }
+        [MinLength(5), MaxLength(20)]
+        public string Name { get; set; }
+        [Required]
+        [MinLength(5), MaxLength(20)]
+        public string Sign { get; set; }
+        [Required]
+        [MinLength(5), MaxLength(20)]
+        public string LocalSign { get; set; }
     }
 }
