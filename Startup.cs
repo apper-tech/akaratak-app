@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using akaratak_app.Data;
+using akaratak_app.Helpers;
+using AutoMapper;
 
 namespace akaratak_app
 {
@@ -28,7 +30,12 @@ namespace akaratak_app
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            /* Coneection To DbContext */
             services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ListingContext")));
+            /*Interface Injection */
+            services.AddScoped<IPropertyRepository, PropertyRepository>();
+            /*Auto Mapper Connection */
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

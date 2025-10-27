@@ -8,12 +8,12 @@ namespace akaratak_app.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Tag_ID { get; set; }
-         [Required]
-        [MinLength(3),MaxLength(20)]
-        public string TagName { get; set; }
-          [Required]
-        [MinLength(10),MaxLength(50)]
-        public string TagDescription { get; set; }
+        public int ID { get; set; }
+        [Required]
+        [MinLength(3), MaxLength(20)]
+        public string Name { get; set; }
+        [Required]
+        [MinLength(10), MaxLength(50)]
+        public string Description { get; set; }
     }
 }
